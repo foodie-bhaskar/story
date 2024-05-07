@@ -1,7 +1,42 @@
 import { FC, useState, useEffect } from 'react';
-import { Field, FormAction } from '../App.type';
+import { FieldOpts, FormAction, CheckboxOpts } from '../App.type';
+// import { Checkbox, Description, Field, Label } from '@headlessui/react'
 
-export const FoodieText: FC<Field> = ({ label, fieldName, action, value, readOnly }) => {
+
+export const FoodieCheckbox: FC<CheckboxOpts> = ({ label, info, checkFn, checked }) => {
+    const [enabled, setEnabled] = useState(checked);
+
+    return (<div>
+        <div className="flex items-center mb-1 mt-2">
+            <input id={label} type="checkbox" value="" onChange={ (e) => {
+                setEnabled(e.target.checked);
+                checkFn(e.target.checked);
+            }} checked={enabled}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+            <label htmlFor={label} className="ms-2 text-sm font-bold text-gray-600 dark:text-gray-300">{label}</label>
+        </div>
+        {info && <span className='text-xs italic text-gray-400'>{info}</span>}
+    </div>
+    )
+
+    /* return (
+        <Field>
+        <Label>Enable beta features</Label>
+        <Description>This will give you early access to new features we're developing.</Description>
+        <Checkbox
+            checked={enabled}
+            onChange={setEnabled}
+            className="group block size-4 rounded border bg-white data-[checked]:bg-blue-500"
+        >
+            <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
+            <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        </Checkbox>
+        </Field>
+    )*/
+}
+
+export const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly }) => {
     const [val, setVal] = useState(value);
 
     const update = (e: any) => {

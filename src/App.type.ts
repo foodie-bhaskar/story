@@ -14,7 +14,7 @@ export interface ListOptions {
     optionAction: Function
 }
 
-export interface Field {
+export interface FieldOpts {
     label: string,
     fieldName: string,
     active?: boolean
@@ -30,6 +30,15 @@ export interface FormAction {
 export interface DropdownOpts {
     name: string,
     assetLinked?: string,
+    selectedValue?: string,
     global?: boolean,
-    options: Option[]
+    options: Option[],
+    selectedCallback?: Function
+}
+
+export interface CheckboxOpts {
+    label: string,
+    info?: string
+    checkFn: Function,
+    checked: boolean
 }

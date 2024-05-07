@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn, userEvent } from '@storybook/test';
 import { within, expect, } from '@storybook/test';
 import CustomOption from '../core/CustomOption';
 
@@ -48,6 +48,14 @@ export const RemoveOption: Story = {
       const canvas = within(canvasElement);
       const KAOption = canvas.getByText('Karnataka');
       await expect(KAOption).toBeInTheDocument();
+
+      const option = KAOption.parentElement?.parentElement;
+      await expect(option).toHaveClass('bg-slate-50');
+
+      await userEvent.hover(KAOption);
+      
+      await expect(option).toHaveClass('hover:bg-slate-300');
+
       
     },
   };
