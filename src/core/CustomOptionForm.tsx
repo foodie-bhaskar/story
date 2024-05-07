@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import { Field, FormAction } from '../App.type';
 
-const FoodieText: FC<Field> = ({ label, fieldName, action, value, readOnly }) => {
+export const FoodieText: FC<Field> = ({ label, fieldName, action, value, readOnly }) => {
     const [val, setVal] = useState(value);
 
     const update = (e: any) => {

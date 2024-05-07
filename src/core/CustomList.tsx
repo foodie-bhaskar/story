@@ -3,7 +3,7 @@ import { ListOptions } from '../App.type';
 import CustomOption from './CustomOption';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
-const CustomList: FC<ListOptions> = ({ options, action }) => {
+const CustomList: FC<ListOptions> = ({ options, optionAction }) => {
 
     const [current, setCurrent] = useState(options);
 
@@ -18,7 +18,7 @@ const CustomList: FC<ListOptions> = ({ options, action }) => {
                 <ChevronUpIcon className='size-6 '/>
             </div>
             {current.length > 0 && <ul className='divide-y divide-gray-200 border-2 rounded-lg sm:mx-auto max-w-lg'>
-                {current.map(o => <CustomOption key={o.value} name={o.name} value={o.value} action={action} />)}
+                {current.map(o => <CustomOption key={o.value} name={o.name} value={o.value} action={optionAction} />)}
             </ul>}
             <div className='mb-8 inline-flex gap-2 mt-10 flex-row-reverse w-full'>
                 <button 

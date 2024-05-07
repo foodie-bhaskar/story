@@ -11,7 +11,7 @@ export interface Option {
 
 export interface ListOptions {
     options: Option[],
-    action: Function
+    optionAction: Function
 }
 
 export interface Field {
@@ -25,4 +25,11 @@ export interface Field {
 
 export interface FormAction {
     action: Function
+}
+
+export interface DropdownOpts {
+    name: string,
+    assetLinked?: string,
+    global?: boolean,
+    options: Option[]
 }
