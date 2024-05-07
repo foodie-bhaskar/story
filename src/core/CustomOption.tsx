@@ -4,7 +4,7 @@ import { ArchiveBoxXMarkIcon } from '@heroicons/react/16/solid';
 
 const CustomOption: FC<Option> = ({ name, value, action }) => {
     return (
-        <li key={value} className="group flex pe-8 py-2 gap-1 hover:bg-slate-300 rounded-lg w-md max-w-lg transition-opacity-250 duration-250 timing-ease-in-out">
+        <li key={value} className="group flex pe-8 py-2 gap-1 hover:bg-slate-300 rounded-lg w-md max-w-lg transition-opacity-250 duration-250 timing-ease-in-out bg-white">
             <div className='w-10 flex h-10 justify-center group/btn min-w-10'>
                 {action && typeof action === 'function' && <button className="hidden group-hover:block self-center cursor-pointer
                  group-hover/btn:bg-white group-hover/btn:rounded-full

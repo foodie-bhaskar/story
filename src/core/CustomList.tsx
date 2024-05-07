@@ -13,7 +13,7 @@ const CustomList: FC<ListOptions> = ({ options, optionAction }) => {
 
     return (
         <div className="sm:container sm:mx-auto px-4">
-            <h1>Title</h1>
+            <h1 className='mb-4 text-xxl text-grey-600'>Live Options</h1>
             <div className='text-gray-400 bg-slate-50 my-2 items-center sm:mx-auto ps-11 pe-7 rounded-lg max-w-lg h-14 flex justify-between border-2'>
                 {current.length} options added
                 <ChevronUpIcon className='size-6 '/>

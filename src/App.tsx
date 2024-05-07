@@ -1,8 +1,6 @@
 import { FC, useState } from 'react';
 import { AppProps } from './App.type';
 import DropdownResource, { BASE_DROPDOWN } from './components/DropdownResource';
-import Dropdown from './core/Dropdown';
-
 
 const App: FC<AppProps> = () => {
 
@@ -12,7 +10,7 @@ const App: FC<AppProps> = () => {
     alert(obj)
   }
   
-  return (<div className='p-20'>
+  return (<div className='p-20 bg-blue-400'>
       <DropdownResource 
         name={dropdown.name} 
         assetLinked={dropdown.assetLinked} 

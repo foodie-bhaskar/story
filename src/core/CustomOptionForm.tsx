@@ -135,7 +135,7 @@ const CustomOptionForm: FC<FormAction> = ({ action }) => {
     }, [])
 
     return (
-        <fieldset className="">
+        <fieldset className="border border-red-50">
             <legend className='uppercase'>Create Option</legend>
             
             <div className=""><FoodieText label='Option' fieldName='option-name' action={updateName} value={optionName}/></div>

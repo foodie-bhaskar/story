@@ -52,12 +52,12 @@ const DropdownResource: FC<DropdownOpts> = ({ name, assetLinked, global }) => {
   }
 
 
-    return (<div className="container mx-auto">
-    <div className="flex flex-row flex-wrap py-4 border-2 border-red-400 rounded-lg">
+    return (<div className="container mx-auto bg-white rounded-lg border border-blue-700">
+    <div className="flex flex-row flex-wrap py-4">
       <main role="main" className="w-full sm:w-2/3 md:w-3/5 pt-1 px-12">
         <form className='ml-2 pe-40'>
           <div className="space-y-12">
-            <div className="border-gray-900/10 pb-12">
+            <div className="border-gray-900/10 pb-12 bg-red-50">
               <h2 className="text-xl font-semibold leading-7 text-gray-900">{!dropdownName ? 'New': 'Edit'} Dropdown</h2>
               <p className="mt-1 text-sm leading-6 text-gray-600">
                 Provide details to create a new dropdown resource for a particular asset and can make it global to be used by other resources also
@@ -78,17 +78,16 @@ const DropdownResource: FC<DropdownOpts> = ({ name, assetLinked, global }) => {
 
                     <FoodieCheckbox label='Global' info='can be used by other assets' checkFn={setIsGlobal} checked={isGlobal} />
                 </div>
+                <div className='sm:col-span-3 mx-3 p-4 border rounded-lg'>
+                  <CustomOptionForm action={addToList} />
                 </div>
               </div>
             </div>
+          </div>
         </form>
-
-        <div className='mx-3 p-4 border w-2/4 rounded-lg'>
-          <CustomOptionForm action={addToList} />
-        </div>
       </main>
-      <aside className="w-full sm:w-1/3 md:w-2/5 px-2 min-h-screen/2 border-l-2">
-          <div className="sticky top-0 p-4 w-full h-full">
+      <aside className="w-full sm:w-1/3 md:w-2/5 px-10 py-10 min-h-screen/2 border-l">
+          <div className="sticky top-0 p-4 w-full h-full bg-blue-50 rounded-lg">
             <CustomList options={options} optionAction={deleteOption} />
           </div>
       </aside>
