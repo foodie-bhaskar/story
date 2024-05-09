@@ -42,3 +42,12 @@ export interface CheckboxOpts {
     checkFn: Function,
     checked: boolean
 }
+
+export interface SequenceChoiceOpts {
+    label: string,
+    type: string,
+    size: number,
+    selected?: string,
+    callback: Function,
+    step?: number
+}
