@@ -21,7 +21,7 @@ const CustomList: FC<ListOptions> = ({ options, optionAction }) => {
             {current.length > 0 && <ul className='divide-y divide-gray-200 border rounded-lg sm:mx-auto max-w-lg'>
                 {current.map(o => <CustomOption key={o.value} name={o.name} value={o.value} action={optionAction} />)}
             </ul>}
-            <div className='mb-8 inline-flex gap-2 mt-10 flex-row-reverse w-full'>
+            {/* <div className='mb-8 inline-flex gap-2 mt-10 flex-row-reverse w-full'>
                 <button 
                     type='button' 
                     className={`py-2.5 px-6 text-sm bg-indigo-50 rounded-full 
@@ -29,7 +29,7 @@ const CustomList: FC<ListOptions> = ({ options, optionAction }) => {
                         font-semibold text-center shadow-xs transition-all duration-500 hover:bg-indigo-100`}>
                         Save
                 </button>
-            </div>
+            </div> */}
         </div>
     );
 }

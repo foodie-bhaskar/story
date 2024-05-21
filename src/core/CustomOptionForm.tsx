@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
-import { FieldOpts, FormAction, CheckboxOpts } from '../App.type';
+import { FormAction, CheckboxOpts, FieldOpts } from '../App.type';
+import FoodieText from './FoodieText';
 // import { Checkbox, Description, Field, Label } from '@headlessui/react'
-
 
 export const FoodieCheckbox: FC<CheckboxOpts> = ({ label, info, checkFn, checked }) => {
     const [enabled, setEnabled] = useState(checked);
@@ -36,43 +36,9 @@ export const FoodieCheckbox: FC<CheckboxOpts> = ({ label, info, checkFn, checked
     )*/
 }
 
-export const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly }) => {
-    const [val, setVal] = useState(value);
 
-    const update = (e: any) => {
-        setVal(e.target.value);
-        if (action && typeof action == 'function') {
-            action(e.target.value);
-        }
-    }
 
-    useEffect(() => {
-        setVal(value);
-    }, [value])
-
-    return (<>
-        <label htmlFor={fieldName} className="block text-sm font-medium leading-6 text-gray-900">
-            {label}
-        </label>
-        <div className="mt-2">
-            <input
-            type="text"
-            name={fieldName}
-            id={fieldName}
-            value={val}
-            onChange={update}
-            readOnly={!!readOnly}
-            className={`block w-full rounded-md border-0 py-1.5 p-4
-              shadow-sm ring-1 ring-inset ring-gray-300
-              placeholder:text-gray-400 ${readOnly ? 'text-gray-400 bg-slate-100': 'text-gray-900'}
-              focus:ring-2 focus:ring-inset focus:ring-indigo-600 
-              sm:text-sm sm:leading-6`}
-            />
-        </div>  
-    </>);
-}
-
-const FoodieToggle: FC<Field> = ({ label, action, active }) => {
+const FoodieToggle: FC<FieldOpts> = ({ label, action, active }) => {
 
     const [checked, setChecked] = useState<boolean>(active || false);
 
