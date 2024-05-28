@@ -1,28 +1,31 @@
 import { FC, useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { AppProps, Option, Child, FieldOpts } from './App.type';
-// import DropdownResource, { BASE_DROPDOWN } from './components/DropdownResource';
+
 // import SeqChoice, { BASE_SEQCHOICE_OPTS } from './core/SeqChoice';
 import ShowcaseToggle from './pages/ShowcaseToggle';
+import TanQueryShowcase from './pages/TanQueryShowcase';
+import ShowcaseDropdownForm from './pages/ShowcaseDropdownForm';
+import ShowcaseText from './pages/ShowcaseText';
+
+// Create a client
+const queryClient = new QueryClient()
 
 const App: FC<AppProps> = () => {
 
-  // const [dropdown, setDropdown ] = useState(BASE_DROPDOWN);
+  
   // const [cascadeOptions, setCascadeOptions] = useState<Option[]>(CASCADE_OPTIONS)
 
-  const update = (obj: any) => {
-    alert(JSON.stringify(obj))
-  }
+ 
   
-  return (
-    <div className="container border border-red-400">
+  return (<QueryClientProvider client={queryClient}>
+    <div className="border border-red-400 bg-slate-300 h-max min-h-screen">
+      {/* <ShowcaseText /> */}
+      {/* <ShowcaseDropdownForm /> */}
+      {/* <TanQueryShowcase /> */}
       <ShowcaseToggle />
-      {/* <div className="flex flex-col py-4 sm:w-3/6">
-        <DropdownResource 
-          name={dropdown.name} 
-          cascadeOptions={dropdown.cascadeOptions} 
-          callbackFn={update}
-          options={dropdown.options}
-        />
+      {/* 
 
         <SeqChoice
           label={BASE_SEQCHOICE_OPTS.label}
@@ -33,7 +36,9 @@ const App: FC<AppProps> = () => {
           callback={BASE_SEQCHOICE_OPTS.callback} 
         />
       </div> */}
-    </div>)
+    </div>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>)
 }
 
 export default App

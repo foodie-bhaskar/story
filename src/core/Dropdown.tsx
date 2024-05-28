@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions, Transition, Field } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
@@ -15,9 +15,19 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
         return option.name.toLowerCase().includes(query.toLowerCase())
       });
 
+  useEffect(() => {
+    if (selectedValue) {
+      let o = options.find(o => o.value === selectedValue);
+
+      if (o) {
+        setSelected(o)
+      }
+    }
+  }, [selectedValue])
+
   return (
-    <div className="mx-auto group-has-[:checked]/toggle:-mt-10">
-      <label className="block text-sm font-medium leading-6 text-gray-900 ">
+    <div className="mx-auto group-has-[:checked]/toggle:-mt-8">
+      <label className="block text-sm font-medium leading-6 text-gray-600 ">
         {name}
       </label>
       <div className='mt-2'>

@@ -2,11 +2,13 @@ export interface AppProps {
     title: string;
 }
 
+export enum ToggleState {Off = 0, On = 1};
+export enum Placement { BELOW = 'column', RIGHT = 'row' };
+export enum Component { TEXT = 'text', DROPDOWN = 'dropdown' };
+
 export interface Child {
-    component: string,
-    opts: FieldOpts | DropdownOpts,
-    placement?: string,
-    defaultShow?: boolean
+    component: Component,
+    opts: FieldOpts | DropdownOpts
 }
 
 export interface Option {
@@ -34,7 +36,8 @@ export interface FieldOpts {
     active?: boolean
     action?: Function,
     value?: string,
-    readOnly?: boolean
+    readOnly?: boolean,
+    size?: string
 }
 
 export interface CoreFieldOpts {
@@ -43,14 +46,26 @@ export interface CoreFieldOpts {
     label: string,
 }
 
-export interface ToggleActionOpts {
+export interface ToggleCore {
     fieldName: string,
-    toggleFor: string,
-    active?: boolean,
+    toggleName: string,
+    state: ToggleState,
     info: string,
-    child: Child,
-    readOnly?: boolean,
-    activeValue?: string
+    onToggleChange?: Function,
+    readOnly?: boolean
+}
+
+export interface ToggleChildren {
+    on?: Child,
+    off?: Child,
+    placement?: Placement
+}
+
+export interface ToggleActionOpts {
+    toggle: ToggleCore,
+    children: ToggleChildren,
+    linkedExternalVal?: string | Option[],
+    isLoading?: boolean,
 }
 
 export interface FormAction {
