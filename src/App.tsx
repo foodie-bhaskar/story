@@ -8,6 +8,7 @@ import ShowcaseToggle from './pages/ShowcaseToggle';
 import TanQueryShowcase from './pages/TanQueryShowcase';
 import ShowcaseDropdownForm from './pages/ShowcaseDropdownForm';
 import ShowcaseText from './pages/ShowcaseText';
+import ShowcaseCustomOptionForm from './pages/ShowcaseCustomOptionForm';
 
 // Create a client
 const queryClient = new QueryClient()
@@ -21,10 +22,11 @@ const App: FC<AppProps> = () => {
   
   return (<QueryClientProvider client={queryClient}>
     <div className="border border-red-400 bg-slate-300 h-max min-h-screen">
+      <ShowcaseCustomOptionForm />
       {/* <ShowcaseText /> */}
       {/* <ShowcaseDropdownForm /> */}
       {/* <TanQueryShowcase /> */}
-      <ShowcaseToggle />
+      {/* <ShowcaseToggle /> */}
       {/* 
 
         <SeqChoice

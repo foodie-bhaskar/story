@@ -15,7 +15,10 @@ const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, 
 
     useEffect(() => {
         setExtVal(value);
-        // setVal(value);
+
+        if (value == '') {
+            setVal('');
+        }
     }, [value]);
 
     return (<>
