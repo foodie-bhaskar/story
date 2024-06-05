@@ -12,7 +12,13 @@ const ShowcaseCustomOptionForm = () => {
         const values = ddnOptions.map(o => o.value);
     
         if (!names.includes(name.trim()) && !values.includes(value.trim())) {
-          setDdnOptions([...ddnOptions, { name, value }]);
+          if (name.trim() == value.trim()) {
+            let tokens = value.trim().split(' ');
+            let valueString = tokens.map(t => t.toLowerCase()).join('-');
+            setDdnOptions([...ddnOptions, { name: name.trim(), value: valueString }]);
+          } else {
+            setDdnOptions([...ddnOptions, { name: name.trim(), value: value.trim() }]);
+          }
         } else {
           if (names.includes(name)) {
             alert(`Option name [${name}] already exists`);
@@ -25,6 +31,7 @@ const ShowcaseCustomOptionForm = () => {
       }
 
     return (<div className="flex flex-col mt-10 p-10 md:w-3/6 mx-auto border border-gray-700 bg-white rounded-sm h-max">
+        <p>{JSON.stringify(ddnOptions)}</p>
         <CustomOptionForm action={addToList} />
     </div>)
 
