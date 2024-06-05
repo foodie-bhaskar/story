@@ -27,7 +27,8 @@ export interface ToggleOpts {
 
 export interface ListOptions {
     options: Option[],
-    optionAction: Function
+    optionAction: Function,
+    readOnly?: boolean
 }
 
 export interface FieldOpts {
@@ -85,8 +86,9 @@ export interface DropdownFormOpts {
     cascade?: string,
     cascadeOptions: Option[],
     defaultValue?: string,
+    readOnly?: boolean,
     options: Option[],
-    callbackFn: Function
+    callbackFn?: Function
 }
 
 export interface CheckboxOpts {

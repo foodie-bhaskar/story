@@ -18,7 +18,7 @@ const FoodieToggle: FC<ToggleOpts> = ({ label, action, active, readOnly }) => {
         <label className={`relative flex items-center ${readOnly ? 'cursor-not-allowed': 'cursor-pointer'} h-5`}>
             <input type="checkbox" value="" className="sr-only peer" onChange={toggle} checked={checked} disabled={readOnly} />
             <div className={`w-9 h-5
-             bg-gray-200 hover:bg-gray-300 
+             ${readOnly ? 'bg-gray-400': 'bg-gray-200 hover:bg-gray-400'}
              peer-focus:outline-0 rounded-full 
              peer transition-all ease-in-out duration-500 
              peer-checked:after:translate-x-full peer-checked:after:border-transparent 
