@@ -30,7 +30,7 @@ async function createUIResource(data: UIResource) {
         throw new Error('Hello');
         // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
     }
-  }
+}
 
 const NewDropdownPage = () => {
     const [dropdown, setDropdown ] = useState(BASE_DROPDOWN);
