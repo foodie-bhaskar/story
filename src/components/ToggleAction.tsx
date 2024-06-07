@@ -57,7 +57,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         let processedOpts: (FieldOpts | DropdownOpts) = opts;
 
         if (component.valueOf() == 'dropdown' && !opts.selectedCallback) {
-            alert(`selectedCallback is missing: keys [${JSON.stringify(opts)}]`)
+            // alert(`selectedCallback is missing: keys [${JSON.stringify(opts)}]`)
         }
         if (readOnly && !opts.readOnly) {
             processedOpts = { ...opts, readOnly: true }

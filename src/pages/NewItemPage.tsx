@@ -54,14 +54,17 @@ const NewItemPage = () => {
     const update = async (obj: any) => {
         alert(JSON.stringify(obj));
 
-        const { id, name } = obj;
+        const { id, name, vendor, weight, cost } = obj;
         let assetItem = {
             itemId: id,
-            name
+            name,
+            vendor,
+            weight,
+            costBuildup: cost
         }
-        alert(JSON.stringify(assetItem));
+        // alert(JSON.stringify(assetItem));
         let creationResponse = await mutation.mutateAsync(assetItem);
-        alert(JSON.stringify(creationResponse));
+        // alert(JSON.stringify(creationResponse));
     }
 
     return (<div className="flex flex-col border h-max ml-10">
@@ -76,7 +79,7 @@ const NewItemPage = () => {
             {mutation.isError && (
                 <p>Error: {mutation.error instanceof Error ? mutation.error.response.data.errorMessage : 'An error occurred'}</p>
             )}
-            {mutation.isPending ? 'Creating...' : 
+            {mutation.isPending ? 'Creating...' :
                 <ItemForm readOnly={false} callbackFn={update} />
             }
         {/* </div> */}

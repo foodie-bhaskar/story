@@ -58,7 +58,7 @@ const NewDropdownPage = () => {
     });
 
     const update = async (obj: any) => {
-        alert(JSON.stringify(obj));
+        // alert(JSON.stringify(obj));
 
         const { dropdownName, cascadeType, ddnOptions, visibility } = obj;
 
@@ -71,9 +71,9 @@ const NewDropdownPage = () => {
             cascade: visibility ? cascadeType: 'global',
             options: ddnOptions
         }
-        alert(JSON.stringify(uiItem));
+        // alert(JSON.stringify(uiItem));
         let creationResponse = await mutation.mutateAsync(uiItem);
-        alert(JSON.stringify(creationResponse));
+        // alert(JSON.stringify(creationResponse));
     }
 
     return (<div className="flex flex-col border h-max ml-10">

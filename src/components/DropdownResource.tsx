@@ -52,7 +52,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
     info: 'is part of cascade dropdown',
     readOnly: !!readOnly || !!name,
     onToggleChange: (isOn: boolean) => {
-      alert(`Visibility: ${isOn}`);
+      // alert(`Visibility: ${isOn}`);
       setVisibility(isOn);
     }
   }
@@ -70,7 +70,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
       },
       selectedCallback: function (valueObj: any) {  
         let val = valueObj.value;
-        alert(`Cascade chosen : ${val}`);
+        // alert(`Cascade chosen : ${val}`);
         setCascadeType(val);
       }
     }
@@ -82,7 +82,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
     queryKey: ['dropdown', 'cascade'],
     queryFn: async () => {
         const data = await fetchUIResource('dropdown', 'cascade');
-        alert(JSON.stringify(data.data.result.options))
+        // alert(JSON.stringify(data.data.result.options))
         return data.data;
     },
     staleTime: Infinity,
@@ -121,11 +121,11 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
   }
 
   useEffect(() => {
-    alert(`Visibility[${visibility}] :: cascadeType[${cascadeType}]`);
+    // alert(`Visibility[${visibility}] :: cascadeType[${cascadeType}]`);
     if (dropdownName && cascadeType && dropdownName.trim() && ddnOptions.length) {
       let validOptions = (visibility && cascadeType !== 'global') || !visibility;
 
-      alert(`validOptions ${validOptions}`)
+      // alert(`validOptions ${validOptions}`)
       setValid(validOptions);
     } else {
       setValid(false);
@@ -135,7 +135,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
 
   useEffect(() => {
     if (isFetching) {
-      alert(`IsPending: ${isFetching}`)
+      // alert(`IsPending: ${isFetching}`)
       setIsLoading(true)
     } else if (!isPending) {
       setIsLoading(false);
@@ -150,7 +150,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
 
           const { opts } = on;
 
-          alert(typeof opts.selectedCallback);
+          // alert(typeof opts.selectedCallback);
 
           setChildren({
             ...children,
@@ -164,7 +164,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
                 ],
                 selectedCallback: function (valueObj: any) {  
                   let val = valueObj.value;
-                  alert(`Cascade chosen : ${val}`);
+                  // alert(`Cascade chosen : ${val}`);
                   setCascadeType(val);
                 }
               }

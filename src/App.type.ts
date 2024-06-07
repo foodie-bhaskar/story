@@ -81,6 +81,34 @@ export interface DropdownOpts {
     readOnly?: boolean
 }
 
+export interface Weight {
+    main: number,
+    gravy: number,
+    total: number
+}
+
+export interface WeightComboOpts {
+    update: Function
+}
+
+export interface CascadeComboOpts {
+    cascade: string,
+    hierarchy: string[],
+    update: Function
+}
+
+export interface Stage {
+    label: string,
+    field: string,
+    value?: number
+}
+
+export interface BuildUpComboOpts {
+    name: string,
+    stages: Stage[],
+    update: Function
+}
+
 export interface DropdownFormOpts {
     name: string,
     cascade?: string,
