@@ -15,6 +15,7 @@ import ShowcaseSeq from './pages/ShowcaseSeq.tsx';
 import DropdownsPage from './pages/DropdownsPage.tsx';
 import NewDropdownPage from './pages/NewDropdownPage.tsx';
 import NewItemPage from './pages/NewItemPage.tsx';
+import NewPackagingPage from './pages/NewPackingPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,14 @@ const router = createBrowserRouter([
         path: "asset/item/new",
         element: <NewItemPage />,
       },
+      {
+        path: "showcase/seq",
+        element: <ShowcaseSeq />,
+      },
+      {
+        path: "packaging/new",
+        element: <NewPackagingPage />,
+      }
     ],
   }
 ]);

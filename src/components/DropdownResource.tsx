@@ -205,11 +205,11 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
                     ddnOptions
                   })}
                   className={`py-2.5 px-6 text-sm rounded-md uppercase
-                      ${valid 
+                      ${valid || isFetching
                         ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'
                         : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
                       font-semibold text-center shadow-xs `}>
-                      {name ? 'Update': 'Create' } Dropdown
+                      {name ? 'Updat': 'Creat' }e Dropdown
                   </button>
               </div>
             </div>

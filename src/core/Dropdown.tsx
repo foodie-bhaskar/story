@@ -26,7 +26,7 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
   }, [selectedValue])
 
   return (
-    <div className="mx-auto group-has-[:checked]/toggle:-mt-8">
+    <div className="group-has-[:checked]/toggle:-mt-8 max-w-80">
       <label className="block text-sm font-medium leading-6 text-gray-600 ">
         {name}
       </label>

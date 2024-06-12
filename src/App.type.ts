@@ -4,11 +4,11 @@ export interface AppProps {
 
 export enum ToggleState {Off = 0, On = 1};
 export enum Placement { BELOW = 'column', RIGHT = 'row' };
-export enum Component { TEXT = 'text', DROPDOWN = 'dropdown' };
+export enum Component { TEXT = 'text', DROPDOWN = 'dropdown', SEQCHOICES = 'seqchoices' };
 
 export interface Child {
     component: Component,
-    opts: FieldOpts | DropdownOpts
+    opts: FieldOpts | DropdownOpts | SequenceChoiceOpts
 }
 
 export interface Option {
@@ -65,7 +65,7 @@ export interface ToggleChildren {
 export interface ToggleActionOpts {
     toggle: ToggleCore,
     children: ToggleChildren,
-    linkedExternalVal?: string | Option[],
+    linkedExternalVal?: string | Option[] | number,
     isLoading?: boolean,
 }
 
@@ -128,9 +128,18 @@ export interface CheckboxOpts {
 
 export interface SequenceChoiceOpts {
     label: string,
-    type: string,
+    position?: string,
     size: number,
-    selected?: string,
-    callback: Function,
+    selectedValue?: string,
+    selectedCallback: Function,
     step?: number
 }
+
+export interface ChoiceOpts {
+    label: string,
+    position?: string,
+    choices: string[],
+    selectedValue?: string,
+    selectedCallback: Function
+}
+

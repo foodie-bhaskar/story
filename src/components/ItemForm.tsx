@@ -2,9 +2,10 @@ import { FC, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Weight } from '../App.type';
-import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component } from '../App.type';
+import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component, Placement } from '../App.type';
 import CustomList from '../core/CustomList';
 import FoodieText from '../core/FoodieText';
+import FoodieCheckbox from '@/core/FoodieCheckbox';
 import ToggleAction, { BASE_TA_ROW_DROPDOWN } from '../components/ToggleAction';
 import CustomOptionForm from '../core/CustomOptionForm';
 import Dropdown from '../core/Dropdown';
@@ -38,6 +39,11 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
     const [isVendorOptionsLoading, setIsVendorOptionsLoading] = useState(true);
     const [weight, setWeight] = useState<Weight>({ main: 0, gravy: 0, total: 0});
     const [cost, setCost] = useState([]);
+    const [typeCombo, setTypeCombo] = useState([]);
+    const [cuisineCombo, setCuisineCombo] = useState([]);
+    const [isPacket, setIsPacket] = useState<boolean>(true);
+    const [consumptionCount, setConsumptionCount] = useState<number>(1);
+    const [isVeg, setIsVeg] = useState<boolean>(false);
 
     const { isPending, isFetching, error, data } = useQuery({
       queryKey: ['dropdown', 'vendor'],
@@ -51,6 +57,35 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
     });
 
     const [valid, setValid] = useState(false);
+
+    const packetToggle: ToggleCore = {
+      fieldName: 'packet',
+      toggleName: 'Packet Status',
+      state: isPacket ? ToggleState.Off: ToggleState.On,
+      info: 'is not a packet',
+      readOnly: false,
+      onToggleChange: (isOn: boolean) => {
+        // alert(`Visibility: ${isOn}`);
+        setIsPacket(isOn);
+      }
+    }
+
+    const packetToggleChildren = {
+      placement: Placement.BELOW,
+      on: {
+        component: Component.SEQCHOICES,
+        opts: {
+          label: 'Consumption Count',
+          size: 5, 
+          selectedValue: 1, 
+          step: 1, 
+          selectedCallback: function (choice: number) {  
+            // alert(`Consumption Count : ${choice}`);
+            setConsumptionCount(choice);
+          }
+        }
+      }
+    }
 
     useEffect(() => {
       if (id && id.trim() && name && name.trim() && vendor && cost.length > 0) {
@@ -84,62 +119,100 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
     }, [isPending, isFetching, error, data]);
 
 
-    return (<div>
-        <form className={`${borderOn ? 'border border-red-700': ''} pe-10 space-y-8 `}>
-            <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
-                <div className='basis-1/3'>
-                    <FoodieText label='ID' fieldName='id' action={setId} value={id} size='w-full'
-                                    readOnly={!!readOnly}
-                    />
-              </div>
-              <div className='basis-1/3'>
-                <FoodieText label='Name' fieldName='name' action={setName} value={name} size='w-full'
-                    readOnly={!!readOnly}
-                />
-              </div>
-
-              <div className='basis-1/3'>
-                {isVendorOptionsLoading ? 'Loading vendors...': 
-                <Dropdown 
-                  options={vendorOptions} selectedValue={'foodieverse'} 
-                  selectedCallback={(valObj: Option) => setVendor(valObj.value)} 
-                  name='Vendor' readOnly={!!readOnly}
-                />}
-              </div>
+    return (<div className={`${borderOn ? 'border border-red-700': ''} pe-10 space-y-20 `}>
+          <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
+            <div className='basis-1/3'>
+                  <FoodieText label='ID' fieldName='id' action={setId} value={id} size='w-full'
+                                  readOnly={!!readOnly}
+                  />
             </div>
-            <WeightCombo update={(wt) => {
-              setWeight(wt);
-            }}/>
-            <BuildUpCombo stages={stages} name='Cost Buildup' update={setCost}/>
-
-            <CascadeCombo 
-              cascade='item-type' 
-              hierarchy={['item-type', 'item-sub-type', 'item-sub-sub-type']} 
-              update={(data) => {
-                alert(JSON.stringify(data.map(s => s.value).join(' > ')));
+            <div className='basis-1/3'>
+              <FoodieText label='Name' fieldName='name' action={setName} value={name} size='w-full'
+                  readOnly={!!readOnly}
+              />
+            </div>            
+            <div className='basis-1/3'>
+              <FoodieCheckbox label='Veg' info='Is veg item?' checked={isVeg} checkFn={(val) => {
+                setIsVeg(val);
               }}/>
-            <div className={`${borderOn ? 'border border-blue-900' : ''} pe-10`}>
-              <div className='inline-flex gap-2 flex-row w-full'>
-                <button 
-                  type='button' 
-                  disabled={!valid}
-                  onClick={() => callbackFn({
-                    id,
-                    name,
-                    vendor,
-                    weight,
-                    cost
-                  })}
-                  className={`py-2.5 px-6 text-sm rounded-md uppercase
-                      ${valid 
-                        ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'
-                        : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
-                      font-semibold text-center shadow-xs `}>
-                      {item ? 'Update': 'Create' } Item
-                  </button>
-              </div>
             </div>
-        </form>
+          </div>
+
+
+          <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
+           <div className='basis-1/3'>
+              {isVendorOptionsLoading ? 'Loading vendors...': 
+              <Dropdown 
+                options={vendorOptions} selectedValue={'foodieverse'} 
+                selectedCallback={(valObj: Option) => setVendor(valObj.value)} 
+                name='Vendor' readOnly={!!readOnly}
+              />}
+            </div>
+            <div className='basis-2/3'>
+              <ToggleAction 
+                toggle={packetToggle} 
+                children={packetToggleChildren} 
+                isLoading={false} 
+                linkedExternalVal={3} />     
+            </div>
+          </div>
+          <WeightCombo update={(wt) => {
+            setWeight(wt);
+          }}/>
+          <BuildUpCombo stages={stages} name='Cost Buildup' update={setCost}/>
+
+          <CascadeCombo 
+            cascade='item-type' 
+            hierarchy={['item-type', 'item-sub-type', 'item-sub-sub-type']} 
+            update={(data) => {
+              // alert(JSON.stringify(data));
+              setTypeCombo(data);
+            }}
+          />
+
+          <CascadeCombo 
+            cascade='brand-type' 
+            hierarchy={['brand-type', 'brand-sub-type']} 
+            update={(data) => {
+              alert(JSON.stringify(data));
+              // setTypeCombo(data);?
+            }}
+          />
+
+          <CascadeCombo 
+            cascade='cuisine' 
+            hierarchy={['cuisine', 'sub-cuisine']} 
+            update={(data) => {
+              // alert(JSON.stringify(data));
+              setCuisineCombo(data);
+            }}
+          />
+          <div className={`${borderOn ? 'border border-blue-900' : ''} pe-10`}>
+            <div className='inline-flex gap-2 flex-row w-full'>
+              <button 
+                type='button' 
+                disabled={!valid}
+                onClick={() => callbackFn({
+                  id,
+                  name,
+                  vendor,
+                  weight,
+                  cost,
+                  typeCombo,
+                  cuisineCombo,
+                  isPacket,
+                  consumptionCount,
+                  isVeg
+                })}
+                className={`py-2.5 px-6 text-sm rounded-md uppercase
+                    ${valid 
+                      ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'
+                      : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
+                    font-semibold text-center shadow-xs `}>
+                    {item ? 'Update': 'Create' } Item
+                </button>
+            </div>
+          </div>
     </div>)
 }
 

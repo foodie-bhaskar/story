@@ -6,7 +6,8 @@ import ItemForm from '../components/ItemForm';
 interface ItemAsset {
     assetType: string,
     itemId: string,
-    name: string 
+    name: string,
+    vendor: string
 }
 
 async function createItemAsset(data: ItemAsset) {
@@ -52,15 +53,20 @@ const NewItemPage = () => {
     });
 
     const update = async (obj: any) => {
-        alert(JSON.stringify(obj));
+        // alert(JSON.stringify(obj));
 
-        const { id, name, vendor, weight, cost } = obj;
+        const { id, name, vendor, weight, cost, typeCombo, cuisineCombo, isPacket, consumptionCount, isVeg } = obj;
         let assetItem = {
             itemId: id,
             name,
             vendor,
             weight,
-            costBuildup: cost
+            costBuildup: cost,
+            typeCombo,
+            cuisineCombo,
+            isPacket,
+            consumptionCount,
+            isVeg
         }
         // alert(JSON.stringify(assetItem));
         let creationResponse = await mutation.mutateAsync(assetItem);

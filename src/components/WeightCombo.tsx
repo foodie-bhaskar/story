@@ -3,8 +3,8 @@ import FoodieText from '../core/FoodieText';
 import { WeightComboOpts } from '../App.type';
 
 const WeightCombo: FC<WeightComboOpts> = ({ update }) => {
-    const borderOn = false;
-    // const borderOn = true;
+    let borderOn = false;
+    // borderOn = true;
 
     const [weight, setWeight] = useState({
         main: 0,
@@ -17,22 +17,24 @@ const WeightCombo: FC<WeightComboOpts> = ({ update }) => {
     }, [weight])
 
 
-    return (<div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
+    return (<div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row gap-10`}>
         <div className='basis-1/3'>
             <FoodieText label='Main ingredient weight(in gms)' fieldName='main' action={(val: string) => {
+                const main = val ? parseInt(val): 0;
                 setWeight({
                     ...weight,
-                    main: parseInt(val),
-                    total: weight.gravy + parseInt(val)
+                    main,
+                    total: weight.gravy + main
                 })
             }} value={`${weight.main}`} size='w-2/5' />
         </div>
         <div className='basis-1/3'>
             <FoodieText label='Gravy weight(in gms)' fieldName='gravy'action={(val: string) => {
+                const gravy = val ? parseInt(val): 0;
                 setWeight({
                     ...weight,
-                    gravy: parseInt(val),
-                    total: weight.main + parseInt(val)
+                    gravy,
+                    total: weight.main + gravy
                 })
             }} value={`${weight.gravy}`} size='w-2/5' />
         </div>

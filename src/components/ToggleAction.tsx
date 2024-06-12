@@ -1,12 +1,14 @@
 import React, { FC, useState, useEffect } from 'react';
-import { DropdownOpts, FieldOpts, ToggleActionOpts, Child, Option } from '../App.type';
+import { DropdownOpts, FieldOpts, ToggleActionOpts, Child, Option, SequenceChoiceOpts } from '../App.type';
 import FoodieText from '../core/FoodieText';
 import FoodieToggle from '../core/FoodieToggle';
 import Dropdown from '../core/Dropdown';
+import SeqChoice from '../core/SeqChoice';
 
 const SUPPORTED_COMPONENTS: any = {
     'text': FoodieText,
-    'dropdown': Dropdown
+    'dropdown': Dropdown,
+    'seqchoices': SeqChoice
 }
 
 /* interface DynamicComponentProps {
@@ -52,9 +54,9 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
 
     const getElement = (child: Child, readOnly: boolean | undefined) => {
         const { component, opts } = child;
-        const coreComponent: FC<FieldOpts | DropdownOpts> = SUPPORTED_COMPONENTS[component.valueOf()];
+        const coreComponent: FC<FieldOpts | DropdownOpts | SequenceChoiceOpts> = SUPPORTED_COMPONENTS[component.valueOf()];
 
-        let processedOpts: (FieldOpts | DropdownOpts) = opts;
+        let processedOpts: (FieldOpts | DropdownOpts | SequenceChoiceOpts) = opts;
 
         if (component.valueOf() == 'dropdown' && !opts.selectedCallback) {
             // alert(`selectedCallback is missing: keys [${JSON.stringify(opts)}]`)
@@ -109,6 +111,18 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
                         on.opts.selectedCallback(on.opts.selectedValue);
                     }
                     // alert(JSON.stringify(onElement));
+                    setChildEle(onElement);
+                }
+
+                if (typeof linkedExternalVal == 'number') {
+                    // let updateValue: string = linkedExternalVal;/
+                    let onElement = getElement({
+                        ...on,
+                        opts: {
+                            ...on.opts,
+                            selectedValue: linkedExternalVal
+                        }
+                    }, readOnly);
                     setChildEle(onElement);
                 }
             }
@@ -194,6 +208,18 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
                 }, readOnly);
 
                 // alert(JSON.stringify(onElement));
+                setChildEle(onElement);
+            }
+
+            if (typeof linkedExternalVal == 'number') {
+                // let updateValue: string = linkedExternalVal;/
+                let onElement = getElement({
+                    ...on,
+                    opts: {
+                        ...on.opts,
+                        selectedValue: linkedExternalVal
+                    }
+                }, readOnly);
                 setChildEle(onElement);
             }
         }

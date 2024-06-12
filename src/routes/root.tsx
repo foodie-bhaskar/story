@@ -19,6 +19,12 @@ export default function Root() {
               <li>
                 <Link to={`asset/item/new`}>New Item</Link>
               </li>
+              <li>
+                <Link to={`showcase/seq`}>Sequence Showcase</Link>
+              </li>
+              <li>
+                <Link to={`packaging/new`}>New Package Type</Link>
+              </li>
             </ul>
           </nav>
         </aside>

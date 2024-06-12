@@ -67,7 +67,7 @@ const EditDropdownPage = () => {
         onSuccess: (data, variables, context) => {
             alert(`data: ${JSON.stringify(data)}`);
             alert(`variables: ${JSON.stringify(variables)}`);
-            alert(`context: ${JSON.stringify(context)}`);
+            // alert(`context: ${JSON.stringify(context)}`);
           // Query Invalidation (Recommended)
           queryClient.invalidateQueries({ queryKey: ['dropdown'] }); // Refetch the 'posts' query
     

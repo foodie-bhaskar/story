@@ -9,9 +9,9 @@ const ShowcaseSeq = () => {
             label={BASE_SEQCHOICE_OPTS.label}
             type={BASE_SEQCHOICE_OPTS.type} 
             size={BASE_SEQCHOICE_OPTS.size} 
-            step={25}
-            selected={BASE_SEQCHOICE_OPTS.selected}
-            callback={BASE_SEQCHOICE_OPTS.callback} 
+            step={3}
+            selectedValue={BASE_SEQCHOICE_OPTS.selectedValue}
+            selectedCallback={BASE_SEQCHOICE_OPTS.selectedCallback} 
             />
             
         </div>

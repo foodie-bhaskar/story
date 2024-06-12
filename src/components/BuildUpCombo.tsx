@@ -33,8 +33,8 @@ const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages }) => {
     }, [buildUp])
 
 
-    return (<fieldset className="border border-gray-500 rounded-lg pl-10 pb-10">
-        <legend className='uppercase ml-10 font-medium text-gray-500 '>&nbsp;&nbsp; {name} &nbsp;&nbsp;</legend>
+    return (<fieldset className="">
+        <legend className='uppercase font-medium text-gray-500 '>{name}</legend>
         {hasError && <p className='text-red-400'>Build up has errors, values need to be increasing</p>}
         {/* <div className='flex flex-row pt-4 pb-8 justify-between'> */}
         <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
@@ -43,7 +43,7 @@ const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages }) => {
                     let combo = [...buildUp];
                     combo[i] = { field: stage.field, value: parseInt(val)}
                     setBuildUp(combo);
-                }} value={`${buildUp[i].value}`} size='w-2/5' />
+                }} value={`${buildUp[i].value}`} size='w-full' />
             </div>)}
         </div>
     </fieldset>)

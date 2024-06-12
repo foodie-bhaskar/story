@@ -16,8 +16,10 @@ async function fetchResourcesForCascade(cascade: string) {
 }
 
 const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
-    // const borderOn = false;
-    const borderOn = true;
+    const borderOn = false;
+    // const borderOn = true;
+
+    const basisCss = hierarchy.length == 2? 'basis-1/3': `basis-1/${hierarchy.length}`;
 
     const [selection, setSelection] = useState<Option[]>([]);
 
@@ -48,8 +50,7 @@ const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
     useEffect(() => {
         // if (selection && selection.)
         update(selection);
-    }, [selection])
-
+    }, [selection]);
 
     return (<div className={`${borderOn ? 'border border-green-800' : ''}`}>
         {/* <p>Preparing cascade dropdowns for group : ${cascade}</p>
@@ -58,15 +59,14 @@ const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
 
         {isPending 
             ? 'Fetching ....'
-            : <div className={`flex flex-row space-x-10`}>
-                {data && data.map((ddn, i) => <div className={`basis-1/${data.length}`}>
+            : <div className={`flex flex-row`}>
+                {data && data.map((ddn, i) => <div className={basisCss}>
                     <Dropdown 
                         options={[{ value: '', name: ' --- please select ---'}, ...ddn.options]} 
                         selectedCallback={(valObj: Option) => {
                             // alert(valObj.value);
                             let clone: Option[] = [...selection];
                             clone[i] = { name: ddn.uiId, value: valObj.value };
-
                             setSelection(clone);
                         }} 
                         name={capitalizeWords(ddn.uiId)}
