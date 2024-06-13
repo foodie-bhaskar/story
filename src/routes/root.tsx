@@ -25,6 +25,15 @@ export default function Root() {
               <li>
                 <Link to={`packaging/new`}>New Package Type</Link>
               </li>
+              <li>
+                <Link to={`list-assets/rid`}>RIDs</Link>
+              </li>
+              <li>
+                <Link to={`list-assets/item`}>Items</Link>
+              </li>
+              <li>
+                <Link to={`list-assets/package`}>Packagings</Link>
+              </li>
             </ul>
           </nav>
         </aside>

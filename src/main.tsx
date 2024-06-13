@@ -16,6 +16,7 @@ import DropdownsPage from './pages/DropdownsPage.tsx';
 import NewDropdownPage from './pages/NewDropdownPage.tsx';
 import NewItemPage from './pages/NewItemPage.tsx';
 import NewPackagingPage from './pages/NewPackingPage.tsx';
+import Items from './pages/Items.tsx';
 
 const router = createBrowserRouter([
   {
@@ -50,7 +51,11 @@ const router = createBrowserRouter([
       {
         path: "packaging/new",
         element: <NewPackagingPage />,
-      }
+      },
+      {
+        path: "list-assets/:assetType",
+        element: <Items />,
+      },
     ],
   }
 ]);
