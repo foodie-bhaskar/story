@@ -1,6 +1,6 @@
-import React, { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Dropdown from "@/core/Dropdown";
 import Choice from "@/core/Choice";
 import SeqChoice from "@/core/SeqChoice";
@@ -16,7 +16,11 @@ async function fetchUIResource(uiType: string, id: string) {
   })
 }
 
-const PackageForm = ({ callbackFn }) => {
+type PackageFormOpts = {
+  callbackFn: Function
+}
+
+const PackageForm: FC<PackageFormOpts> = ({ callbackFn }) => {
   const [size, setSize] = useState<string>('S');
   const [type, setType] = useState<string>();
   const [containerTypes, setContainerTypes] = useState<Option[]>([{ value: '', name: ' --- please select --- '}]);
@@ -31,9 +35,14 @@ const PackageForm = ({ callbackFn }) => {
   const { isPending, isFetching, error, data } = useQuery({
     queryKey: ['dropdown', 'container-type'],
     queryFn: async () => {
+      try {
         const data = await fetchUIResource('dropdown', 'container-type');
         // alert(data);
         return data.data;
+      } catch (err) {
+        const error = err as AxiosError;
+        throw error;
+      }
     },
     staleTime: Infinity,
     enabled: true
@@ -44,8 +53,10 @@ const PackageForm = ({ callbackFn }) => {
 
   useEffect(() => {
       if (error) {
-        // alert(error.response.data);
-        if (error.response && error.response.status == '404') {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            alert(error.response.data);
+          }
         }
       } else if (data && data.result && data.result.options) {
           setContainerTypes([
@@ -90,7 +101,7 @@ const PackageForm = ({ callbackFn }) => {
 
     <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
       <div className=''>
-        <FoodieText label='Capacity (in mL)' fieldName='capacity' action={(ml) => setCapacity(parseInt(ml))}  size='w-80'/>
+        <FoodieText label='Capacity (in mL)' fieldName='capacity' action={(ml: string) => setCapacity(parseInt(ml))}  size='w-80'/>
       </div>
 
       <div className='basis-2/3'>
@@ -99,14 +110,14 @@ const PackageForm = ({ callbackFn }) => {
           size={9} 
           step={1}
           selectedValue={'1'}
-          selectedCallback={(c) => setCompartments(parseInt(c))} 
+          selectedCallback={(c: string) => setCompartments(parseInt(c))} 
           position="BELOW"
           />
       </div>
     </div>
     <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row space-x-10`}>
       <div className=''>
-        <FoodieText label='Packaging Cost' fieldName='pkgCost' action={(cost) => setPkgCost(parseInt(cost))}  size='w-80'/>
+        <FoodieText label='Packaging Cost' fieldName='pkgCost' action={(cost: string) => setPkgCost(parseInt(cost))}  size='w-80'/>
       </div>
       <div className='basis-2/3'>
         <FoodieText label='Image URL' fieldName='imgURL' action={setImgUrl}  size='w-full'/>
@@ -115,9 +126,7 @@ const PackageForm = ({ callbackFn }) => {
     <CascadeCombo 
       cascade='packaging-type' 
       hierarchy={['packaging-type', 'packaging-sub-type']} 
-      update={(data) => {
-        setPackagingTypeCombo(data);
-      }}
+      update={setPackagingTypeCombo}
     />
     <div className={`${borderOn ? 'border border-blue-900' : ''} pe-10`}>
       <div className='inline-flex gap-2 flex-row w-full'>

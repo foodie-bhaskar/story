@@ -1,3 +1,5 @@
+import { FC } from 'react';
+
 export interface AppProps {
     title: string;
 }
@@ -6,8 +8,12 @@ export enum ToggleState {Off = 0, On = 1};
 export enum Placement { BELOW = 'column', RIGHT = 'row' };
 export enum Component { TEXT = 'text', DROPDOWN = 'dropdown', SEQCHOICES = 'seqchoices' };
 
+export interface SupportedComponents {
+    [key: string]: FC<FieldOpts> | FC<DropdownOpts> | FC<SequenceChoiceOpts>;
+}
+
 export interface Child {
-    component: Component,
+    component: keyof SupportedComponents,
     opts: FieldOpts | DropdownOpts | SequenceChoiceOpts
 }
 
@@ -22,7 +28,8 @@ export interface ToggleOpts {
     label: string,
     active?: boolean
     action?: Function,
-    readOnly?: boolean
+    readOnly?: boolean,
+    fullWidth?: boolean
 }
 
 export interface ListOptions {
@@ -38,7 +45,9 @@ export interface FieldOpts {
     action?: Function,
     value?: string,
     readOnly?: boolean,
-    size?: string
+    size?: string,
+    selectedValue?: string,
+    selectedCallback?: Function
 }
 
 export interface CoreFieldOpts {
@@ -132,7 +141,8 @@ export interface SequenceChoiceOpts {
     size: number,
     selectedValue?: string,
     selectedCallback: Function,
-    step?: number
+    step?: number,
+    readOnly?: boolean
 }
 
 export interface ChoiceOpts {
@@ -143,3 +153,40 @@ export interface ChoiceOpts {
     selectedCallback: Function
 }
 
+export interface Weight {
+    total: number,
+    main: number,
+    gravy: number
+}
+
+export interface ItemOpts {
+    id: string,
+    vendor: string,
+    isPacket: boolean,
+    isVeg: boolean,
+    cuisineCombo: Option[],
+    typeCombo: Option[],
+    costBuildup: Option[],
+    weight: Weight
+}
+
+export interface PackageAsset {
+    compartments: number,
+    packagingCost: number,
+    volume: number,
+    containerType: string,
+    containerSize: string,
+    imageUrl: string,
+    packagingTypeCombo: Option[]
+}
+
+export enum DYNA_TYPE {
+    TEXT = 'text',
+    DROPDOWN = 'dropdown',
+    CHOICE = 'sequence-choice'
+}
+
+export interface DynamicFieldProps {
+    type: DYNA_TYPE
+    fieldProps: FieldOpts | DropdownOpts | SequenceChoiceOpts; // Flexible props based on type
+}

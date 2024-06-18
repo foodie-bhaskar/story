@@ -1,10 +1,10 @@
-import { FC, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 
-import DropdownResource, { BASE_DROPDOWN } from '../components/DropdownResource';
-import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component } from '../App.type';
-import { createReadStream } from 'fs';
+import DropdownResource from '../components/DropdownResource';
+import { DropdownFormOpts, Option } from '../App.type';
+
 
 // Define the data shape for your resource
 interface UIResource {
@@ -16,7 +16,7 @@ interface UIResource {
 }
 
 async function createUIResource(data: UIResource) {
-    try {
+    // try {
         const { uiType } = data;
         return axios.post(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api?uiType=${uiType}`, 
             data,
@@ -26,23 +26,30 @@ async function createUIResource(data: UIResource) {
                 }
             }
         );
-    } catch (error) {
-        throw new Error('Hello');
-        // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
-    }
+    // } catch (error) {
+    //     throw new Error('Hello');
+    //     // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
+    // }
 }
 
 const NewDropdownPage = () => {
-    const [dropdown, setDropdown ] = useState(BASE_DROPDOWN);
+    const [dropdown ] = useState<DropdownFormOpts>();
 
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: async (uiItem: UIResource) => {
-          const response = await createUIResource(uiItem);
-          return response.data;
+            try {
+                const response = await createUIResource(uiItem);
+                return response.data;
+            } catch (err) {
+                const error = err as AxiosError;
+                throw error;
+            }
         },
         onSuccess: (data, variables, context) => {
+            console.log(data, variables);
+            console.log('context', context)
           // Query Invalidation (Recommended)
           queryClient.invalidateQueries({ queryKey: ['dropdown'] }); // Refetch the 'posts' query
     
@@ -52,7 +59,12 @@ const NewDropdownPage = () => {
         onError: (error, variables, context) => {
           // Handle errors, e.g., display an error message to the user
           console.error('Error creating post:', error);
-          alert(error.response.data.errorMessage);
+          console.log('variables', variables);
+            console.log('context', context)
+            if (axios.isAxiosError(error)) {
+                alert(error.response?.data.errorMessage);
+            }
+          
           // You can also use `context` to rollback optimistic updates if needed
         },
     });
@@ -63,7 +75,7 @@ const NewDropdownPage = () => {
         const { dropdownName, cascadeType, ddnOptions, visibility } = obj;
 
         let tokens = dropdownName.trim().split(' ');
-        let nameString = tokens.map(t => t.toLowerCase()).join('-');
+        let nameString = tokens.map((t: string) => t.toLowerCase()).join('-');
 
         let uiItem = {
             uiType: 'dropdown',
@@ -72,7 +84,8 @@ const NewDropdownPage = () => {
             options: ddnOptions
         }
         // alert(JSON.stringify(uiItem));
-        let creationResponse = await mutation.mutateAsync(uiItem);
+        // let creationResponse = 
+        await mutation.mutateAsync(uiItem);
         // alert(JSON.stringify(creationResponse));
     }
 
@@ -86,14 +99,13 @@ const NewDropdownPage = () => {
     
     {/* <div className="flex flex-col mt-10 p-10 md:w-5/6 mx-auto border border-gray-700 bg-gray-500 rounded-sm h-max"> */}
         {mutation.isError && (
-            <p>Error: {mutation.error instanceof Error ? mutation.error.response.data.errorMessage : 'An error occurred'}</p>
+            <p>Error: {mutation.error && axios.isAxiosError(mutation.error)? mutation.error.response?.data.errorMessage : 'An error occurred'}</p>
         )}
-        {mutation.isPending ? 'Creating...' : 
-            <DropdownResource 
-            name={dropdown.name} 
-            cascadeOptions={dropdown.cascadeOptions} 
+        {mutation.isPending ? 'Creating...' : <DropdownResource 
+            name={''} 
+            cascadeOptions={[]} 
             callbackFn={update}
-            options={dropdown.options}
+            options={[]}
         />}
     {/* </div> */}
 </div>);

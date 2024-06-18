@@ -1,7 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import FoodieText from '../core/FoodieText';
 import { BuildUpComboOpts } from '../App.type';
-import { b } from 'vitest/dist/suite-IbNSsUWN.js';
 
 const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages }) => {
     const borderOn = false;

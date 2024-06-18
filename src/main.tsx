@@ -5,18 +5,16 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Root from './routes/root.tsx';
-import App from './App.tsx'
 import './index.css'
 import ErrorPage from "./error-page";
-import Contact from "./routes/dropdownpage.tsx";
 import ViewDropdownPage from './pages/ViewDropdownPage.tsx';
 import EditDropdownPage from './pages/EditDropdownPage.tsx';
-import ShowcaseSeq from './pages/ShowcaseSeq.tsx';
 import DropdownsPage from './pages/DropdownsPage.tsx';
 import NewDropdownPage from './pages/NewDropdownPage.tsx';
 import NewItemPage from './pages/NewItemPage.tsx';
 import NewPackagingPage from './pages/NewPackingPage.tsx';
 import Items from './pages/Items.tsx';
+import Showcase from './pages/Showcase.tsx';
 
 const router = createBrowserRouter([
   {
@@ -45,16 +43,16 @@ const router = createBrowserRouter([
         element: <NewItemPage />,
       },
       {
-        path: "showcase/seq",
-        element: <ShowcaseSeq />,
-      },
-      {
         path: "packaging/new",
         element: <NewPackagingPage />,
       },
       {
         path: "list-assets/:assetType",
         element: <Items />,
+      },
+      {
+        path: "showcase",
+        element: <Showcase />,
       },
     ],
   }

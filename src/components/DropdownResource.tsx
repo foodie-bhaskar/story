@@ -1,25 +1,12 @@
 import { FC, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
-import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component } from '../App.type';
+import { Option, DropdownFormOpts, ToggleState, ToggleCore, DYNA_TYPE, DynamicFieldProps } from '../App.type';
 import CustomList from '../core/CustomList';
 import FoodieText from '../core/FoodieText';
-import ToggleAction, { BASE_TA_ROW_DROPDOWN } from '../components/ToggleAction';
+import ToggleComplex from '@/components/ToggleComplex';
 import CustomOptionForm from '../core/CustomOptionForm';
-
-const CASCADE_OPTIONS: Option[] = [
-  // { value: 'brand-category', name: 'Brand Category' }
-];
-
-export const BASE_DROPDOWN: DropdownFormOpts = {
-    name: '',
-    options: [],
-    cascadeOptions: CASCADE_OPTIONS,
-    callbackFn: (obj: Object) => {
-      alert(JSON.stringify(obj));
-    }
-}
 
 async function fetchUIResource(uiType: string, id: string) {  
   return axios.get(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api?uiType=${uiType}&id=${id}`, {
@@ -29,22 +16,21 @@ async function fetchUIResource(uiType: string, id: string) {
   })
 }
 
-const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions, defaultValue, options, callbackFn, readOnly }) => {
+const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions, options, callbackFn, readOnly }) => {
 
   // dev
-  const borderOn = false;
-  // const borderOn = true;
+  let borderOn = false;
+  // borderOn = true;
 
   const [ddnOptions, setDdnOptions] = useState<Option[]>(options || []);
   const [valid, setValid] = useState(false);
 
   const [dropdownName, setDropdownName] = useState(name);
-  const [selectedCascade, setSelectedCascade] = useState(cascade || '');
   const [cascadeType, setCascadeType] = useState(cascade || 'global');
   const [visibility, setVisibility] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
-
+  const [cascades, setCascades] = useState<Option[]>(cascadeOptions || [{ value: '', name: ' --- please select --- '}]);
+ 
   const visibilityToggle: ToggleCore = {
     fieldName: 'cascade',
     toggleName: 'Visibility',
@@ -52,44 +38,38 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
     info: 'is part of cascade dropdown',
     readOnly: !!readOnly || !!name,
     onToggleChange: (isOn: boolean) => {
-      // alert(`Visibility: ${isOn}`);
       setVisibility(isOn);
     }
   }
 
-  // const [cascades, setCascades] = useState<Option[]>(cascadeOptions || [{ value: '', name: ' --- please select --- '}]);
-
-  const cascadeChildren = {
-    on: {
-      component: Component.DROPDOWN,
-      opts: {
-        options: cascadeOptions,
-        name: 'Cascade',
-        // readOnly: !!readOnly,
-        ...(cascade !== 'global' && { selectedValue: cascade })
-      },
+  const serverDropdownComponent: DynamicFieldProps = {
+    type: DYNA_TYPE.DROPDOWN,
+    fieldProps: {
+      options: cascades,
+      name: 'Cascade',
       selectedCallback: function (valueObj: any) {  
-        let val = valueObj.value;
-        // alert(`Cascade chosen : ${val}`);
-        setCascadeType(val);
+          let val = valueObj.value;
+          alert(`Cascade chosen : ${val}`);
+          setCascadeType(val);
       }
     }
   }
 
-  const [children, setChildren] = useState<ToggleChildren>(cascadeChildren);
-
   const { isPending, isFetching, error, data } = useQuery({
     queryKey: ['dropdown', 'cascade'],
     queryFn: async () => {
+      try {
         const data = await fetchUIResource('dropdown', 'cascade');
         // alert(JSON.stringify(data.data.result.options))
         return data.data;
+      } catch (err) {
+        const error = err as AxiosError;
+        throw error;
+      }
     },
     staleTime: Infinity,
     enabled: !name
   });
-
-  // alert(`Cascade: ${cascade}`);
 
   const deleteOption = (value: string) => {
     // alert(`Deleting ${value}`)
@@ -141,35 +121,18 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
       setIsLoading(false);
 
       if (error) {
-        alert(error.response.data);
-        if (error.response && error.response.status == '404') {
+        if (axios.isAxiosError(error)) {
+          if (error.response)
+          alert(error.response.data);
+        } else {
+          alert(error.message);
         }
       } else {
         if (data.result && data.result.options) {
-          const { on } = children;
-
-          const { opts } = on;
-
-          // alert(typeof opts.selectedCallback);
-
-          setChildren({
-            ...children,
-            on: {
-              ...on,
-              opts: {
-                ...opts,
-                options: [
-                  { value: '', name: ' --- please select --- '},
-                  ...data.result.options
-                ],
-                selectedCallback: function (valueObj: any) {  
-                  let val = valueObj.value;
-                  // alert(`Cascade chosen : ${val}`);
-                  setCascadeType(val);
-                }
-              }
-            }
-          });
+            setCascades([
+                { value: '', name: ' --- please select --- '},
+                ...data.result.options
+            ])
         }
       }  
     }
@@ -183,12 +146,14 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
           <form className={`${borderOn ? 'border border-red-700': ''} ml-10 pe-10 space-y-8 `}>
             <div className={`${borderOn ? 'border border-green-800' : ''}`}>
               <FoodieText label='Name' fieldName='name' action={setDropdownName} value={dropdownName} size='w-full'
-                readOnly={!!readOnly}
+                readOnly={!!name || !!readOnly}
               />
             </div>
             <div className={`${borderOn ? 'border border-green-800' : ''}`}>
-              <ToggleAction toggle={visibilityToggle}
-                children={children} isLoading={isLoading} linkedExternalVal={cascadeOptions}/>
+              <ToggleComplex toggle={visibilityToggle} component={serverDropdownComponent} linkedExternalVal={cascades}
+                isLoading={isLoading} />
+              {/* <ToggleAction toggle={visibilityToggle}
+                children={children} isLoading={isLoading} linkedExternalVal={cascadeOptions}/> */}
             </div>
             {!readOnly && <><div className={`${borderOn ? 'border border-green-800' : ''}`}>
               <CustomOptionForm action={addToList} />
@@ -198,12 +163,16 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
                 <button 
                   type='button' 
                   disabled={!valid}
-                  onClick={() => callbackFn({
-                    dropdownName,
-                    cascadeType,
-                    visibility,
-                    ddnOptions
-                  })}
+                  onClick={() => {
+                    if (callbackFn && typeof callbackFn == 'function') {
+                      callbackFn({
+                        dropdownName,
+                        cascadeType,
+                        visibility,
+                        ddnOptions
+                      })
+                    }
+                  }}
                   className={`py-2.5 px-6 text-sm rounded-md uppercase
                       ${valid || isFetching
                         ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { capitalizeWords } from '@/lib/utils';
 import { CascadeComboOpts, Option } from '../App.type';
 import Dropdown from '../core/Dropdown';
-import { Slash } from 'lucide-react';
 
 async function fetchResourcesForCascade(cascade: string) {
     const url = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api';
@@ -23,7 +22,7 @@ const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
 
     const [selection, setSelection] = useState<Option[]>([]);
 
-    const { isPending, error, data } = useQuery({
+    const { isPending, data } = useQuery({
         queryKey: ['dropdown', 'cascade', cascade],
         queryFn: async () => {
             const data = await fetchResourcesForCascade(cascade);

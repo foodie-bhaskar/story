@@ -82,4 +82,13 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
   )
 }
 
+export function isDropdown(component: any): component is typeof Dropdown {
+  
+  return (
+      component &&
+      typeof component === 'object' &&
+      component instanceof Dropdown // Use instanceof instead of typeof
+  );
+}
+
 export default Dropdown;

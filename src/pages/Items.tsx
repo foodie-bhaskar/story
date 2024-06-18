@@ -3,9 +3,12 @@ import { useParams } from 'react-router-dom';
 import { Grid } from 'gridjs-react';
 import "gridjs/dist/theme/mermaid.css";
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { capitalizeWords } from '@/lib/utils';
+import { ItemOpts, PackageAsset } from '@/App.type';
+import { OneDArray } from 'gridjs/dist/src/types.js';
+import { ComponentChild } from 'preact';
 
 async function fetchAssetsForType(assetType: string | undefined) {  
   if (!assetType) {
@@ -18,60 +21,83 @@ async function fetchAssetsForType(assetType: string | undefined) {
   });
 }
 
-const COL_MAPPINGS: Object = {
-  RID: {
-    order: ['rid', 'brandName', 'aggregator', 'storeName', 'storeId']
-  },
-  ITEM: {
-    order: [
-      { name: 'ID', id: 'assetId'},
-      { name: 'Item', id: 'name'},
-      { name: 'Vendor', id: 'vendor', data: (row) => capitalizeWords(row.vendor)},
-      { name: 'Consumption', id: 'consumptionCount'},
-      { name: 'Is Packet?', id: 'isPacket', data: (row) => row.isPacket ? 'Yes': 'NO '},
-      { name: 'Veg / Non-Veg', id: 'isVeg', data: (row) => row.isVeg ? 'Veg': 'non-veg '},
-      { name: 'Cuisine', id: 'cuisineCombo', data: (row) => capitalizeWords(row.cuisineCombo[0].value) },
-      { name: 'Type', id: 'typeCombo', data: (row) => capitalizeWords(row.typeCombo[0].value) },
-      { name: 'Sub Type', id: 'typeCombo', data: (row) => capitalizeWords(row.typeCombo[1].value) },
-      { name: 'Sub Sub Type', id: 'typeCombo', data: (row) => capitalizeWords(row.typeCombo[2].value) },
-      { name: 'Weight', id: 'weight', data: (row) => row.weight.total },
-      { name: 'Raw Material Cost', id: 'costBuildup', data: (row) => row.costBuildup[0].value },
-      { name: 'Pre Commission Cost', id: 'costBuildup', data: (row) => row.costBuildup[1].value },
-      { name: 'Post Aggregator Cost', id: 'costBuildup', data: (row) => row.costBuildup[2].value },
-      { name: 'Post Store Cost', id: 'costBuildup', data: (row) => row.costBuildup[3].value },
-    ]
-  },
-  PACKAGE: {
-    order: [
-      { name: 'ID', id: 'assetId'},
-      { name: 'Name', id: 'name'},
-      { name: '# of Compartments', id: 'compartments'},
-      { name: 'Volume (in ml)', id: 'volume'},
-      { name: 'Cost', id: 'packagingCost'},
-      { name: 'Packaging Type', id: 'packagingTypeCombo', data: (row) => capitalizeWords(row.packagingTypeCombo[0].value)},
-      { name: 'Packaging Sub Type', id: 'packagingTypeCombo', data: (row) => row.packagingTypeCombo[1] ? capitalizeWords(row.packagingTypeCombo[1].value) : ''}
-    ]
+type Mapping = {
+  order: OneDArray<ComponentChild>
+}
+
+function getMappings(assetType: string): Mapping {
+  switch (assetType) {
+    case 'rid': 
+      return {
+        order: ['rid', 'brandName', 'aggregator', 'storeName', 'storeId']
+      }
+
+    case 'item':
+      return { 
+        order: [
+          { name: 'ID', id: 'assetId'},
+          { name: 'Item', id: 'name'},
+          { name: 'Vendor', id: 'vendor', data: (row: ItemOpts) => capitalizeWords(row.vendor)},
+          { name: 'Consumption', id: 'consumptionCount'},
+          { name: 'Is Packet?', id: 'isPacket', data: (row: ItemOpts) => row.isPacket ? 'Yes': 'NO '},
+          { name: 'Veg / Non-Veg', id: 'isVeg', data: (row: ItemOpts) => row.isVeg ? 'Veg': 'non-veg '},
+          { name: 'Cuisine', id: 'cuisineCombo', data: (row: ItemOpts) => capitalizeWords(row.cuisineCombo[0].value) },
+          { name: 'Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[0].value) },
+          { name: 'Sub Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[1].value) },
+          { name: 'Sub Sub Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[2].value) },
+          { name: 'Weight', id: 'weight', data: (row: ItemOpts) => row.weight.total },
+          { name: 'Raw Material Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[0].value },
+          { name: 'Pre Commission Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[1].value },
+          { name: 'Post Aggregator Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[2].value },
+          { name: 'Post Store Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[3].value },
+        ]
+      }
+
+    case 'package':
+      return {
+        order: [
+          { name: 'ID', id: 'assetId'},
+          { name: 'Name', id: 'name'},
+          { name: '# of Compartments', id: 'compartments'},
+          { name: 'Volume (in ml)', id: 'volume'},
+          { name: 'Cost', id: 'packagingCost'},
+          { name: 'Packaging Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => capitalizeWords(row.packagingTypeCombo[0].value)},
+          { name: 'Packaging Sub Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => row.packagingTypeCombo[1] ? capitalizeWords(row.packagingTypeCombo[1].value) : ''}
+        ]
+      }
+
+    default:
+      return {
+        order: ['']
+      }
   }
 }
+
 // 
 function getColumns(assetType: string, fields: string[]) {
-  let colsInOrder = COL_MAPPINGS[assetType.toUpperCase()].order;
+  console.log('fields', fields)
+  let colsInOrder = getMappings(assetType);
   return colsInOrder;
 }
 
 const Items = () => {
   let { assetType } = useParams();
   const [tableData, setTableData] = useState();
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
 
   const { isPending, error, data } = useQuery({
     queryKey: ['asset', assetType],
     queryFn: async () => {
+      try {
         const data = await fetchAssetsForType(assetType);
         // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
         // alert(JSON.stringify(rows));
         return rows;
+      } catch (err) {
+        const error = err as AxiosError;
+        throw error;
+    }
     },
     staleTime: 60 * 1000
   });
@@ -80,12 +106,17 @@ const Items = () => {
     if (assetType) {
     
       if (error) {
-        alert(error.response.data);
-        if (error.response && error.response.status == '404') {
+        if (axios.isAxiosError(error)) {
+          alert(error.response?.data);
+          if (error.response && error.response.status == 404) {
+          }
         }
       } else if (data) {
+        
         setTableData(data);
-        setColumns(getColumns(assetType, Object.keys(data[0])));
+        let cols: Mapping = getColumns(assetType, Object.keys(data[0]));
+        // alert('col loaded');
+        setColumns(cols.order);
       }
     }
   }, [isPending, error, data, assetType]);
@@ -104,6 +135,16 @@ const Items = () => {
                 limit: 10,
               }}
               fixedHeader={true}
+              style={ { 
+                table: { 
+                  'white-space': 'nowrap'
+                }
+              }}
+              sort={true}
+              resizable={true}
+              className={{  
+                td: 'min-w-24'
+              }}
             />
         </div>
       }

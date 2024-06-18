@@ -1,13 +1,12 @@
-import { FC, useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Weight } from '../App.type';
-import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component, Placement } from '../App.type';
-import CustomList from '../core/CustomList';
+import { DYNA_TYPE, DynamicFieldProps, Weight } from '../App.type';
+import { Option, ToggleState, ToggleCore, ItemOpts } from '../App.type';
 import FoodieText from '../core/FoodieText';
 import FoodieCheckbox from '@/core/FoodieCheckbox';
-import ToggleAction, { BASE_TA_ROW_DROPDOWN } from '../components/ToggleAction';
-import CustomOptionForm from '../core/CustomOptionForm';
+// import ToggleAction from '../components/ToggleAction';
+import ToggleComplex from '@/components/ToggleComplex';
 import Dropdown from '../core/Dropdown';
 import WeightCombo from '../components/WeightCombo';
 import BuildUpCombo from '../components/BuildUpCombo';
@@ -28,7 +27,13 @@ async function fetchUIResource(uiType: string, id: string) {
   })
 }
 
-const ItemForm = ({ readOnly, callbackFn, item }) => {
+type ItemFormOpts = {
+  readOnly: boolean,
+  callbackFn: Function,
+  item?: ItemOpts
+}
+
+const ItemForm: FC<ItemFormOpts> = ({ readOnly, callbackFn, item }) => {
     const borderOn = false;
     // const borderOn = true;
 
@@ -62,6 +67,31 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
       fieldName: 'packet',
       toggleName: 'Packet Status',
       state: isPacket ? ToggleState.Off: ToggleState.On,
+      info: 'Not a packet? turn on',
+      readOnly: false,
+      onToggleChange: (isNotAPkt: boolean) => {
+        setIsPacket(!isNotAPkt);
+      }
+  }
+
+  const component: DynamicFieldProps = {
+      type: DYNA_TYPE.CHOICE,
+      fieldProps: {
+          label: 'Consumption Count', 
+          size: 5, 
+          selectedValue: '1', 
+          step: 1, 
+          selectedCallback: function (choice: number) {  
+            // alert(`Consumption Count : ${choice}`);
+            setConsumptionCount(choice);
+          }
+      }
+  }
+
+    /* const packetToggle: ToggleCore = {
+      fieldName: 'packet',
+      toggleName: 'Packet Status',
+      state: isPacket ? ToggleState.Off: ToggleState.On,
       info: 'is not a packet',
       readOnly: false,
       onToggleChange: (isOn: boolean) => {
@@ -70,14 +100,14 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
       }
     }
 
-    const packetToggleChildren = {
+    const packetToggleChildren: ToggleChildren = {
       placement: Placement.BELOW,
       on: {
         component: Component.SEQCHOICES,
         opts: {
           label: 'Consumption Count',
           size: 5, 
-          selectedValue: 1, 
+          selectedValue: '1', 
           step: 1, 
           selectedCallback: function (choice: number) {  
             // alert(`Consumption Count : ${choice}`);
@@ -85,7 +115,7 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
           }
         }
       }
-    }
+    } */
 
     useEffect(() => {
       if (id && id.trim() && name && name.trim() && vendor && cost.length > 0) {
@@ -104,9 +134,10 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
         setIsVendorOptionsLoading(false);
   
         if (error) {
-          alert(error.response.data);
-          if (error.response && error.response.status == '404') {
-          }
+          // if (error.response) {
+          // alert(error.response.data);
+          // if (error.response && error.response.status == '404') {
+          // }
         } else {
           if (data.result && data.result.options) {
             setVendorOptions([
@@ -132,9 +163,7 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
               />
             </div>            
             <div className='basis-1/3'>
-              <FoodieCheckbox label='Veg' info='Is veg item?' checked={isVeg} checkFn={(val) => {
-                setIsVeg(val);
-              }}/>
+              <FoodieCheckbox label='Veg' info='Is veg item?' checked={isVeg} checkFn={setIsVeg}/>
             </div>
           </div>
 
@@ -149,43 +178,27 @@ const ItemForm = ({ readOnly, callbackFn, item }) => {
               />}
             </div>
             <div className='basis-2/3'>
-              <ToggleAction 
+              <ToggleComplex toggle={packetToggle} component={component} />
+             {/*  <ToggleAction 
                 toggle={packetToggle} 
                 children={packetToggleChildren} 
                 isLoading={false} 
-                linkedExternalVal={3} />     
+                linkedExternalVal={3} /> */}
             </div>
           </div>
-          <WeightCombo update={(wt) => {
-            setWeight(wt);
-          }}/>
+          <WeightCombo update={setWeight}/>
           <BuildUpCombo stages={stages} name='Cost Buildup' update={setCost}/>
 
           <CascadeCombo 
             cascade='item-type' 
             hierarchy={['item-type', 'item-sub-type', 'item-sub-sub-type']} 
-            update={(data) => {
-              // alert(JSON.stringify(data));
-              setTypeCombo(data);
-            }}
-          />
-
-          <CascadeCombo 
-            cascade='brand-type' 
-            hierarchy={['brand-type', 'brand-sub-type']} 
-            update={(data) => {
-              alert(JSON.stringify(data));
-              // setTypeCombo(data);?
-            }}
+            update={setTypeCombo}
           />
 
           <CascadeCombo 
             cascade='cuisine' 
             hierarchy={['cuisine', 'sub-cuisine']} 
-            update={(data) => {
-              // alert(JSON.stringify(data));
-              setCuisineCombo(data);
-            }}
+            update={setCuisineCombo}
           />
           <div className={`${borderOn ? 'border border-blue-900' : ''} pe-10`}>
             <div className='inline-flex gap-2 flex-row w-full'>

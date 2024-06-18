@@ -1,13 +1,12 @@
 import { FC, useState, useEffect } from 'react';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { FormAction } from '../App.type';
+import { ToggleState, Placement, ToggleCore, DYNA_TYPE, DynamicFieldProps, FormAction } from '../App.type';
 import FoodieText from './FoodieText';
-import { ToggleState, Placement, Component, Child, ToggleCore } from '../App.type';
-import ToggleAction, { BASE_TA_ROW_DROPDOWN } from '../components/ToggleAction';
+import ToggleComplex from '@/components/ToggleComplex';
 
 const CustomOptionForm: FC<FormAction> = ({ action }) => {
-    const borderOn = false;
-    // const borderOn = true;
+    let borderOn = false;
+    // borderOn = true;
 
     const [optionName, setOptionName] = useState<string>('');
     const [optionVal, setOptionVal] = useState<string>('');
@@ -15,37 +14,31 @@ const CustomOptionForm: FC<FormAction> = ({ action }) => {
     const [ready, setReady] = useState<boolean>(false);
     const [isSameAsName, setIsSameAsName] = useState<boolean>(true);
 
+    const textReadOnlyComponent: DynamicFieldProps = {
+        type: DYNA_TYPE.TEXT,
+        fieldProps: {
+            label: 'Value',
+            fieldName: 'value',
+            readOnly: true,
+            value: ''
+        }
+    }
+
+    const textComponent: DynamicFieldProps = {
+        type: DYNA_TYPE.TEXT,
+        fieldProps: {
+            label: 'Value',
+            fieldName: 'value',
+            action: setOptionVal
+        }
+    }
+
     const toggleDuplicateText: ToggleCore = {
         fieldName: 'value',
         toggleName: 'Value',
         state: ToggleState.On,
         info: 'keep value same as the option name',
         onToggleChange: setIsSameAsName
-    }
-
-    const textReadOnlyChildOpts: Child = {
-        component: Component.TEXT,
-        opts: {
-          label: 'Value',
-          fieldName: 'value',
-          readOnly: true,
-          value: ''
-        }
-    }
-
-    const textChildOpts: Child = {
-        component: Component.TEXT,
-        opts: {
-          label: 'Value',
-          fieldName: 'value',
-          action: setOptionVal
-        }
-    }
-
-    const children = {
-      on: textReadOnlyChildOpts,
-      off: textChildOpts,
-      placement: Placement.BELOW
     }
 
     const add = () => {
@@ -86,7 +79,8 @@ const CustomOptionForm: FC<FormAction> = ({ action }) => {
                 </div>
 
                 <div className='mt-6'>
-                    <ToggleAction toggle={toggleDuplicateText} children={children} linkedExternalVal={optionName}/>
+                    <ToggleComplex toggle={toggleDuplicateText} placement={Placement.BELOW} linkedExternalVal={optionName}
+                        component={textReadOnlyComponent} offComponent={textComponent}/>
                 </div>
             </div>
 

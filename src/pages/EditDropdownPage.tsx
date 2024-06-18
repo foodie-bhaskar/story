@@ -1,11 +1,11 @@
-import { FC, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { Routes, Route, useParams } from 'react-router-dom';
+import axios, { AxiosError } from 'axios';
+import { useParams } from 'react-router-dom';
 
 import { capitalizeWords } from '@/lib/utils';
-import DropdownResource, { BASE_DROPDOWN } from '../components/DropdownResource';
-import { DropdownOpts, Option, DropdownFormOpts, ToggleState, ToggleCore, ToggleChildren, Component } from '../App.type';
+import DropdownResource from '../components/DropdownResource';
+import { DropdownFormOpts, Option } from '../App.type';
 
 // Define the data shape for your resource
 interface UIResource {
@@ -33,7 +33,7 @@ async function updateUIResource(data: UIResource) {
     }
 }
 
-async function fetchUIResource(uiType: string, id: string) {  
+async function fetchUIResource(uiType: string, id?: string) {  
     return axios.get(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api?uiType=${uiType}&id=${id}`, {
         headers: {
             Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
@@ -43,7 +43,7 @@ async function fetchUIResource(uiType: string, id: string) {
 
 const EditDropdownPage = () => {
     let { dropdownName } = useParams();
-    const [dropdown, setDropdown ] = useState(BASE_DROPDOWN);
+    const [dropdown, setDropdown ] = useState<DropdownFormOpts>();
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const queryClient = useQueryClient();
@@ -52,9 +52,14 @@ const EditDropdownPage = () => {
         queryKey: ['dropdown', dropdownName],
         queryFn: async () => {
             // alert(dropdownName);
-            const data = await fetchUIResource('dropdown', dropdownName);
-            // alert(JSON.stringify(data.data.result));
-            return data.data.result;
+            try {
+                const data = await fetchUIResource('dropdown', dropdownName);
+                // alert(JSON.stringify(data.data.result));
+                return data.data.result;
+            } catch (err) {
+                const error = err as AxiosError;
+                throw error;
+            }
         },
         staleTime: 60 * 1000
     });
@@ -65,8 +70,10 @@ const EditDropdownPage = () => {
           return response.data;
         },
         onSuccess: (data, variables, context) => {
-            alert(`data: ${JSON.stringify(data)}`);
-            alert(`variables: ${JSON.stringify(variables)}`);
+            // alert(`data: ${JSON.stringify(data)}`);
+            // alert(`variables: ${JSON.stringify(variables)}`);
+            console.log(data, variables);
+            console.log('context', context)
             // alert(`context: ${JSON.stringify(context)}`);
           // Query Invalidation (Recommended)
           queryClient.invalidateQueries({ queryKey: ['dropdown'] }); // Refetch the 'posts' query
@@ -77,7 +84,12 @@ const EditDropdownPage = () => {
         onError: (error, variables, context) => {
           // Handle errors, e.g., display an error message to the user
           console.error('Error creating post:', error);
-          alert(error.response.data.errorMessage);
+          console.log('variables', variables);
+            console.log('context', context);
+            if (axios.isAxiosError(error)) {
+                alert(error.response?.data.errorMessage);
+            }
+          
           // You can also use `context` to rollback optimistic updates if needed
         },
     });
@@ -108,13 +120,15 @@ const EditDropdownPage = () => {
 
     
           if (error) {
-            alert(error.response.data);
-            if (error.response && error.response.status == '404') {
+            if (axios.isAxiosError(error)) {
+                alert(error.response?.data);
+                if (error.response && error.response.status == 404) {
+                }
             }
           } else {
             // alert(JSON.stringify(data));
             const { uiId, cascade, options } = data;
-            let readOnly = false;
+            // let readOnly = false;
             let cascadeOptions = [{ 
                 name: capitalizeWords(cascade), value: cascade
             }];
@@ -140,7 +154,7 @@ const EditDropdownPage = () => {
                 </p>
             </div>
         {isLoading && <>loading....</>}
-        {!isLoading && dropdownName && <DropdownResource 
+        {!isLoading && dropdownName && dropdown && <DropdownResource 
             name={dropdown.name} 
             cascade={dropdown.cascade}
             cascadeOptions={dropdown.cascadeOptions} 

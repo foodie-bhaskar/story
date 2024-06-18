@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { ToggleOpts } from '../App.type';
 
-const FoodieToggle: FC<ToggleOpts> = ({ label, action, active, readOnly }) => {
+const FoodieToggle: FC<ToggleOpts> = ({ label, action, active, readOnly, fullWidth }) => {
 
     const [checked, setChecked] = useState<boolean>(active || false);
 
@@ -13,6 +13,8 @@ const FoodieToggle: FC<ToggleOpts> = ({ label, action, active, readOnly }) => {
     }
 
     const checkedColor = readOnly && active ? 'peer-checked:bg-gray-400': 'peer-checked:bg-indigo-500 hover:peer-checked:bg-indigo-700';
+
+    const css = fullWidth ? 'mt-5 w-36 block h-10': '';
 
     return(
         <label className={`relative flex items-center ${readOnly ? 'cursor-not-allowed': 'cursor-pointer'} h-5`}>
@@ -26,7 +28,7 @@ const FoodieToggle: FC<ToggleOpts> = ({ label, action, active, readOnly }) => {
               after:bg-white after:border-gray-300 after:border after:rounded-full 
               after:h-4 after:w-4 after:transition-all dark:border-gray-600
               ${checkedColor} `}></div>
-            <span className="ml-3 text-sm font-regular text-gray-500 peer-checked:text-gray-700">{label}</span>
+            <span className={`ml-3 text-sm font-regular text-gray-500 peer-checked:text-gray-700 text-wrap ${css}`}>{label}</span>
         </label>
     );
 }

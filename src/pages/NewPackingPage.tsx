@@ -1,27 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 import PackageForm from "@/components/PackageForm";
-
-interface PackageAsset {
-    assetType: string
-}
+import { PackageAsset } from '@/App.type';
 
 async function createPackageAsset(data: PackageAsset) {
-    try {
-        const assetType = 'PACKAGE';
-        // const { assetType } = data;
-        return axios.post(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType}`, 
-            data,
-            {
-                headers: {
-                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-                }
+    const assetType = 'PACKAGE';
+    
+    return axios.post(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType}`, 
+        data,
+        {
+            headers: {
+                Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
             }
-        );
-    } catch (error) {
-        throw new Error('Hello');
-        // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
-    }
+        }
+    );
 }
 
 const NewPackagingPage = () => {
@@ -29,10 +21,17 @@ const NewPackagingPage = () => {
 
     const mutation = useMutation({
         mutationFn: async (assetItem: PackageAsset) => {
-          const response = await createPackageAsset(assetItem);
-          return response.data;
+            try {
+                const response = await createPackageAsset(assetItem);
+                return response.data;
+            } catch (err) {
+                const error = err as AxiosError;
+                throw error;
+            }
         },
         onSuccess: (data, variables, context) => {
+            console.log(data, variables);
+            console.log('context', context)
           // Query Invalidation (Recommended)
           queryClient.invalidateQueries({ queryKey: ['asset','PACKAGE'] }); // Refetch the 'posts' query
     
@@ -40,6 +39,8 @@ const NewPackagingPage = () => {
           // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
         },
         onError: (error, variables, context) => {
+            console.log('variables', variables);
+            console.log('context', context)
           // Handle errors, e.g., display an error message to the user
           console.error('Error creating post:', error);
           alert(JSON.stringify(error));
@@ -81,7 +82,8 @@ const NewPackagingPage = () => {
             packagingCost: pkgCost,
             volume: capacity,
             containerType: type,
-            containerSize: size
+            containerSize: size,
+            imageUrl: imgUrl
         }
 
         alert(JSON.stringify(assetItem));
@@ -98,7 +100,7 @@ const NewPackagingPage = () => {
         </div>
 
         {mutation.isError && (
-            <p>Error: {mutation.error instanceof Error ? mutation.error.response.data.errorMessage : 'An error occurred'}</p>
+            <p>Error: {mutation.error && axios.isAxiosError(mutation.error)? mutation.error.response?.data.errorMessage : 'An error occurred'}</p>
         )}
         {mutation.isPending ? 'Creating...' :
              <PackageForm callbackFn={update}/>

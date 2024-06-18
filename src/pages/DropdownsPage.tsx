@@ -1,4 +1,3 @@
-import { FC, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,7 @@ const DropdownsPage = () => {
     const navigate = useNavigate();
 
 
-    const { isPending, error, data } = useQuery({
+    const { isPending, data } = useQuery({
         queryKey: ['dropdown'],
         queryFn: async () => {
             const data = await fetchUIResourcesForType('dropdown');

@@ -2,7 +2,6 @@ import { FC, useState, useEffect } from 'react';
 import { FieldOpts } from '../App.type';
 
 const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, size }) => {
-    // const [disabled, setDisabled] = useState(readOnly);
     const [extVal, setExtVal] = useState(value);
     const [val, setVal] = useState(value);
 
@@ -42,6 +41,27 @@ const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, 
             />
         </div>  
     </>);
+}
+
+/* export function isFoodieText(component: any): component is typeof FoodieText {
+    return (
+      component && 
+      typeof component === 'object' &&
+      'label' in component && // Check for specific FoodieText properties
+      'fieldName' in component &&
+      'action' in component &&
+      'value' in component &&
+      'readOnly' in component
+    );
+} */
+
+export function isFoodieText(component: any): component is typeof FoodieText {
+    // Check for specific FoodieText properties
+    return (
+        component &&
+        typeof component === 'object' &&
+        component instanceof FoodieText // Use instanceof instead of typeof
+    );
 }
 
 export default FoodieText;

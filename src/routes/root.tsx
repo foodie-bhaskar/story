@@ -34,6 +34,9 @@ export default function Root() {
               <li>
                 <Link to={`list-assets/package`}>Packagings</Link>
               </li>
+              <li>
+                <Link to={`showcase`}>Showcase</Link>
+              </li>
             </ul>
           </nav>
         </aside>

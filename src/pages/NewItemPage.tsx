@@ -1,10 +1,8 @@
-import { FC, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
 import ItemForm from '../components/ItemForm';
 
 interface ItemAsset {
-    assetType: string,
     itemId: string,
     name: string,
     vendor: string
@@ -34,20 +32,29 @@ const NewItemPage = () => {
 
     const mutation = useMutation({
         mutationFn: async (assetItem: ItemAsset) => {
-          const response = await createItemAsset(assetItem);
-          return response.data;
+            try {
+                const response = await createItemAsset(assetItem);
+                return response.data;
+            } catch (err) {
+                const error = err as AxiosError;
+                throw error;
+            }
         },
         onSuccess: (data, variables, context) => {
+            console.log(data, variables);
+            console.log('context', context)
           // Query Invalidation (Recommended)
-          queryClient.invalidateQueries({ queryKey: ['ITEM'] }); // Refetch the 'posts' query
+          queryClient.invalidateQueries({ queryKey: ['asset','ITEM'] }); // Refetch the 'posts' query
     
           // Or, if you prefer, you can update the cache directly
           // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
         },
         onError: (error, variables, context) => {
+            console.log('variables', variables);
+            console.log('context', context)
           // Handle errors, e.g., display an error message to the user
           console.error('Error creating post:', error);
-          alert(error.response.data.errorMessage);
+        //   alert(error.response.data.errorMessage);
           // You can also use `context` to rollback optimistic updates if needed
         },
     });
@@ -69,7 +76,7 @@ const NewItemPage = () => {
             isVeg
         }
         // alert(JSON.stringify(assetItem));
-        let creationResponse = await mutation.mutateAsync(assetItem);
+        await mutation.mutateAsync(assetItem);
         // alert(JSON.stringify(creationResponse));
     }
 
@@ -83,10 +90,9 @@ const NewItemPage = () => {
         
         {/* <div className="flex flex-col mt-10 p-10 md:w-5/6 mx-auto border border-gray-700 bg-gray-500 rounded-sm h-max"> */}
             {mutation.isError && (
-                <p>Error: {mutation.error instanceof Error ? mutation.error.response.data.errorMessage : 'An error occurred'}</p>
+                <p>Error: {mutation.error instanceof AxiosError && mutation.error ? mutation.error.response?.data.errorMessage : 'An error occurred'}</p>
             )}
-            {mutation.isPending ? 'Creating...' :
-                <ItemForm readOnly={false} callbackFn={update} />
+            {mutation.isPending ? 'Creating...' : <ItemForm readOnly={false} callbackFn={update} />
             }
         {/* </div> */}
     </div>)

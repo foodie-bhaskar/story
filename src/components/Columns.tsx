@@ -54,7 +54,8 @@ export const Columns: ColumnDef<Dropdown>[] = [
     //header: "No. of Options",
     header: () => <div className="text-right">No. of Options</div>,
     cell: ({ row }) => {
-      const optionCount = row.getValue("options").length
+      let options: Option[] = row.getValue("options")
+      const optionCount = options ? options.length: 0;
       /* const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",

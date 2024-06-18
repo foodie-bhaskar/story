@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 //https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-ui?uiType=dropdown&id=brand-category
 
-const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
-const ENV = 'dev';
-const API = 'foodie-ui';
-const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE2OTA1NDMxNDR9.2Ao23p2qWE5YvRF4DbspkiCpX1LCGg2ew_UpSYMkIts';
+// const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
+// const ENV = 'dev';
+// const API = 'foodie-ui';
+// const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE2OTA1NDMxNDR9.2Ao23p2qWE5YvRF4DbspkiCpX1LCGg2ew_UpSYMkIts';
 
 /* headers: {
     Authorization: `Bearer ${AuthToken}`
@@ -19,7 +18,7 @@ const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNr
         }
     })
  */
-async function fetchUIResource(uiType: string, id: string) {
+async function fetchUIResource() {
     //`https://9mfs8zytng.execute-api.ap-south-1.amazonaws.com/default/resource?type=config&id=brand`
     
     return axios.get('https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api?uiType=dropdown&id=brand-category', {
@@ -36,7 +35,7 @@ const TanQueryShowcase = () => {
     const { isPending, error, data } = useQuery({
         queryKey: ['headers'],
         queryFn: async () => {
-            const data = await fetchUIResource('dropdown', 'brand-category');
+            const data = await fetchUIResource();
             return data.data;
         },
     })
