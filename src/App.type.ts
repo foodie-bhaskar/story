@@ -170,6 +170,12 @@ export interface ItemOpts {
     weight: Weight
 }
 
+export interface AssetItem {
+    assetId: string,
+    itemId: string,
+    name: string
+}
+
 export interface PackageAsset {
     compartments: number,
     packagingCost: number,
@@ -189,4 +195,14 @@ export enum DYNA_TYPE {
 export interface DynamicFieldProps {
     type: DYNA_TYPE
     fieldProps: FieldOpts | DropdownOpts | SequenceChoiceOpts; // Flexible props based on type
+}
+
+export interface Item {
+    itemId: string,
+    name: string
+}
+
+export interface ItemQtyOtps {
+    item: Item,
+    qty: number
 }

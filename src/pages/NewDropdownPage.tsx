@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
 import DropdownResource from '../components/DropdownResource';
-import { DropdownFormOpts, Option } from '../App.type';
+import { Option } from '../App.type';
 
 
 // Define the data shape for your resource
@@ -33,7 +32,7 @@ async function createUIResource(data: UIResource) {
 }
 
 const NewDropdownPage = () => {
-    const [dropdown ] = useState<DropdownFormOpts>();
+    // const [dropdown ] = useState<DropdownFormOpts>();
 
     const queryClient = useQueryClient();
 
