@@ -1,23 +1,23 @@
 import { FC, useState, useEffect } from 'react';
-import { ItemQtyOtps } from '../App.type';
-import ItemQty from '@/core/ItemQty';
+import { PackageQtyOtps } from '../App.type';
+import PackageQty from '@/core/PackageQty';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
-type ItemList = {
-    items:  ItemQtyOtps[]
+type PackageList = {
+    packages:  PackageQtyOtps[]
 }
 
-const ItemList: FC<ItemList> = ({ items }) => {
+const PackageList: FC<PackageList> = ({ packages }) => {
 
-    const [current, setCurrent] = useState<ItemQtyOtps[]>(items);
+    const [current, setCurrent] = useState<PackageQtyOtps[]>(packages);
 
     useEffect(() => {
-        setCurrent(items);
-    }, [items])
+        setCurrent(packages);
+    }, [packages])
 
     return (
         <div className="sm:container sm:mx-auto px-4">
-            {current.length == 0 && <h1 className='mb-4 italic text-sm text-grey-600 ml-8'>No items</h1> }
+            {current.length == 0 && <h1 className='mb-4 italic text-grey-600 text-sm ml-8'>No items</h1> }
             
             {current.length > 1 && <div className='text-gray-400 mb-2 items-center sm:mx-auto ps-11 pe-7 rounded-lg max-w-lg h-14 flex justify-between border-2'>
                 {current.length} different kind of items
@@ -25,10 +25,11 @@ const ItemList: FC<ItemList> = ({ items }) => {
             </div>}
 
             {current.length > 0 && <ul className='divide-y divide-gray-200 border rounded-lg sm:mx-auto max-w-lg ps-10'>
-                {current.map(o => <ItemQty item={o.item} qty={o.qty} />)}
+                {current.map(o => <PackageQty package={o.package} qty={o.qty} />)}
             </ul>}
         </div>
     );
 }
   
-export default ItemList;
+export default PackageList;
+;

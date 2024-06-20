@@ -179,6 +179,12 @@ export interface AssetItem {
     name: string
 }
 
+export interface AssetPackage {
+    assetId: string,
+    packageId?: string,
+    name: string
+}
+
 export interface PackageAsset {
     compartments: number,
     packagingCost: number,
@@ -207,5 +213,15 @@ export interface Item {
 
 export interface ItemQtyOtps {
     item: Item,
+    qty: number
+}
+
+export interface Package {
+    packageId: string,
+    name: string
+}
+
+export interface PackageQtyOtps {
+    package: Package,
     qty: number
 }

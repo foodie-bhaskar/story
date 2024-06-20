@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import ItemList from '@/components/Itemlist';
 import ItemQtyForm from '@/components/ItemQtyForm';
 import { ItemQtyOtps } from "@/App.type";
 
-const ProductItems = () => {
+type PdtItem = {
+    data?: ItemQtyOtps[],
+    update: Function
+}
+
+const ProductItems: FC<PdtItem> = ({ data, update }) => {
     let borderOn = false;
     // borderOn = true;
     
     const [showItemForm, setShowItemForm] = useState<boolean>(false);
-    const [items, setItems] = useState<ItemQtyOtps[]>([]);
+    const [items, setItems] = useState<ItemQtyOtps[]>(data || []);
     const [itemError, setItemError] = useState<string>();
 
     const addItem = (itemQty: ItemQtyOtps) => {
@@ -23,12 +28,13 @@ const ProductItems = () => {
         } else {
             setShowItemForm(false);
             setItems([...items, itemQty]);
+            update([...items, itemQty]);
             setItemError('');
         }
     }
 
-    return (<div className={`${borderOn ? 'border border-yellow-500': ''} mt-10 max-w-[600px]`}>
-        {!showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 mb-10'>
+    return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
+        {!showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
             <button 
                 type='button' 
                 onClick={() => {

@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from 'react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import axios, { AxiosError } from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { AssetItem, FormAction, ItemQtyOtps } from '../App.type';
+import { AssetPackage, FormAction, Package, PackageQtyOtps } from '../App.type';
 import Dropdown from "@/core/Dropdown";
 import SeqChoice from '@/core/SeqChoice';
 
@@ -17,16 +17,16 @@ async function fetchAssetsForType(assetType: string | undefined) {
     });
 }
   
-const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
-    const assetType = 'item';
+const PackageQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
+    const assetType = 'package';
     let borderOn = false;
     // borderOn = true;
 
-    const [item, setItem] = useState<AssetItem>();
+    const [pkg, setPkg] = useState<Package>();
     const [ready, setReady] = useState<boolean>(false);
     const [quantity, setQuantity] = useState<number>(1);
 
-    const [items, setItems] = useState([{ value: '', name: ' --- please select ---'}]);
+    const [packages, setPackages] = useState([{ value: '', name: ' --- please select ---'}]);
 
     const { isPending, error, data } = useQuery({
         queryKey: ['asset', assetType],
@@ -44,9 +44,9 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
     });
 
     const add = () => {
-        if (item) {
-            const o: ItemQtyOtps = {
-                item,
+        if (pkg) {
+            const o: PackageQtyOtps = {
+                package: pkg,
                 qty: quantity
             }
             action(o);
@@ -54,13 +54,13 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
     }
 
     useEffect(() => {
-       if (item && quantity) {
+       if (pkg && quantity) {
         setReady(true);
        } else {
         setReady(false);
        }
         
-    }, [quantity, item]);
+    }, [quantity, pkg]);
 
     useEffect(() => {
         if (assetType) {
@@ -72,7 +72,7 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
               }
             }
           } else if (data) {
-            setItems(data.map((item: AssetItem) => ({ itemId: item.assetId, name: item.name })));
+            setPackages(data.map((pkg: AssetPackage) => ({ packageId: pkg.assetId, name: pkg.name })));
           }
         }
       }, [isPending, error, data, assetType]);
@@ -82,19 +82,17 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
             <p>{errorMessage}</p>
         </div>}
         <fieldset className="border border-gray-500 rounded pl-10 flex flex-row pt-4 pb-8 justify-between mb-10">
-            <legend className='uppercase text-gray-500 text-sm rounded font-semibold ml-6'>
-                Assign Item and quantity &nbsp;&nbsp;
-            </legend>
+            <legend className='uppercase text-gray-500 text-sm rounded font-semibold ml-6'>&nbsp;Assign Package & quantity &nbsp;&nbsp;</legend>
 
             <div className={`${borderOn ? 'border border-red-800': ''} basis-5/6`}> 
                 <div className="">
-                    {isPending ? 'Loading items ...': <Dropdown name="Item" options={items} selectedCallback={setItem}/>}
+                    {isPending ? 'Loading packages ...': <Dropdown name="Package" options={packages} selectedCallback={setPkg}/>}
                 </div>
 
                 <div className={`mt-6 ${borderOn ? 'border border-red-800': ''}`}>
                     <SeqChoice
                         label='Quantity'
-                        size={7} 
+                        size={5} 
                         step={1}
                         selectedValue={`${quantity}`}
                         selectedCallback={(c: string) => setQuantity(parseInt(c))} 
@@ -120,4 +118,4 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
     );
 }
   
-export default ItemQtyForm;
+export default PackageQtyForm;
