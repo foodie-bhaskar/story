@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import { FieldOpts } from '../App.type';
 
-const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, size }) => {
+const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, size, type }) => {
     const [extVal, setExtVal] = useState(value);
     const [val, setVal] = useState(value);
 
@@ -26,7 +26,8 @@ const FoodieText: FC<FieldOpts> = ({ label, fieldName, action, value, readOnly, 
         </label>
         <div className={`mt-2 ${size || 'w-full'}`}>
             <input
-                type="text"
+                type={type || 'text'}
+                step="1"
                 name={fieldName}
                 id={fieldName}
                 value={readOnly ? extVal: val}

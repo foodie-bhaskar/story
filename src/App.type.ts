@@ -47,6 +47,7 @@ export interface FieldOpts {
     readOnly?: boolean,
     size?: string,
     selectedValue?: string,
+    type?: string,
     selectedCallback?: Function
 }
 
@@ -79,7 +80,8 @@ export interface ToggleActionOpts {
 }
 
 export interface FormAction {
-    action: Function
+    action: Function,
+    errorMessage?: string
 }
 
 export interface DropdownOpts {
@@ -142,7 +144,8 @@ export interface SequenceChoiceOpts {
     selectedValue?: string,
     selectedCallback: Function,
     step?: number,
-    readOnly?: boolean
+    readOnly?: boolean,
+    allowMore?: boolean
 }
 
 export interface ChoiceOpts {

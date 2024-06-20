@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from 'react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import axios, { AxiosError } from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { AssetItem, FormAction, ItemOpts, ItemQtyOtps } from '../App.type';
+import { AssetItem, FormAction, ItemQtyOtps } from '../App.type';
 import Dropdown from "@/core/Dropdown";
 import SeqChoice from '@/core/SeqChoice';
 
@@ -17,7 +17,7 @@ async function fetchAssetsForType(assetType: string | undefined) {
     });
 }
   
-const ItemQtyForm: FC<FormAction> = ({ action }) => {
+const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
     const assetType = 'item';
     let borderOn = false;
     // borderOn = true;
@@ -77,26 +77,27 @@ const ItemQtyForm: FC<FormAction> = ({ action }) => {
         }
       }, [isPending, error, data, assetType]);
 
-    return (
-        <fieldset className="border border-gray-500 rounded-lg pl-10 flex flex-row pt-4 pb-8 justify-between">
-            <legend className='uppercase ml-10 font-medium text-gray-500 '>&nbsp;&nbsp; Add Item & Quantity &nbsp;&nbsp;</legend>
+    return (<>
+        {errorMessage && <div className='text-red-600 bg-slate-200 rounded ps-10'>
+            <p>{errorMessage}</p>
+        </div>}
+        <fieldset className="border border-gray-500 rounded-lg pl-10 flex flex-row pt-4 pb-8 justify-between mb-10">
+            <legend className='uppercase ml-5 font-medium text-gray-500 '>&nbsp;&nbsp;Assign Item and quantity &nbsp;&nbsp;</legend>
 
             <div className={`${borderOn ? 'border border-red-800': ''} basis-5/6`}> 
                 <div className="">
-                    {isPending ? 'Loading items ...': <Dropdown name="Item" options={items} selectedCallback={(o) => {
-                        alert(JSON.stringify(o))
-                        setItem(o);
-                    }}/>}
+                    {isPending ? 'Loading items ...': <Dropdown name="Item" options={items} selectedCallback={setItem}/>}
                 </div>
 
-                <div className='mt-6'>
-                <SeqChoice
-                    label='Quantity'
-                    size={7} 
-                    step={1}
-                    selectedValue={`${quantity}`}
-                    selectedCallback={(c: string) => setQuantity(parseInt(c))} 
-                    position="BELOW"
+                <div className={`mt-6 ${borderOn ? 'border border-red-800': ''}`}>
+                    <SeqChoice
+                        label='Quantity'
+                        size={7} 
+                        step={1}
+                        selectedValue={`${quantity}`}
+                        selectedCallback={(c: string) => setQuantity(parseInt(c))} 
+                        position="BELOW"
+                        allowMore={true}
                     />
                 </div>
             </div>
@@ -112,6 +113,8 @@ const ItemQtyForm: FC<FormAction> = ({ action }) => {
                 </button>                
             </div>
         </fieldset>
+        
+        </>
     );
 }
   
