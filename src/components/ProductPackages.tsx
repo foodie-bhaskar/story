@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import PackageList from './PackageList';
 import PackageQtyForm from './PackageQtyForm';
 import { PackageQtyOtps } from "@/App.type";
@@ -32,6 +32,12 @@ const ProductPackages: FC<PdtPkg> = ({ data, update }) => {
             update([...packages, pkgQty])
         }
     }
+
+    useEffect(() => {
+        if (data && data.length) {
+            setPackages(data);
+        }
+    }, [data])
 
     return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
         {!showForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>

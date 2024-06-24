@@ -15,6 +15,8 @@ import NewItemPage from './pages/NewItemPage.tsx';
 import NewPackagingPage from './pages/NewPackingPage.tsx';
 import Items from './pages/Items.tsx';
 import Showcase from './pages/Showcase.tsx';
+import BrandProducts from './pages/BrandProducts.tsx';
+import Product from './pages/Product.tsx';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +51,22 @@ const router = createBrowserRouter([
       {
         path: "list-assets/:assetType",
         element: <Items />,
+      },
+      {
+        path: "list-assets/brand-products",
+        element: <BrandProducts />,
+      },
+      {
+        path: "product/:productId",
+        element: <Product />,
+      },
+      {
+        path: "product/:productType/:productId/:productName",
+        element: <Product />,
+      },
+      {
+        path: "product",
+        element: <Product />,
       },
       {
         path: "showcase",

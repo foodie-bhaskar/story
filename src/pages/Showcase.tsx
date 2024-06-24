@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import ProductItems from '@/components/ProductItems';
 import ProductPackages from '@/components/ProductPackages';
+import { ItemQtyOtps } from '@/App.type';
 
 const Showcase= () => {
     let borderOn = false;
     // borderOn = true;
 
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<ItemQtyOtps[]>([]);
+    const [tags, setTags] = useState<string[]>([]);
     const [packages, setPackages] = useState([]);
     
 
     const [productName] = useState('Bhindi Masala with 3 Phulka Roti');
     const [valid, setValid] = useState(true);
+
+    const addItemQty = (items: ItemQtyOtps[], tags: string[]) => {
+        setItems(items)
+        setTags(tags);
+    }
 
     useEffect(() => {
         if (items.length && packages.length) {
@@ -40,7 +47,8 @@ const Showcase= () => {
                 onClick={() => {
                     const body = {
                         items,
-                        packages
+                        packages,
+                        tags
                     }
                     alert(JSON.stringify(body))
                 }}
@@ -55,7 +63,7 @@ const Showcase= () => {
 
         <div className={`${borderOn ? 'border-red-800': ''} mt-10 flex flex-row h-svh min-w-max`}>
             <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-6`}>
-                <ProductItems update={setItems}/>
+                <ProductItems update={addItemQty}/>
             </main>
             <aside className=" basis-5/12 ps-10">
                 <ProductPackages update={setPackages}/>

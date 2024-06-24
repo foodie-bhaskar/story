@@ -195,6 +195,15 @@ export interface PackageAsset {
     packagingTypeCombo: Option[]
 }
 
+export interface BrandProduct {
+    brandName: string,
+    productName: string,
+    productType: string,
+    brandTypeProductPrefix: string,
+    variantSequence: number,
+    createdAt: number
+}
+
 export enum DYNA_TYPE {
     TEXT = 'text',
     DROPDOWN = 'dropdown',

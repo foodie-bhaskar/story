@@ -19,3 +19,9 @@ export function capitalizeWords(str: string) {
     .join(' ');
 }
 
+export function localDate(timeInMillis: number) {
+  const date = new Date(timeInMillis);
+  return date.toLocaleDateString(); //
+}
+
+

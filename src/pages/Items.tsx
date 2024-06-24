@@ -33,7 +33,7 @@ function getMappings(assetType: string): Mapping {
       }
 
     case 'item':
-      return { 
+      let order = { 
         order: [
           { name: 'ID', id: 'assetId'},
           { name: 'Item', id: 'name'},
@@ -43,8 +43,16 @@ function getMappings(assetType: string): Mapping {
           { name: 'Veg / Non-Veg', id: 'isVeg', data: (row: ItemOpts) => row.isVeg ? 'Veg': 'non-veg '},
           { name: 'Cuisine', id: 'cuisineCombo', data: (row: ItemOpts) => capitalizeWords(row.cuisineCombo[0].value) },
           { name: 'Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[0].value) },
-          { name: 'Sub Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[1].value) },
-          { name: 'Sub Sub Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[2].value) },
+          { name: 'Sub Type', id: 'typeCombo', data: (row: ItemOpts) => {
+            if (row.typeCombo && row.typeCombo[1]) {
+              return capitalizeWords(row.typeCombo[1].value);
+            }
+          }},
+          { name: 'Sub Sub Type', id: 'typeCombo', data: (row: ItemOpts) => {
+            if (row.typeCombo && row.typeCombo[2]) {
+              return capitalizeWords(row.typeCombo[2].value) 
+            }
+          }},
           { name: 'Weight', id: 'weight', data: (row: ItemOpts) => row.weight.total },
           { name: 'Raw Material Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[0].value },
           { name: 'Pre Commission Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[1].value },
@@ -53,18 +61,44 @@ function getMappings(assetType: string): Mapping {
         ]
       }
 
+      // alert(JSON.stringify(order));
+
+      return order;
+
     case 'package':
-      return {
-        order: [
-          { name: 'ID', id: 'assetId'},
-          { name: 'Name', id: 'name'},
-          { name: '# of Compartments', id: 'compartments'},
-          { name: 'Volume (in ml)', id: 'volume'},
-          { name: 'Cost', id: 'packagingCost'},
-          { name: 'Packaging Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => capitalizeWords(row.packagingTypeCombo[0].value)},
-          { name: 'Packaging Sub Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => row.packagingTypeCombo[1] ? capitalizeWords(row.packagingTypeCombo[1].value) : ''}
-        ]
+      let mappings: any = [];
+
+      try {
+        mappings = {
+          order: [
+            { name: 'ID', id: 'assetId'},
+            { name: 'Name', id: 'name'},
+            { name: '# of Compartments', id: 'compartments'},
+            { name: 'Volume (in ml)', id: 'volume'},
+            { name: 'Cost', id: 'packagingCost'},
+            { name: 'Packaging Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => {
+              let error = '';
+              if (row.packagingTypeCombo) {
+                if (row.packagingTypeCombo.length) {
+                  return capitalizeWords(row.packagingTypeCombo[0].value)
+                } else {
+                  error = 'packagingType 0 length';
+                }
+
+              } else {
+                error = 'packagingType Missing'
+              }
+
+              return error;
+              
+            }},
+            { name: 'Packaging Sub Type', id: 'packagingTypeCombo', data: (row: PackageAsset) => row.packagingTypeCombo[1] ? capitalizeWords(row.packagingTypeCombo[1].value) : ''}
+          ]
+        }
+      } catch (e) {
+        alert(JSON.stringify(e));
       }
+      return mappings;
 
     default:
       return {
@@ -124,11 +158,11 @@ const Items = () => {
   return (<div>
     {assetType && <>
       <h1>{assetType}</h1>
-      { isPending ? `Loading ${assetType}s ...`
-        : <div className="container mx-auto py-10">
+      { isPending && `Loading ${assetType}s ...`}
+      {tableData && <div className="container mx-auto py-10">
             <h4>{data.length} found</h4>
             <Grid
-              data={tableData || []}
+              data={tableData}
               columns={columns}
               search={true}
               pagination={{

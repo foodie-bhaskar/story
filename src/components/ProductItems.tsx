@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useEffect } from 'react';
 import ItemList from '@/components/Itemlist';
 import ItemQtyForm from '@/components/ItemQtyForm';
 import { ItemQtyOtps } from "@/App.type";
@@ -15,6 +15,7 @@ const ProductItems: FC<PdtItem> = ({ data, update }) => {
     const [showItemForm, setShowItemForm] = useState<boolean>(false);
     const [items, setItems] = useState<ItemQtyOtps[]>(data || []);
     const [itemError, setItemError] = useState<string>();
+    const [tags, setTags] = useState<string[]>([]);
 
     const addItem = (itemQty: ItemQtyOtps) => {
         let { itemId, name } = itemQty.item;
@@ -28,10 +29,18 @@ const ProductItems: FC<PdtItem> = ({ data, update }) => {
         } else {
             setShowItemForm(false);
             setItems([...items, itemQty]);
-            update([...items, itemQty]);
+            let tagsUpdate: string[] = [...tags, name];
+            update([...items, itemQty], tagsUpdate);
+            setTags(tagsUpdate)
             setItemError('');
         }
     }
+
+    useEffect(() => {
+        if (data && data.length) {
+            setItems(data);
+        }
+    }, [data])
 
     return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
         {!showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
