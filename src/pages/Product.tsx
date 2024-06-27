@@ -6,18 +6,9 @@ import axios, { AxiosError } from 'axios';
 
 import ProductItems from '@/components/ProductItems';
 import ProductPackages from '@/components/ProductPackages';
-import { ItemQtyOtps, PackageQtyOtps } from '@/App.type';
+import { ItemQtyOtps, PackageQtyOtps, ProductAsset } from '@/App.type';
 
 const assetType = 'product';
-
-interface ProductAsset {
-    tags: string[],
-    packages: PackageQtyOtps[],
-    items: ItemQtyOtps[],
-    isVeg: boolean,
-    id: string,
-    name: string
-}
 
 async function fetchAsset(assetType: string, id?: string) {
     if (!id) {
@@ -91,7 +82,7 @@ const Product = () => {
             console.log(data, variables);
             console.log('context', context)
             // Query Invalidation (Recommended)
-            queryClient.invalidateQueries({ queryKey: ['asset', assetType, productId] }); // Refetch the 'posts' query
+            queryClient.invalidateQueries({ queryKey: ['asset', assetType] }); // Refetch the 'posts' query
             setErrorMessage('');
             navigate(-1);
           // Or, if you prefer, you can update the cache directly

@@ -6,13 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
 import { localDate } from '@/lib/utils';
-import { BrandProduct, Option } from '@/App.type';
+import { BrandProduct, Option, ProductAsset } from '@/App.type';
 import { OneDArray } from 'gridjs/dist/src/types.js';
 import { ComponentChild } from 'preact';
 import Dropdown from '@/core/Dropdown';
 import FoodieText from '@/core/FoodieText';
+import { fetchAssetsForType, fetchAsset } from '../api/api';
 
-async function fetchAssetsForType(assetType: string, productType: string, productName: string) {  
+async function fetchAssetsForProductType(assetType: string, productType: string, productName: string) {  
   if (!assetType) {
     throw new Error('Asset type is required');
   }
@@ -30,9 +31,6 @@ type Mapping = {
   order: OneDArray<ComponentChild>
 }
 
-
-
-
 const BrandProducts = () => {
   let assetType = 'brand-product';
   const [productType, setProductType] = useState('veg');
@@ -40,6 +38,9 @@ const BrandProducts = () => {
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
   const [enabled, setEnabled] = useState(false);
+  const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
+
+  const [total, setTotal] = useState();
 
   const navigate = useNavigate();
 
@@ -52,12 +53,14 @@ const BrandProducts = () => {
             { name: 'Brand', id: 'brandName'},
             { name: 'Arrived', id: 'createdAt', data: (row: BrandProduct) => localDate(row.createdAt)},
             { name: 'ID', id: 'brandTypeProductPrefix', data: (row: BrandProduct) => `${row.brandTypeProductPrefix}-${row.variantSequence}` },
-            { name: 'Map Items', data: (row: BrandProduct) => _(
-              <button 
-                className={"py-2 px-4 border rounded-md text-white bg-blue-600"} 
-                onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}>Map</button>
-              )
-            }
+            { name: 'Map Items', data: (row: BrandProduct) => {
+
+              return !row.mapped ? _(
+                <button 
+                  className={"py-2 px-4 border rounded-md text-white bg-blue-600"} 
+                  onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}>Map</button>
+              ): _(<span className='text-sm uppercase text-indigo-500 font-semibold'>MAPPED</span>);
+            }}
           ]
         }
   
@@ -73,7 +76,6 @@ const BrandProducts = () => {
     let colsInOrder = getMappings(assetType);
     return colsInOrder;
   }
-  
 
   const PRODUCT_TYPE_OPTIONS = [
     { name: 'Veg', value: 'veg' },
@@ -85,7 +87,7 @@ const BrandProducts = () => {
     queryKey: ['asset', assetType, productType, productName],
     queryFn: async () => {
       try {
-        const data = await fetchAssetsForType(assetType, productType, productName);
+        const data = await fetchAssetsForProductType(assetType, productType, productName);
         // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
         // alert(JSON.stringify(rows));
@@ -99,6 +101,42 @@ const BrandProducts = () => {
     enabled: enabled
   });
 
+  const products = useQuery({
+    queryKey: ['asset', 'product'],
+    queryFn: async () => {
+      try {
+        const data = await fetchAssetsForType('product');
+        // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
+        const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
+        // alert(JSON.stringify(data.data));
+        return rows;
+      } catch (err) {
+        const error = err as AxiosError;
+        throw error;
+      }
+    },
+    staleTime: 60 * 1000,
+    enabled: true
+  });
+
+  /* const totalProducts = useQuery({
+    queryKey: ['asset', 'cache', 'product-names_count-total'],
+    queryFn: async () => {
+      try {
+        const data = await fetchAsset('cache', 'product-names_count-total');
+        // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
+        const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
+        // alert(JSON.stringify(data.data));
+        return rows;
+      } catch (err) {
+        const error = err as AxiosError;
+        throw error;
+      }
+    },
+    staleTime: 60 * 1000,
+    enabled: true
+  }); */
+
   useEffect(() => {
     if (assetType) {
     
@@ -109,14 +147,71 @@ const BrandProducts = () => {
           }
         }
       } else if (data && data.length) {
+
+        let brandProducts = data.map((bp: BrandProduct) => ({ ...bp, mapped: false }));
+
+        // alert(`Got brand products : ${brandProducts.length}`);
+
+        if (mappedProducts && mappedProducts.length) {
+          // alert(`mapped products : ${mappedProducts.length}`);
+          const brandTypeProductPrefixes = mappedProducts.map(mp => {
+            // alert(JSON.stringify(mp));
+            return mp.assetId;
+          });
+
+          // alert(`brandTypeProductPrefixes : ${brandTypeProductPrefixes}`);
+
+          brandProducts = brandProducts.map((bp: BrandProduct) => {
+            const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
+
+            if (brandTypeProductPrefixes.includes(id)) {
+              // alert(`${JSON.stringify(brandTypeProductPrefixes)}: ${id}`);
+              return {
+                ...bp,
+                mapped: true
+              }
+            } else {
+              // alert(`This product is not mapped : ${id}`)
+              return bp;
+            }
+          })
+        }
         
-        setTableData(data);
+        setTableData(brandProducts);
         let cols: Mapping = getColumns(assetType, Object.keys(data[0]));
         // alert('col loaded');
         setColumns(cols.order);
       }
     }
-  }, [isPending, error, data, assetType]);
+
+  }, [isPending, error, data, assetType, mappedProducts]);
+
+  useEffect(() => {
+    if (products.error) {
+      if (axios.isAxiosError(products.error)) {
+        alert(products.error.response?.data);
+        if (products.error.response && products.error.response.status == 404) {
+        }
+      }
+    } else if (products.data && products.data.length) {
+      // alert(JSON.stringify(products.data));
+      setMappedProducts(products.data)
+    }
+
+  }, [products.isPending, products.isFetching, products.error, products.data]);
+
+  /* useEffect(() => {
+    if (totalProducts.error) {
+      if (axios.isAxiosError(totalProducts.error)) {
+        alert(totalProducts.error.response?.data);
+        if (totalProducts.error.response && totalProducts.error.response.status == 404) {
+        }
+      }
+    } else if (totalProducts.data && totalProducts.data.result) {
+      setTotal(totalProducts.data.result.data);
+    }
+
+  }, [totalProducts.isPending, totalProducts.isFetching, totalProducts.error, totalProducts.data]) */
 
   return (<div>
     {assetType && <>

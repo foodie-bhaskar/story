@@ -201,7 +201,18 @@ export interface BrandProduct {
     productType: string,
     brandTypeProductPrefix: string,
     variantSequence: number,
-    createdAt: number
+    createdAt: number,
+    mapped?: boolean
+}
+
+export interface ProductAsset {
+    tags: string[],
+    packages: PackageQtyOtps[],
+    items: ItemQtyOtps[],
+    isVeg: boolean,
+    id: string,
+    name: string,
+    assetId?: string
 }
 
 export enum DYNA_TYPE {
