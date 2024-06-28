@@ -6,12 +6,14 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
 import { localDate } from '@/lib/utils';
-import { BrandProduct, Option, ProductAsset } from '@/App.type';
+import { BrandProduct, ProductAsset } from '@/App.type';
 import { OneDArray } from 'gridjs/dist/src/types.js';
 import { ComponentChild } from 'preact';
-import Dropdown from '@/core/Dropdown';
-import FoodieText from '@/core/FoodieText';
+// import Dropdown from '@/core/Dropdown';
+// import FoodieText from '@/core/FoodieText';
 import { fetchAssetsForType, fetchAsset } from '../api/api';
+import Count from '@/core/Count';
+import ChipButton from '@/core/ChipButton';
 
 async function fetchAssetsForProductType(assetType: string, productType: string, productName: string) {  
   if (!assetType) {
@@ -31,18 +33,28 @@ type Mapping = {
   order: OneDArray<ComponentChild>
 }
 
+// const productTypeList = ['Veg', 'Non-Veg', 'Addon'];
+const PRODUCT_TYPE_OPTIONS = [
+  { name: 'Veg', value: 'veg' },
+  { name: 'Non Veg', value: 'non-veg' },
+  { name: 'Addon', value: 'addon' }
+]
+
 const BrandProducts = () => {
   let assetType = 'brand-product';
-  const [productType, setProductType] = useState('veg');
-  const [productName, setProductName] = useState('');
+  const [productType, setProductType] = useState(PRODUCT_TYPE_OPTIONS[0].value);
+  const [selectedProductType, setSelectedProductType] = useState();
+  // const [productName, setProductName] = useState('');
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
-  const [enabled, setEnabled] = useState(false);
+  // const [enabled, setEnabled] = useState(true);
   const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
 
-  const [total, setTotal] = useState();
+  const [total, setTotal] = useState(0);
 
   const navigate = useNavigate();
+
+  const productName = ''; // not being used
 
   function getMappings(assetType: string): Mapping {
     switch (assetType) {
@@ -55,11 +67,17 @@ const BrandProducts = () => {
             { name: 'ID', id: 'brandTypeProductPrefix', data: (row: BrandProduct) => `${row.brandTypeProductPrefix}-${row.variantSequence}` },
             { name: 'Map Items', data: (row: BrandProduct) => {
 
-              return !row.mapped ? _(
-                <button 
-                  className={"py-2 px-4 border rounded-md text-white bg-blue-600"} 
-                  onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}>Map</button>
-              ): _(<span className='text-sm uppercase text-indigo-500 font-semibold'>MAPPED</span>);
+              return !row.mapped 
+                ? _(<div className='text-center'>
+                      <button 
+                        className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
+                        onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}>Map</button>
+                    </div>)
+                : _(<div className='text-center'>
+                      <span className='cursor-pointer text-sm uppercase text-indigo-600 underline font-light italic'
+                        onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}
+                      >View</span>
+                    </div>);
             }}
           ]
         }
@@ -77,12 +95,6 @@ const BrandProducts = () => {
     return colsInOrder;
   }
 
-  const PRODUCT_TYPE_OPTIONS = [
-    { name: 'Veg', value: 'veg' },
-    { name: 'Non Veg', value: 'non-veg' },
-    { name: 'Addon', value: 'addon' }
-  ]
-
   const { isPending, isFetching, error, data } = useQuery({
     queryKey: ['asset', assetType, productType, productName],
     queryFn: async () => {
@@ -98,7 +110,7 @@ const BrandProducts = () => {
     }
     },
     staleTime: 60 * 1000,
-    enabled: enabled
+    enabled: true
   });
 
   const products = useQuery({
@@ -119,14 +131,14 @@ const BrandProducts = () => {
     enabled: true
   });
 
-  /* const totalProducts = useQuery({
+  const totalProducts = useQuery({
     queryKey: ['asset', 'cache', 'product-names_count-total'],
     queryFn: async () => {
       try {
         const data = await fetchAsset('cache', 'product-names_count-total');
         // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
-        // alert(JSON.stringify(data.data));
+        // alert(JSON.stringify(data.data.result));
         return rows;
       } catch (err) {
         const error = err as AxiosError;
@@ -135,7 +147,7 @@ const BrandProducts = () => {
     },
     staleTime: 60 * 1000,
     enabled: true
-  }); */
+  });
 
   useEffect(() => {
     if (assetType) {
@@ -200,23 +212,47 @@ const BrandProducts = () => {
 
   }, [products.isPending, products.isFetching, products.error, products.data]);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (totalProducts.error) {
       if (axios.isAxiosError(totalProducts.error)) {
         alert(totalProducts.error.response?.data);
         if (totalProducts.error.response && totalProducts.error.response.status == 404) {
         }
       }
-    } else if (totalProducts.data && totalProducts.data.result) {
-      setTotal(totalProducts.data.result.data);
+    } else if (totalProducts.data) {
+      // alert(totalProducts.data.data);
+      setTotal(totalProducts.data.data);
     }
 
-  }, [totalProducts.isPending, totalProducts.isFetching, totalProducts.error, totalProducts.data]) */
+  }, [totalProducts.isPending, totalProducts.isFetching, totalProducts.error, totalProducts.data])
 
-  return (<div>
+  useEffect(() => {
+    if (!isPending && selectedProductType) {
+      setProductType(selectedProductType)
+    }
+  }, [isPending, selectedProductType])
+
+  return (<div className='pt-10'>
     {assetType && <>
-      <h1>{assetType}</h1>
-      <div className='flex flex-row px-20 border border-cyan-900 rounded mx-10 items-center gap-4 h-20'>
+      {/* <h1>{assetType}</h1> */}
+
+      <div className='flex flex-row gap-8 px-10 mb-10'>
+        <Count label='Unmapped Products' count={total - mappedProducts.length} />
+        <Count label='Products Defined' count={mappedProducts.length} />
+      </div>
+
+      <div className='flex flex-row gap-4 px-10 mb-10 items-center'>
+        <span className='inline-block text-md font-regular uppercase text-slate-600 w-64'>Show Menu Products for: </span>
+
+        {PRODUCT_TYPE_OPTIONS 
+          && PRODUCT_TYPE_OPTIONS.map(pt => <ChipButton key={pt.value} value={pt.value} label={pt.name} 
+            isActive={pt.value == productType} update={setSelectedProductType}
+            isLoading={selectedProductType && isPending && selectedProductType == pt.value}
+             />)
+        }
+      </div>
+      
+      {/* <div className='flex flex-row mx-10 items-end gap-4 h-20'>
         <Dropdown 
                 options={PRODUCT_TYPE_OPTIONS} selectedValue={productType} 
                 selectedCallback={(valObj: Option) => setProductType(valObj.value)} 
@@ -242,10 +278,10 @@ const BrandProducts = () => {
           }
         </div>
           
-      </div>
-      { isPending ? (isFetching ? `Loading ${assetType}s ...`: '')
-        : <div className="container mx-auto py-10">
-            <h4>{data.length} found</h4>
+      </div> */}
+      { isPending ? (isFetching ? <h4 className='italic text-md text-slate-400 ml-10 font-light'>Loading {productType} products ...</h4> : '')
+        : <div className="container mx-auto">
+            <h4 className='italic text-md text-slate-400 ml-1 font-light'>{data.length} products found</h4>
             { data.length > 0 && <Grid
               data={tableData || []}
               columns={columns}
