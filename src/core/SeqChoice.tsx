@@ -9,7 +9,7 @@ export const BASE_SEQCHOICE_OPTS = {
     size: 5,
     selectedValue: '4',
     selectedCallback: (selectedChoice: string) => {
-        alert(`This is chosen: ${selectedChoice}`);
+        console.log(`This is chosen: ${selectedChoice}`);
     }
 }
 

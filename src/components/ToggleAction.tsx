@@ -16,8 +16,8 @@ function renderField<T extends FieldOpts | DropdownOpts | SequenceChoiceOpts>(
     fieldComponent: FC<T>,
     props: T
   ): JSX.Element {
-    alert('renderField');
-    alert(`renderField props: ${JSON.stringify(props)}`);
+    // alert('renderField');
+    // alert(`renderField props: ${JSON.stringify(props)}`);
     return React.createElement(fieldComponent, props); 
 }
 
@@ -40,7 +40,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         // let processedOpts: (FieldOpts | DropdownOpts | SequenceChoiceOpts) = opts;
         let processedOpts: FieldOpts | DropdownOpts | SequenceChoiceOpts = opts;
 
-        alert( `Processed opts: ${JSON.stringify(processedOpts)}`);
+        // alert( `Processed opts: ${JSON.stringify(processedOpts)}`);
 
        /*  if (component.valueOf() == 'dropdown' && !opts.selectedCallback) {
             alert(`selectedCallback is missing: keys [${JSON.stringify(opts)}]`)
@@ -58,7 +58,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         // return <Dropdown {...processedOpts} />
 
         if (isFoodieText(coreComponent)) {
-            alert('Foodie');
+            // alert('Foodie');
             let opts = processedOpts as FieldOpts;
             // return React.createElement(coreComponent, opts);
             return renderField(coreComponent, opts);
@@ -67,7 +67,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
             return React.createElement(coreComponent, opts);
             // return renderField(coreComponent, opts);
         } else {
-            alert ('Seq choice')
+            // alert ('Seq choice')
             let opts = processedOpts as SequenceChoiceOpts;
             return <SeqChoice { ...opts } />;
             // return React.createElement(coreComponent, opts)
@@ -203,7 +203,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         } */
         
         if (on && linkedExternalVal) {
-            alert(`typeof linkedExternalVal ${typeof linkedExternalVal}`)
+            // alert(`typeof linkedExternalVal ${typeof linkedExternalVal}`)
             if (typeof linkedExternalVal == 'string') {
                 // let updateValue: string = linkedExternalVal;/
                 let onElement = getElement({
@@ -227,9 +227,9 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
                         options: linkedExternalVal
                     }
                 }, readOnly);
-                alert('Got element')
+                // alert('Got element')
 
-                alert(JSON.stringify(onElement));
+                // alert(JSON.stringify(onElement));
                 if (isDropdown(onElement) || isFoodieText(onElement) || isSeqChoice(onElement)) {
                     setChildEle(onElement);
                 }
@@ -245,14 +245,14 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
                     }
                 }, readOnly);
 
-                alert(`On element is Seq Choice? : ${isSeqChoice(onElement)}`);
+                // alert(`On element is Seq Choice? : ${isSeqChoice(onElement)}`);
                 if (isDropdown(onElement) || isFoodieText(onElement) || isSeqChoice(onElement)) {
                     setChildEle(onElement);
                 }
             }
 
             if (typeof linkedExternalVal == 'object') {
-                alert(JSON.stringify(linkedExternalVal));
+                // alert(JSON.stringify(linkedExternalVal));
             }
         }
         

@@ -33,7 +33,6 @@ type Mapping = {
   order: OneDArray<ComponentChild>
 }
 
-// const productTypeList = ['Veg', 'Non-Veg', 'Addon'];
 const PRODUCT_TYPE_OPTIONS = [
   { name: 'Veg', value: 'veg' },
   { name: 'Non Veg', value: 'non-veg' },
@@ -43,12 +42,13 @@ const PRODUCT_TYPE_OPTIONS = [
 const BrandProducts = () => {
   let assetType = 'brand-product';
   const [productType, setProductType] = useState(PRODUCT_TYPE_OPTIONS[0].value);
-  const [selectedProductType, setSelectedProductType] = useState();
-  // const [productName, setProductName] = useState('');
+  const [selectedProductType, setSelectedProductType] = useState(PRODUCT_TYPE_OPTIONS[0].value);
+  
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
-  // const [enabled, setEnabled] = useState(true);
   const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
+
+  const [isRefetchingProducts, setIsRefetchingProducts] = useState(false);
 
   const [total, setTotal] = useState(0);
 
@@ -66,16 +66,17 @@ const BrandProducts = () => {
             { name: 'Arrived', id: 'createdAt', data: (row: BrandProduct) => localDate(row.createdAt)},
             { name: 'ID', id: 'brandTypeProductPrefix', data: (row: BrandProduct) => `${row.brandTypeProductPrefix}-${row.variantSequence}` },
             { name: 'Map Items', data: (row: BrandProduct) => {
-
+              const { productType, brandTypeProductPrefix, variantSequence, productName } = row;
+              const productPageUrl = `/product/${productType}/${brandTypeProductPrefix}-${variantSequence}/${productName}`;
               return !row.mapped 
                 ? _(<div className='text-center'>
                       <button 
                         className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
-                        onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}>Map</button>
+                        onClick={() => navigate(productPageUrl)}>Map</button>
                     </div>)
                 : _(<div className='text-center'>
                       <span className='cursor-pointer text-sm uppercase text-indigo-600 underline font-light italic'
-                        onClick={() => navigate(`/product/${row.productType}/${row.brandTypeProductPrefix}-${row.variantSequence}/${row.productName}`)}
+                        onClick={() => navigate(`${productPageUrl}?page=view`)}
                       >View</span>
                     </div>);
             }}
@@ -109,7 +110,7 @@ const BrandProducts = () => {
         throw error;
     }
     },
-    staleTime: 60 * 1000,
+    staleTime: Infinity,
     enabled: true
   });
 
@@ -118,16 +119,14 @@ const BrandProducts = () => {
     queryFn: async () => {
       try {
         const data = await fetchAssetsForType('product');
-        // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
-        // alert(JSON.stringify(data.data));
         return rows;
       } catch (err) {
         const error = err as AxiosError;
         throw error;
       }
     },
-    staleTime: 60 * 1000,
+    staleTime: Infinity,
     enabled: true
   });
 
@@ -145,7 +144,7 @@ const BrandProducts = () => {
         throw error;
       }
     },
-    staleTime: 60 * 1000,
+    staleTime: Infinity,
     enabled: true
   });
 
@@ -199,15 +198,25 @@ const BrandProducts = () => {
   }, [isPending, error, data, assetType, mappedProducts]);
 
   useEffect(() => {
-    if (products.error) {
-      if (axios.isAxiosError(products.error)) {
-        alert(products.error.response?.data);
-        if (products.error.response && products.error.response.status == 404) {
+    products.refetch();
+  }, [])
+
+  useEffect(() => {
+    if (products.isFetching) {
+      setIsRefetchingProducts(true);
+    } else {
+      setIsRefetchingProducts(false);
+    
+      if (products.error) {
+        if (axios.isAxiosError(products.error)) {
+          alert(products.error.response?.data);
+          // if (products.error.response && products.error.response.status == 404) {
+          // }
         }
+      } else if (products.data && products.data.length) {
+        // alert(`Products: ${JSON.stringify(products.data.length)}`);
+        setMappedProducts(products.data)
       }
-    } else if (products.data && products.data.length) {
-      // alert(JSON.stringify(products.data));
-      setMappedProducts(products.data)
     }
 
   }, [products.isPending, products.isFetching, products.error, products.data]);
@@ -234,11 +243,10 @@ const BrandProducts = () => {
 
   return (<div className='pt-10'>
     {assetType && <>
-      {/* <h1>{assetType}</h1> */}
 
       <div className='flex flex-row gap-8 px-10 mb-10'>
-        <Count label='Unmapped Products' count={total - mappedProducts.length} />
-        <Count label='Products Defined' count={mappedProducts.length} />
+        <Count label='Unmapped Products' count={total - mappedProducts.length} isLoading={totalProducts.isFetching} />
+        <Count label='Products Defined' isLoading={isRefetchingProducts} array={mappedProducts} />
       </div>
 
       <div className='flex flex-row gap-4 px-10 mb-10 items-center'>
@@ -247,38 +255,11 @@ const BrandProducts = () => {
         {PRODUCT_TYPE_OPTIONS 
           && PRODUCT_TYPE_OPTIONS.map(pt => <ChipButton key={pt.value} value={pt.value} label={pt.name} 
             isActive={pt.value == productType} update={setSelectedProductType}
-            isLoading={selectedProductType && isPending && selectedProductType == pt.value}
+            isLoading={isPending && selectedProductType == pt.value}
              />)
         }
       </div>
       
-      {/* <div className='flex flex-row mx-10 items-end gap-4 h-20'>
-        <Dropdown 
-                options={PRODUCT_TYPE_OPTIONS} selectedValue={productType} 
-                selectedCallback={(valObj: Option) => setProductType(valObj.value)} 
-                name='Product Type'
-              />
-        <div className=''>
-          <FoodieText fieldName='productName' label='Product Name' action={setProductName} size='w-64'/>
-        </div>
-        <div className=''>
-          {!isFetching
-            ? <button 
-              type='button' 
-              disabled={productName.length < 3}
-              onClick={() => setEnabled(true)}
-              className={`py-2.5 px-6 text-sm rounded-md uppercase
-                ${!(productName.length < 3) 
-                  ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'
-                  : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
-                font-semibold text-center shadow-xs `}>
-                Fetch
-            </button>
-            : <span className='text-sm italic text-slate-400'>fetching...</span>
-          }
-        </div>
-          
-      </div> */}
       { isPending ? (isFetching ? <h4 className='italic text-md text-slate-400 ml-10 font-light'>Loading {productType} products ...</h4> : '')
         : <div className="container mx-auto">
             <h4 className='italic text-md text-slate-400 ml-1 font-light'>{data.length} products found</h4>

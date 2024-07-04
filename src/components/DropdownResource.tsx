@@ -49,7 +49,7 @@ const DropdownResource: FC<DropdownFormOpts> = ({ name, cascade, cascadeOptions,
       name: 'Cascade',
       selectedCallback: function (valueObj: any) {  
           let val = valueObj.value;
-          alert(`Cascade chosen : ${val}`);
+          // alert(`Cascade chosen : ${val}`);
           setCascadeType(val);
       }
     }

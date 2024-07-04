@@ -1,3 +1,4 @@
+import { ProductAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -34,4 +35,14 @@ export async function fetchAsset(assetType: string, id?: string) {
   const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}&id=${id}`;
   
   return axios.get(url, HEADERS)
+}
+
+export async function createAsset(assetType: string, data: ProductAsset) {
+  try {
+    const type = assetType.toUpperCase();
+    const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+    return axios.post(url, data, HEADERS);
+  } catch (error) {
+     throw new Error('Error during new Asset creation'); // Additional error details from the server
+  }
 }

@@ -2,13 +2,15 @@ import { FC, useState, useEffect } from 'react';
 import PackageList from './PackageList';
 import PackageQtyForm from './PackageQtyForm';
 import { PackageQtyOtps } from "@/App.type";
+import TransButton from '@/core/TransButton';
 
 type PdtPkg = {
     data?: PackageQtyOtps[],
-    update: Function
+    update: Function,
+    readOnly?: boolean
 }
 
-const ProductPackages: FC<PdtPkg> = ({ data, update }) => {
+const ProductPackages: FC<PdtPkg> = ({ data, update, readOnly }) => {
     let borderOn = false;
     // borderOn = true;
     
@@ -40,17 +42,8 @@ const ProductPackages: FC<PdtPkg> = ({ data, update }) => {
     }, [data])
 
     return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
-        {!showForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
-            <button 
-                type='button' 
-                onClick={() => {
-                    setShowForm(true);
-                }}
-                className={`py-2.5 px-6 text-sm rounded uppercase
-                    cursor-pointer text-indigo-500  bg-white transition-all duration-500 hover:bg-indigo-200
-                    font-semibold text-center shadow-xs `}>
-                Assign Package & Quantity
-            </button>
+        {!readOnly && !showForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
+            <TransButton label='Assign Package & Quantity' update={() => setShowForm(true)} />
         </div>}
         {showForm && <PackageQtyForm action={addPackage} errorMessage={errorMessage} />}
 

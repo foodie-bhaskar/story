@@ -1,47 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios, { AxiosError } from 'axios';
 
-import ProductItems from '@/components/ProductItems';
-import ProductPackages from '@/components/ProductPackages';
 import { ItemQtyOtps, PackageQtyOtps, ProductAsset } from '@/App.type';
 
-const assetType = 'product';
+import { fetchAssetsForType, createAsset } from '../api/api';
+import ProductEntryForm from './ProductEntryForm';
+import TransButton from '@/core/TransButton';
+import ProductCopier from '@/components/ProductCopier';
 
-async function fetchAsset(assetType: string, id?: string) {
-    if (!id) {
-        throw new Error('Product Id is required');
-    }
-    const url = `https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType.toUpperCase()}&id=${id}`;
-    
-    return axios.get(url, {
-        headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-        }
-    })
-}
+const assetType = 'product';
 
 type Product = {
     items: ItemQtyOtps[],
     packages: PackageQtyOtps[]
-}
-
-async function createAsset(data: ProductAsset) {
-    try {
-        return axios.post(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType.toUpperCase()}`, 
-            data,
-            {
-                headers: {
-                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-                }
-            }
-        );
-    } catch (error) {
-        throw new Error('Hello');
-        // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
-    }
 }
 
 const Product = () => {
@@ -49,29 +22,60 @@ const Product = () => {
     // borderOn = true;
 
     let { productType, productId, productName } = useParams();
+    const [searchParams] = useSearchParams();
+    const page = searchParams.get('page');
+
+    const [isManual, setIsManual] = useState(false);
+
+    const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
+
     const [product, setProduct] = useState<Product>();
     const [isLoading, setIsLoading] = useState(false);
 
     const [errorMessage, setErrorMessage] = useState<string>('');
 
-    const [valid, setValid] = useState(false);
-
-    const [items, setItems] = useState<ItemQtyOtps[]>([]);
-    const [tags, setTags] = useState<string[]>([]);
-    const [packages, setPackages] = useState([]);
-
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
-    const addItemQty = (items: ItemQtyOtps[], tags: string[]) => {
-        setItems(items)
-        setTags(tags);
+    const products = useQuery({
+        queryKey: ['asset', 'product'],
+        queryFn: async () => {
+          try {
+            const rows = await fetchAssetsForType('product');
+            return rows.data;
+          } catch (err) {
+            const error = err as AxiosError;
+            throw error;
+          }
+        },
+        staleTime: Infinity,
+        enabled: true
+    });
+
+    const createMapping = async (items: ItemQtyOtps[], packages: PackageQtyOtps[], tags: string[]) => {
+
+        if (productId && productName) {
+        
+            const body: ProductAsset = {
+                items,
+                packages,
+                tags,
+                id: productId,
+                name: productName,
+                isVeg: productType == 'non-veg' ? false: true
+            }
+            // alert(JSON.stringify(body))
+
+            await mutation.mutateAsync(body);
+
+            navigate(-1);
+        }
     }
 
     const mutation = useMutation({
         mutationFn: async (assetItem: ProductAsset) => {
             try {
-                const response = await createAsset(assetItem);
+                const response = await createAsset(assetType, assetItem);
                 return response.data;
             } catch (err) {
                 const error = err as AxiosError;
@@ -84,7 +88,7 @@ const Product = () => {
             // Query Invalidation (Recommended)
             queryClient.invalidateQueries({ queryKey: ['asset', assetType] }); // Refetch the 'posts' query
             setErrorMessage('');
-            navigate(-1);
+            // update(true);
           // Or, if you prefer, you can update the cache directly
           // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
         },
@@ -99,109 +103,66 @@ const Product = () => {
         },
     });
 
-    const { isPending, isFetching, error, data } = useQuery({
-        queryKey: ['asset', assetType, productId],
-        queryFn: async () => {
-          try {
-            const data = await fetchAsset(assetType, productId);
-            return data.data;
-          } catch (err) {
-            const error = err as AxiosError;
-            throw error;
-          }
-        },
-        staleTime: Infinity,
-        enabled: !!productId
-    });
-
     useEffect(() => {
-        if (items.length && packages.length) {
-            setValid(true);
-        } else {
-            setValid(false);
-        }
-
-    }, [items, packages])
-
-    useEffect(() => {
-        if (isFetching) {
-          setIsLoading(true)
-        } else if (!isPending) {
-          setIsLoading(false);
-    
-          if (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                    // alert(error.response.data);
-                    setErrorMessage(`WARNING: ${error.response.data}`);
+        if (products.isFetching) {
+            setIsLoading(true)
+        } else if (!products.isPending && products.error) {
+            setIsLoading(false);
+            if (axios.isAxiosError(products.error)) {
+                setErrorMessage(`WARNING: ${products.error.response?.data}`);
+                if (products.error.response && products.error.response.status == 404) {
                 }
             } else {
-            //   alert(error.message);
-                setErrorMessage(error.message);
+                setErrorMessage(`WARNING: ${products.error.message}`);
             }
-          } else {
-            setErrorMessage('');
-            if (data.result && data.result) {
-                // alert(JSON.stringify(data.result.items));
-                setProduct(data.result)
-            }
-          }  
+        } else if (!products.isPending && products.data) {
+            setIsLoading(false);
+            setMappedProducts(products.data);
+        } else {
+            setIsLoading(false);
         }
-      }, [isPending, isFetching, error, data]);
+    
+    }, [products.isPending, products.isFetching, products.error, products.data]);
+
+    useEffect(() => {
+        if (productId && mappedProducts && mappedProducts.length > 0) {
+            for (let i=0; i < mappedProducts.length; i++) {
+                const p = mappedProducts[i];
+                if (p.assetId == productId) {
+                    setProduct(p);
+                    break;                      
+                }
+            }
+        }
+    }, [mappedProducts, productId])
 
     return (<div className='lg-w-full mx-auto'>
-        <div className="text-center">
-            {!productId && <h4>Invalid URL, product ID is missing</h4>}
-            {productId && <h2 className="text-xl uppercase font-semibold leading-7 text-gray-500 mt-10 mx-auto">
-                Product: {productId} {isLoading ? '(Fetching status...)': (!product ? '(UNMAPPED)': '')}
-            </h2>}
-            <p className="mt-1 text-sm leading-6 text-gray-600 italic">
+        <div className='flex flex-row m-10 gap-10 items-center'>
+            <h1 className='text-xl text-indigo-400 font-extrabold'>{productName}</h1>
+            <div className={`text-gray-50 bg-gray-400 rounded px-2 h-10 py-2`}>{productId}</div>
+            <p className="text-sm leading-6 text-gray-600 italic">
                 Assign items with quantity and packaging details for this product
             </p>
         </div>
+        
+
+        {!(page && page == 'view') && <div className={`${borderOn ? 'border border-red-700': ''} m-10 flex flex-row justify-between`}>
+            <div>{!isManual && <TransButton label='Manually add items and packaging' update={() => setIsManual(true)} />}</div>
+            <div><TransButton label='Copy from an existing product mapping' update={() => setIsManual(false)} /></div>
+        </div>}
 
         {errorMessage && <div className='text-red-600 bg-slate-200 rounded ps-10'>
             <p>{errorMessage}</p>
         </div>}
 
-        <div className='flex flex-row px-10 w-full rounded py-4 gap-10 items-center my-4 mx-10 '>
-            <span className='inline-block text-xl text-slate-500 font-semibold h-10 mt-2'>{productName}</span>
-
-            {!product && !isLoading && <button 
-                type='button' 
-                disabled={false}
-                onClick={async () => {
-                    if (productId && productName) {
-                        const body: ProductAsset = {
-                            items,
-                            packages,
-                            tags,
-                            id: productId,
-                            name: productName,
-                            isVeg: productType == 'non-veg' ? false: true
-                        }
-                        alert(JSON.stringify(body))
-
-                        await mutation.mutateAsync(body);
-                    }
-                }}
-                className={`py-2.5 px-6 text-sm rounded uppercase h-10
-                    ${valid
-                          ? 'cursor-pointer text-indigo-50  bg-indigo-500 transition-all duration-500 hover:bg-indigo-700'
-                          : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
-                        font-semibold text-center shadow-xs rounded`}>
-                    Save
-                </button>}
-        </div>
-
-        {!isLoading && <div className={`${borderOn ? 'border-red-800': ''} mt-10 flex flex-row h-svh min-w-max`}>
-            <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-6`}>
-                <ProductItems update={addItemQty} data={product? product.items: []}/>
-            </main>
-            <aside className=" basis-5/12 ps-10">
-                <ProductPackages update={setPackages} data={product? product.packages: []} />
-            </aside>
+        {((page && page == 'view' && product) || isManual) && productType && productId && productName && <div className='m-10'>
+            <ProductEntryForm readOnly={page && page == 'view'? true: false} product={product} update={createMapping} />
         </div>}
+
+        {(!page || page != 'view') && !isManual && productName? (isLoading 
+            ? <span className='ml-20 italic text-sm text-slate-400'>Loading available products.....</span>
+            : <ProductCopier productName={productName} availableProducts={mappedProducts} update={createMapping} />): ''}
+
     </div>);
 }
 

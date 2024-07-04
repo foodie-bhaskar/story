@@ -2,13 +2,15 @@ import { FC, useState, useEffect } from 'react';
 import ItemList from '@/components/Itemlist';
 import ItemQtyForm from '@/components/ItemQtyForm';
 import { ItemQtyOtps } from "@/App.type";
+import TransButton from '@/core/TransButton';
 
 type PdtItem = {
     data?: ItemQtyOtps[],
-    update: Function
+    update: Function,
+    readOnly?: boolean
 }
 
-const ProductItems: FC<PdtItem> = ({ data, update }) => {
+const ProductItems: FC<PdtItem> = ({ data, update, readOnly }) => {
     let borderOn = false;
     // borderOn = true;
     
@@ -43,17 +45,8 @@ const ProductItems: FC<PdtItem> = ({ data, update }) => {
     }, [data])
 
     return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
-        {!showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
-            <button 
-                type='button' 
-                onClick={() => {
-                    setShowItemForm(true);
-                }}
-                className={`py-2.5 px-6 text-sm rounded uppercase
-                    cursor-pointer text-indigo-500  bg-white transition-all duration-500 hover:bg-indigo-200
-                    font-semibold text-center shadow-xs `}>
-                Assign Item and quantity
-            </button>
+        {!readOnly && !showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
+            <TransButton label='Assign Item and quantity' update={() => setShowItemForm(true)} />
         </div>}
         {showItemForm && <ItemQtyForm action={addItem} errorMessage={itemError} />}
 

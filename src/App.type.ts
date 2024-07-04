@@ -233,7 +233,8 @@ export interface Item {
 
 export interface ItemQtyOtps {
     item: Item,
-    qty: number
+    qty: number,
+    readOnly?: boolean
 }
 
 export interface Package {
@@ -243,5 +244,6 @@ export interface Package {
 
 export interface PackageQtyOtps {
     package: Package,
-    qty: number
+    qty: number,
+    readOnly?: boolean
 }

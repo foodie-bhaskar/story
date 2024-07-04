@@ -82,7 +82,7 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
             <p>{errorMessage}</p>
         </div>}
         <fieldset className="border border-gray-500 rounded pl-10 flex flex-row pt-4 pb-8 justify-between mb-10">
-            <legend className='uppercase text-gray-500 text-sm rounded font-semibold ml-6'>
+            <legend className='uppercase text-gray-500 text-sm rounded font-semibold '>
                 Assign Item and quantity &nbsp;&nbsp;
             </legend>
 
