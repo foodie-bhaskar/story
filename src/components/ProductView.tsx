@@ -9,10 +9,11 @@ type ProductViewOpts = {
     update: Function,
     readOnly?: boolean,
     btnLabel: string,
-    showBorder?: boolean
+    showBorder?: boolean,
+    name?: string
 }
 
-const ProductView: FC<ProductViewOpts> = ({ data, update, btnLabel, readOnly, showBorder }) => {
+const ProductView: FC<ProductViewOpts> = ({ data, update, btnLabel, readOnly, showBorder, name }) => {
     // let borderOn = false;
     // borderOn = true;
 
@@ -25,7 +26,9 @@ const ProductView: FC<ProductViewOpts> = ({ data, update, btnLabel, readOnly, sh
         }
     }, [data.assetId])
 
-    return (<div className={`${showBorder ? 'border border-slate-500': ''} space-y-10 bg-white rounded py-10 h-96`}>
+    return (<div className={`${showBorder ? 'border border-slate-500': ''} space-y-10 bg-white rounded py-10 min-h-96`}>
+        {!readOnly && <h4 className={`text-slate-700 font-semibold ml-8 -my-6`}>{name}</h4>}
+        {readOnly && <h4 className={`text-indigo-500 font-normal ml-8 -my-6`}>{data.name}</h4>}
         <ItemList items={data.items} readOnly={readOnly} />
 
         <PackageList packages={data.packages} readOnly={readOnly} />  

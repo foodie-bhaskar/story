@@ -8,8 +8,18 @@ type Name = {
     onSelect: Function
 }
 
+function findContains(name: string, products: ProductAsset[]) {
+    let similar = products.filter(p => p.name.toLowerCase().includes(name.toLowerCase()));
+
+    if (similar && similar.length > 0) {
+        return similar;
+    } else {
+        return [];
+    }
+}
+
 function findSimilar(name: string, products: ProductAsset[]) {
-    let similar = products.filter(p => p.name.startsWith(name));
+    let similar = products.filter(p => p.name.toLowerCase().startsWith(name.toLowerCase()));
 
     if (similar && similar.length > 0) {
         return similar;
@@ -18,7 +28,7 @@ function findSimilar(name: string, products: ProductAsset[]) {
         const nameTokens = name.split(' ');
 
         if (nameTokens.length == 1) {
-            return [];
+            return findContains(name, products);
         } else {
             const partial = nameTokens.slice(0, nameTokens.length - 1).join(' ');
             // alert(`No matches for [${name}], so trying with : (${partial})`)
@@ -41,7 +51,7 @@ const StringFilterChips: FC<Name> = ({ name, products, onSelect }) => {
 
     useEffect(() => {
         const similar = findSimilar(name, products)
-        setFiltered(similar);
+        setFiltered(similar.slice(0, 10));
 
     }, [name, products]);
 

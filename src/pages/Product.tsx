@@ -137,7 +137,7 @@ const Product = () => {
     }, [mappedProducts, productId])
 
     return (<div className='lg-w-full mx-auto'>
-        <div className='flex flex-row m-10 gap-10 items-center'>
+        <div className='flex flex-row mx-10 my-4 gap-10 items-center'>
             <h1 className='text-xl text-indigo-400 font-extrabold'>{productName}</h1>
             <div className={`text-gray-50 bg-gray-400 rounded px-2 h-10 py-2`}>{productId}</div>
             <p className="text-sm leading-6 text-gray-600 italic">
@@ -146,16 +146,19 @@ const Product = () => {
         </div>
         
 
-        {!(page && page == 'view') && <div className={`${borderOn ? 'border border-red-700': ''} m-10 flex flex-row justify-between`}>
+        {!(page && page == 'view') && <div className={`${borderOn ? 'border border-red-700': ''} mx-10 flex flex-row justify-between`}>
             <div>{!isManual && <TransButton label='Manually add items and packaging' update={() => setIsManual(true)} />}</div>
-            <div><TransButton label='Copy from an existing product mapping' update={() => setIsManual(false)} /></div>
+            <div>{isManual && <TransButton label='Copy from an existing product mapping' update={() => setIsManual(false)} />}</div>
         </div>}
 
         {errorMessage && <div className='text-red-600 bg-slate-200 rounded ps-10'>
             <p>{errorMessage}</p>
         </div>}
 
-        {((page && page == 'view' && product) || isManual) && productType && productId && productName && <div className='m-10'>
+        {((page && page == 'view' && product) || isManual) && productType && productId && productName && <div className='mx-10'>
+            <div className='my-2'>
+                <h4 className='text-slate-400 text-lg font-semibold'>Manually add items and packaging</h4>
+            </div>
             <ProductEntryForm readOnly={page && page == 'view'? true: false} product={product} update={createMapping} />
         </div>}
 

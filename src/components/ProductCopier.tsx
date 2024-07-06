@@ -3,6 +3,7 @@ import { ProductAsset } from "@/App.type";
 import ProductView from "./ProductView";
 import StringFilterChips from "./StringFilterChips";
 import Loader from "@/core/Loader";
+import FoodieText from "@/core/FoodieText";
 
 interface PdtCopierOpts {
     productName: string,
@@ -18,8 +19,14 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
     const [copiedProduct, setCopiedProduct] = useState<ProductAsset>();
 
     const [isLoading, setIsLoading] = useState(false);
+    const [filterPartial, setFilterPartial] = useState(productName);
 
-    return <div className={`flex flex-row mx-10 min-h-96 gap-1 ${borderOn ? 'border border-green-700': ''}`}>
+    return (<div className={`${borderOn ? 'border border-green-700': ''}`}>
+        <div className='my-2 mx-10 flex flex-row justify-between items-center'>
+            <h4 className='text-slate-400 text-lg font-semibold'>Copy from an existing product mapping</h4>
+            <FoodieText label={""} fieldName={""} value={productName} action={setFilterPartial} size="w-96"/>
+        </div>
+        <div className={`flex flex-row mx-10 min-h-96 gap-1 ${borderOn ? 'border border-green-700': ''}`}>
         <div className={`basis-2/5 py-4 pe-4 ${!copiedProduct ? 'border border-slate-400': ''}`}>
             {copiedProduct 
                 ? (isLoading ? <div className='h-96 text-center align-middle'><Loader /></div>
@@ -30,6 +37,7 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
                             await update(copiedProduct.items, copiedProduct.packages, tags);
                             setIsLoading(false);
                         }} 
+                        name={productName}
                     />
                 )
                 : <div className='h-80 flex justify-center items-center'>
@@ -39,7 +47,8 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
        
         <div className={`flex flex-row basis-3/5 gap-2 bg-slate-200 rounded p-4 ${borderOn ? 'border border-green-400': ''}`}>
             <div className={`basis-3/5 ${borderOn ? 'border border-green-400': ''}`}>
-                    {similarProduct && <ProductView data={similarProduct} btnLabel='Copy' update={setCopiedProduct} readOnly={true} />}
+                    {similarProduct && <ProductView data={similarProduct} btnLabel='Copy' 
+                        update={setCopiedProduct} readOnly={true} />}
                     {!similarProduct && <div className='h-80 flex justify-center items-center border-r border-slate-400'>
                         <span className='text-slate-400 italic'>
                             {/* Total {availableProducts.length} products found <br /> */}
@@ -48,10 +57,11 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
                     </div>}
                 </div>
                 <div className={`basis-2/5 flex flex-row justify-center ${borderOn ? 'border border-green-400': ''}`}>
-                    <StringFilterChips onSelect={setSimilarProduct} products={availableProducts} name={productName || ''} />
+                    <StringFilterChips onSelect={setSimilarProduct} products={availableProducts} name={filterPartial} />
                 </div>
             </div>
-    </div>
+        </div>
+    </div>)
 }
 
 export default ProductCopier;
