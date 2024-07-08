@@ -11,7 +11,7 @@ import { OneDArray } from 'gridjs/dist/src/types.js';
 import { ComponentChild } from 'preact';
 // import Dropdown from '@/core/Dropdown';
 // import FoodieText from '@/core/FoodieText';
-import { fetchAssetsForType, fetchAsset } from '../api/api';
+import { fetchAssetsForType, fetchCachesForType } from '../api/api';
 import Count from '@/core/Count';
 import ChipButton from '@/core/ChipButton';
 
@@ -51,6 +51,7 @@ const BrandProducts = () => {
   const [isRefetchingProducts, setIsRefetchingProducts] = useState(false);
 
   const [total, setTotal] = useState(0);
+  const [weekly, setWeekly] = useState(0);
 
   const navigate = useNavigate();
 
@@ -130,15 +131,31 @@ const BrandProducts = () => {
     enabled: true
   });
 
-  const totalProducts = useQuery({
-    queryKey: ['asset', 'cache', 'product-names_count-total'],
+  const productsSummary = useQuery({
+    queryKey: ['asset', 'cache', 'product-names'],
     queryFn: async () => {
       try {
-        const data = await fetchAsset('cache', 'product-names_count-total');
+        // const data = await fetchAsset('cache', 'product-names_count-total');
+        const data = await fetchCachesForType('product-names', 'count');
         // const rows = data.data.result.map(item => ({ ...item, options: item.options.length}));
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
+
+        type cacheRow = {
+          data: number,
+          payload: string,
+          group: string,
+          type: string,
+          updatedAt: string
+        }
+
+        return rows.reduce((acc: any, row: cacheRow) => {
+          const { group, ...rest } = row;
+          acc[group] = rest;
+          return acc;
+        }, {});
+
         // alert(JSON.stringify(data.data.result));
-        return rows;
+        // return rows;
       } catch (err) {
         const error = err as AxiosError;
         throw error;
@@ -222,18 +239,19 @@ const BrandProducts = () => {
   }, [products.isPending, products.isFetching, products.error, products.data]);
 
   useEffect(() => {
-    if (totalProducts.error) {
-      if (axios.isAxiosError(totalProducts.error)) {
-        alert(totalProducts.error.response?.data);
-        if (totalProducts.error.response && totalProducts.error.response.status == 404) {
-        }
+    if (productsSummary.error) {
+      if (axios.isAxiosError(productsSummary.error)) {
+        alert(productsSummary.error.response?.data);
+        /* if (productsSummary.error.response && productsSummary.error.response.status == 404) {
+        } */
       }
-    } else if (totalProducts.data) {
-      // alert(totalProducts.data.data);
-      setTotal(totalProducts.data.data);
+    } else if (productsSummary.data) {
+      // alert(productsSummary.data);
+      setTotal(productsSummary.data['count#total'].data);
+      setWeekly(productsSummary.data['count#weekly'].data);
     }
 
-  }, [totalProducts.isPending, totalProducts.isFetching, totalProducts.error, totalProducts.data])
+  }, [productsSummary.isPending, productsSummary.isFetching, productsSummary.error, productsSummary.data])
 
   useEffect(() => {
     if (!isPending && selectedProductType) {
@@ -245,8 +263,9 @@ const BrandProducts = () => {
     {assetType && <>
 
       <div className='flex flex-row gap-8 px-10 mb-10'>
-        <Count label='Unmapped Products' count={total - mappedProducts.length} isLoading={totalProducts.isFetching} />
+        <Count label='Unmapped Products' count={total - mappedProducts.length} isLoading={productsSummary.isFetching} />
         <Count label='Products Defined' isLoading={isRefetchingProducts} array={mappedProducts} />
+        <Count label='Weekly Additions' isLoading={productsSummary.isFetching} count={weekly} />
       </div>
 
       <div className='flex flex-row gap-4 px-10 mb-10 items-center'>

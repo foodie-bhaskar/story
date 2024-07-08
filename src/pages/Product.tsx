@@ -157,7 +157,7 @@ const Product = () => {
 
         {((page && page == 'view' && product) || isManual) && productType && productId && productName && <div className='mx-10'>
             <div className='my-2'>
-                <h4 className='text-slate-400 text-lg font-semibold'>Manually add items and packaging</h4>
+                {!(page && page == 'view') && <h4 className='text-slate-400 text-lg font-light'>Manually add items and packaging</h4>}
             </div>
             <ProductEntryForm readOnly={page && page == 'view'? true: false} product={product} update={createMapping} />
         </div>}

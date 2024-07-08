@@ -23,7 +23,7 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
 
     return (<div className={`${borderOn ? 'border border-green-700': ''}`}>
         <div className='my-2 mx-10 flex flex-row justify-between items-center'>
-            <h4 className='text-slate-400 text-lg font-semibold'>Copy from an existing product mapping</h4>
+            <h4 className='text-slate-400 text-lg font-light'>Copy from an existing product mapping</h4>
             <FoodieText label={""} fieldName={""} value={productName} action={setFilterPartial} size="w-96"/>
         </div>
         <div className={`flex flex-row mx-10 min-h-96 gap-1 ${borderOn ? 'border border-green-700': ''}`}>
