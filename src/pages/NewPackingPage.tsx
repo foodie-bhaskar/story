@@ -69,7 +69,7 @@ const NewPackagingPage = () => {
 
         // alert(JSON.stringify(assetItem));
         let creationResponse = await mutation.mutateAsync(assetItem);
-        // alert(JSON.stringify(creationResponse));
+        console.log(JSON.stringify(creationResponse));
         navigate('/list-assets/package')
     }
 
