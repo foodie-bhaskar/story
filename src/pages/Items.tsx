@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Grid } from 'gridjs-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Grid, _ } from 'gridjs-react';
 import "gridjs/dist/theme/mermaid.css";
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
@@ -9,23 +9,14 @@ import { capitalizeWords } from '@/lib/utils';
 import { ItemOpts, PackageAsset } from '@/App.type';
 import { OneDArray } from 'gridjs/dist/src/types.js';
 import { ComponentChild } from 'preact';
-
-async function fetchAssetsForType(assetType: string | undefined) {  
-  if (!assetType) {
-    throw new Error('Asset type is required');
-  }
-  return axios.get(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType.toUpperCase()}`, {
-      headers: {
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-      }
-  });
-}
+import { fetchAssetsForType } from '../api/api';
+import LinkButton from '@/core/LinkButton';
 
 type Mapping = {
   order: OneDArray<ComponentChild>
 }
 
-function getMappings(assetType: string): Mapping {
+function getMappings(assetType: string, nav: Function): Mapping {
   switch (assetType) {
     case 'rid': 
       return {
@@ -41,7 +32,7 @@ function getMappings(assetType: string): Mapping {
           { name: 'Consumption', id: 'consumptionCount'},
           { name: 'Is Packet?', id: 'isPacket', data: (row: ItemOpts) => row.isPacket ? 'Yes': 'NO '},
           { name: 'Veg / Non-Veg', id: 'isVeg', data: (row: ItemOpts) => row.isVeg ? 'Veg': 'non-veg '},
-          { name: 'Cuisine', id: 'cuisineCombo', data: (row: ItemOpts) => capitalizeWords(row.cuisineCombo[0].value) },
+          { name: 'Cuisine', id: 'cuisineCombo', data: (row: ItemOpts) => row.cuisineCombo.length ? capitalizeWords(row.cuisineCombo[0].value): '' },
           { name: 'Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[0].value) },
           { name: 'Sub Type', id: 'typeCombo', data: (row: ItemOpts) => {
             if (row.typeCombo && row.typeCombo[1]) {
@@ -57,7 +48,7 @@ function getMappings(assetType: string): Mapping {
           { name: 'Raw Material Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[0].value },
           { name: 'Pre Commission Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[1].value },
           { name: 'Post Aggregator Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[2].value },
-          { name: 'Post Store Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[3].value },
+          { name: 'Post Store Cost', id: 'costBuildup', data: (row: ItemOpts) => row.costBuildup[3].value }
         ]
       }
 
@@ -71,8 +62,21 @@ function getMappings(assetType: string): Mapping {
       try {
         mappings = {
           order: [
-            { name: 'ID', id: 'assetId'},
-            { name: 'Name', id: 'name'},
+            { name: 'ID', id: 'assetId', 
+              data: (row: PackageAsset) => {      
+                let to = `/view-asset/package/${row.assetId}`;
+              
+                return _(<>
+                  <LinkButton label={row.assetId} to={to} nav={nav} />
+                  {/* <TransButton label={row.assetId} update={action} /> */}
+                </>)
+              }
+            },
+            { 
+              name: 'Name', 
+              id: 'name',
+             
+            },
             { name: '# of Compartments', id: 'compartments'},
             { name: 'Volume (in ml)', id: 'volume'},
             { name: 'Cost', id: 'packagingCost'},
@@ -108,9 +112,9 @@ function getMappings(assetType: string): Mapping {
 }
 
 // 
-function getColumns(assetType: string, fields: string[]) {
+function getColumns(assetType: string, fields: string[], nav: Function) {
   console.log('fields', fields)
-  let colsInOrder = getMappings(assetType);
+  let colsInOrder = getMappings(assetType, nav);
   return colsInOrder;
 }
 
@@ -118,6 +122,7 @@ const Items = () => {
   let { assetType } = useParams();
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
+  const nav =  useNavigate();
 
   const { isPending, error, data } = useQuery({
     queryKey: ['asset', assetType],
@@ -138,7 +143,7 @@ const Items = () => {
 
   useEffect(() => {
     if (assetType) {
-    
+      // alert(`AssetType changed ${assetType}`);
       if (error) {
         if (axios.isAxiosError(error)) {
           alert(error.response?.data);
@@ -148,16 +153,18 @@ const Items = () => {
       } else if (data) {
         
         setTableData(data);
-        let cols: Mapping = getColumns(assetType, Object.keys(data[0]));
+        let cols: Mapping = getColumns(assetType, Object.keys(data[0]), nav);
         // alert('col loaded');
         setColumns(cols.order);
       }
     }
   }, [isPending, error, data, assetType]);
 
-  return (<div>
-    {assetType && <>
-      <h1>{assetType}</h1>
+  return (<div className=''>
+    <div className='ps-8 mt-10'>
+      <h1 className="text-lg text-slate-600 font-semibold uppercase">{assetType}</h1>
+    </div>
+    
       { isPending && `Loading ${assetType}s ...`}
       {tableData && <div className="container mx-auto py-10">
             <h4>{data.length} found</h4>
@@ -182,7 +189,6 @@ const Items = () => {
             />
         </div>
       }
-    </>}
     
   </div>);
 }

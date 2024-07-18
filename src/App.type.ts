@@ -7,6 +7,9 @@ export interface AppProps {
 export enum ToggleState {Off = 0, On = 1};
 export enum Placement { BELOW = 'column', RIGHT = 'row' };
 export enum Component { TEXT = 'text', DROPDOWN = 'dropdown', SEQCHOICES = 'seqchoices' };
+export enum FormType { CREATE = 'create', EDIT = 'edit', VIEW = 'view' };
+
+export enum AssetTypes { ITEM = 'item', PACKAGE = 'package' };
 
 export interface SupportedComponents {
     [key: string]: FC<FieldOpts> | FC<DropdownOpts> | FC<SequenceChoiceOpts>;
@@ -105,7 +108,9 @@ export interface WeightComboOpts {
 export interface CascadeComboOpts {
     cascade: string,
     hierarchy: string[],
-    update: Function
+    update: Function,
+    value?: Option[],
+    readOnly?: boolean
 }
 
 export interface Stage {
@@ -149,6 +154,7 @@ export interface SequenceChoiceOpts {
 }
 
 export interface ChoiceOpts {
+    readOnly?: boolean,
     label: string,
     position?: string,
     choices: string[],
@@ -192,7 +198,25 @@ export interface PackageAsset {
     containerType: string,
     containerSize: string,
     imageUrl: string,
-    packagingTypeCombo: Option[]
+    packagingTypeCombo: Option[],
+    name: string,
+    assetId: string
+}
+
+export interface PackageFormOpts {
+    pkg?: PackageAsset,
+    formType: FormType,
+    callbackFn?: Function
+}
+
+export interface WrapperContent {
+    package?: PackageFormOpts;
+    item?: ItemOpts
+}
+
+export interface WrapperProps {
+    type: AssetTypes;
+    content: WrapperContent
 }
 
 export interface BrandProduct {

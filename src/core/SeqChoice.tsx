@@ -28,7 +28,7 @@ const getSequence = (size: number, step = 1) => {
 /*
  * Displays N sequenced choices
  */
-const SeqChoice: FC<SequenceChoiceOpts> = ({ label, position, size, selectedValue, step, selectedCallback, allowMore }) => {
+const SeqChoice: FC<SequenceChoiceOpts> = ({ label, position, size, selectedValue, step, selectedCallback, allowMore, readOnly }) => {
     let borderOn = false;
     // borderOn = true;
     const sequence = getSequence(size, step);
@@ -43,7 +43,7 @@ const SeqChoice: FC<SequenceChoiceOpts> = ({ label, position, size, selectedValu
     }, [selectedValue]);
 
     return (<div className={`${borderOn ? 'border border-green-400': ''} flex flex-row items-center justify-between`}>
-        {!showMore && <Choice label={label} choices={sequence} selectedValue={selChoice} selectedCallback={selectedCallback} position={position} />}
+        {!showMore && <Choice label={label} choices={sequence} selectedValue={selChoice} selectedCallback={selectedCallback} position={position} readOnly={readOnly} />}
         {showMore && <div className='flex flex-col'>
             <FoodieText label={label} action={selectedCallback} fieldName={label} size='w-20' type='number' />
         </div>}

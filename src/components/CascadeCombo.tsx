@@ -14,9 +14,9 @@ async function fetchResourcesForCascade(cascade: string) {
     })
 }
 
-const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
-    const borderOn = false;
-    // const borderOn = true;
+const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update, readOnly, value }) => {
+    let borderOn = false;
+    // borderOn = true;
 
     const basisCss = hierarchy.length == 2? 'basis-1/3': `basis-1/${hierarchy.length}`;
 
@@ -43,7 +43,8 @@ const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
             // alert(JSON.stringify(rows));
             return sorted;
         },
-        staleTime: 60 * 1000
+        staleTime: 60 * 1000,
+        enabled: !readOnly
     });
 
     useEffect(() => {
@@ -52,28 +53,40 @@ const CascadeCombo: FC<CascadeComboOpts> = ({ cascade, hierarchy, update }) => {
     }, [selection]);
 
     return (<div className={`${borderOn ? 'border border-green-800' : ''}`}>
-        {/* <p>Preparing cascade dropdowns for group : ${cascade}</p>
-
-        <p>Hierarchy: {JSON.stringify(hierarchy)}</p> */}
-
-        {isPending 
-            ? 'Fetching ....'
-            : <div className={`flex flex-row`}>
-                {data && data.map((ddn, i) => <div className={basisCss}>
+        {readOnly 
+            ? (<div className={`flex flex-row`}>
+                {value && value.map((ddn, i) => <div className={basisCss}>
                     <Dropdown 
-                        options={[{ value: '', name: ' --- please select ---'}, ...ddn.options]} 
-                        selectedCallback={(valObj: Option) => {
-                            // alert(valObj.value);
-                            let clone: Option[] = [...selection];
-                            clone[i] = { name: ddn.uiId, value: valObj.value };
-                            setSelection(clone);
-                        }} 
-                        name={capitalizeWords(ddn.uiId)}
-                        readOnly={i > 0 && !selection[i - 1]}
-                    />
+                        options={[{ name: capitalizeWords(ddn.value), value: ddn.value}]}
+                        selectedValue={ddn.value}
+                        name={capitalizeWords(ddn.name)}
+                        readOnly={(i > 0 && !selection[i - 1]) || readOnly}
+                />
                 </div>)}
-            </div>
-        }    
+            </div>)
+            : (isPending 
+                ? 'Fetching ....'
+                : <div className={`flex flex-row`}>
+                    {data && data.map((ddn, i) => <div className={basisCss}>
+                        <Dropdown 
+                            options={[{ value: '', name: ' --- please select ---'}, ...ddn.options]} 
+                            selectedCallback={(valObj: Option) => {
+                                // alert(valObj.value);
+                                let clone: Option[] = [...selection];
+                                clone[i] = { name: ddn.uiId, value: valObj.value };
+                                setSelection(clone);
+                            }} 
+                            selectedValue={value && value[i] ? value[i].value: undefined}
+                            name={capitalizeWords(ddn.uiId)}
+                            readOnly={(i > 0 && !selection[i - 1]) || readOnly}
+                    />
+                    </div>)}
+                </div>
+            )
+        }
+
+        
+          
     </div>)
 }
 

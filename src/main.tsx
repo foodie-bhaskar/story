@@ -17,6 +17,7 @@ import Items from './pages/Items.tsx';
 import Showcase from './pages/Showcase.tsx';
 import BrandProducts from './pages/BrandProducts.tsx';
 import Product from './pages/Product.tsx';
+import ViewAsset from './pages/ViewAsset.tsx';
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "packaging/new",
         element: <NewPackagingPage />,
+      },
+      {
+        path: "view-asset/:assetType/:assetId",
+        element: <ViewAsset />,
       },
       {
         path: "list-assets/:assetType",

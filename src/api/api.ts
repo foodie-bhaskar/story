@@ -25,6 +25,18 @@ export async function fetchAssetsForType(assetType: string | undefined) {
   return axios.get(url, HEADERS);
 }
 
+//https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset
+// ?assetType=CACHE&filterName=product-names&filterValue=count
+export async function fetchCachesForType(cacheType: string, group: string) {  
+  if (!cacheType) {
+    throw new Error('Cache type is required');
+  }
+
+  const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=CACHE&filterName=${cacheType}&filterValue=${group}`;
+
+  return axios.get(url, HEADERS);
+}
+
 export async function fetchAsset(assetType: string, id?: string) {
   if (!id) {
       throw new Error('Asset Id is required');

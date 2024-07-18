@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import PackageForm from "@/components/PackageForm";
-import { PackageAsset } from '@/App.type';
+import { PackageAsset, FormType } from '@/App.type';
 
 async function createPackageAsset(data: PackageAsset) {
     const assetType = 'PACKAGE';
@@ -103,7 +103,7 @@ const NewPackagingPage = () => {
             <p>Error: {mutation.error && axios.isAxiosError(mutation.error)? mutation.error.response?.data.errorMessage : 'An error occurred'}</p>
         )}
         {mutation.isPending ? 'Creating...' :
-             <PackageForm callbackFn={update}/>
+             <PackageForm callbackFn={update} formType={FormType.CREATE} />
         }
        
     </div>)

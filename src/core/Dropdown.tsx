@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import { DropdownOpts, Option } from '../App.type';
 
 const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCallback, readOnly }) => {
+  let borderOn = false;
+  // borderOn = true;
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Option>(options.find(o => o.value === selectedValue) || options[0]);
 
@@ -26,7 +28,7 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
   }, [selectedValue])
 
   return (
-    <div className="group-has-[:checked]/toggle:-mt-8 max-w-80">
+    <div className={`${borderOn ? 'border border-blue-700': ''} group-has-[:checked]/toggle:-mt-8 max-w-80`}>
       <label className="block text-sm font-medium leading-6 text-gray-600 ">
         {name}
       </label>
@@ -43,14 +45,15 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
             <div className="relative">
               <ComboboxInput
                 className={clsx(
-                  'w-full rounded-lg border-none bg-red-950/5 py-1.5 pr-8 pl-3 text-sm/6 text-black',
+                  `w-full rounded-lg border-none ${readOnly ? ' bg-slate-100': 'bg-red-950/5'} 
+                  py-1.5 pr-8 pl-3 text-sm/6  ${readOnly ? 'text-gray-400': 'text-black'}`,
                   'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25'
                 )}
                 displayValue={(option: Option) => option.name}
                 onChange={(event) => setQuery(event.target.value)}
               />
               <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
-                <ChevronDownIcon className="size-4 fill-black/60 group-data-[hover]:fill-black" />
+                <ChevronDownIcon className={`size-4 fill-black/${ readOnly? 20 : 60} group-data-[hover]:fill-black`} />
               </ComboboxButton>
             </div>
             <Transition
