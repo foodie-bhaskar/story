@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
 import PackageForm from "@/components/PackageForm";
 import { PackageAsset, FormType } from '@/App.type';
 
@@ -18,6 +19,7 @@ async function createPackageAsset(data: PackageAsset) {
 
 const NewPackagingPage = () => {
     const queryClient = useQueryClient();
+    const navigate =  useNavigate();
 
     const mutation = useMutation({
         mutationFn: async (assetItem: PackageAsset) => {
@@ -33,7 +35,7 @@ const NewPackagingPage = () => {
             console.log(data, variables);
             console.log('context', context)
           // Query Invalidation (Recommended)
-          queryClient.invalidateQueries({ queryKey: ['asset','PACKAGE'] }); // Refetch the 'posts' query
+          queryClient.invalidateQueries({ queryKey: ['asset','package'] }); // Refetch the 'posts' query
     
           // Or, if you prefer, you can update the cache directly
           // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
@@ -49,28 +51,7 @@ const NewPackagingPage = () => {
         },
     });
     const update = async (obj: any) => {
-        alert(JSON.stringify(obj));
-
-        /*
-        {
-            "containerType": "beverage-flask",
-            "containerSize": "L",
-            "compartments": 1,
-            "packagingCost": 20,
-            "volume": 300,
-            "packagingTypeCombo": [
-                {
-                    "name": "packaging-type",
-                    "value": "beverage"
-                },
-                {
-                    "name": "packaging-sub-type",
-                    "value": "Z"
-                }
-            ]
-        }
-
-        */
+        // alert(JSON.stringify(obj));
 
         const { type, size, compartments, 
             pkgCost, capacity, imgUrl,
@@ -86,9 +67,10 @@ const NewPackagingPage = () => {
             imageUrl: imgUrl
         }
 
-        alert(JSON.stringify(assetItem));
+        // alert(JSON.stringify(assetItem));
         let creationResponse = await mutation.mutateAsync(assetItem);
-        alert(JSON.stringify(creationResponse));
+        // alert(JSON.stringify(creationResponse));
+        navigate('/list-assets/package')
     }
 
     return (<div className="ml-20">
