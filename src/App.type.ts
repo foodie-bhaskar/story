@@ -199,8 +199,8 @@ export interface PackageAsset {
     containerSize: string,
     imageUrl: string,
     packagingTypeCombo: Option[],
-    name: string,
-    assetId: string
+    name?: string,
+    assetId?: string
 }
 
 export interface PackageFormOpts {

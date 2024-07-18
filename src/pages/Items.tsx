@@ -66,10 +66,7 @@ function getMappings(assetType: string, nav: Function): Mapping {
               data: (row: PackageAsset) => {      
                 let to = `/view-asset/package/${row.assetId}`;
               
-                return _(<>
-                  <LinkButton label={row.assetId} to={to} nav={nav} />
-                  {/* <TransButton label={row.assetId} update={action} /> */}
-                </>)
+                return _(row.assetId? <LinkButton label={row.assetId} to={to} nav={nav} />: '')
               }
             },
             { 

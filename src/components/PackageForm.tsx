@@ -123,7 +123,7 @@ const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
           label='Compartments'
           size={9} 
           step={1}
-          selectedValue={'1'}
+          selectedValue={`${compartments}`}
           selectedCallback={(c: string) => setCompartments(parseInt(c))} 
           position="BELOW"
           />
