@@ -8,14 +8,7 @@ import FoodieText from "@/core/FoodieText";
 import { FormType, Option, PackageFormOpts } from '../App.type';
 import CascadeCombo from '../components/CascadeCombo';
 import { capitalizeWords } from "@/lib/utils";
-
-async function fetchUIResource(uiType: string, id: string) {  
-  return axios.get(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-api?uiType=${uiType}&id=${id}`, {
-      headers: {
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-      }
-  })
-}
+import { fetchUIResource } from '../api/api';
 
 const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
   const [size, setSize] = useState<string>(pkg ? pkg.containerSize : 'S');
@@ -25,9 +18,10 @@ const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
   const [pkgCost, setPkgCost] = useState<number>(0);
   const [capacity, setCapacity] = useState<number>(0);
   const [imgUrl, setImgUrl] = useState<string>('');
-  const [packagingTypeCombo, setPackagingTypeCombo] = useState([]);
+  const [packagingTypeCombo, setPackagingTypeCombo] = useState<Option []>(pkg && pkg.packagingTypeCombo && pkg.packagingTypeCombo.length? pkg.packagingTypeCombo: []);
 
   const [valid, setValid] = useState(false);
+  const [changes, setChanges] = useState({});
 
   console.log(formType);
 
@@ -68,18 +62,57 @@ const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
   }, [isPending, isFetching, error, data]);
 
   useEffect(() => {
-    if (type && size && compartments && pkgCost) {
-      setValid(true);
-    } else {
-      setValid(false);
-    }
+    let isValid = false;
+    if (formType == FormType.CREATE) {
+      if (type && size && compartments && pkgCost && capacity) {
+        isValid = true;
+      }
+    } else if (pkg) {
+      let payload = {};
+      if (compartments && compartments != pkg.compartments) {
+        isValid = true;
+        payload = { ...payload, compartments };
+      }
 
-  }, [type, size, compartments, pkgCost]);
+      if (capacity && capacity != pkg.volume) {
+        isValid = true;
+        payload = { ...payload, capacity };
+      }
+      
+      if (pkgCost && pkgCost != pkg.packagingCost) {
+        isValid = true;
+        payload = { ...payload, pkgCost };
+      }
+
+      if (packagingTypeCombo.length != pkg.packagingTypeCombo.length) {
+        isValid = true;
+        payload = { ...payload, packagingTypeCombo };
+      } else {
+        if (packagingTypeCombo.length) {
+          
+          if (packagingTypeCombo[0].value != pkg.packagingTypeCombo[0].value) {
+            isValid = true;
+            payload = { ...payload, packagingTypeCombo };
+          }
+
+          if (packagingTypeCombo.length > 1) {
+            if (packagingTypeCombo[1].value != pkg.packagingTypeCombo[1].value) {
+              isValid = true;
+              payload = { ...payload, packagingTypeCombo };
+            }
+          }
+        }
+      }
+      setChanges(payload);
+    }
+    setValid(isValid);
+
+  }, [type, size, compartments, pkgCost, capacity, packagingTypeCombo, formType, pkg]);
 
   return (<div className={`${borderOn ? 'border border-red-700': ''} pe-10 space-y-10 `}>
       <div className={`${borderOn ? 'border border-green-800' : ''} flex flex-row`}>
         <div className={`${borderOn ? 'border border-pink-700': ''} basis-1/3`}>
-          {formType == FormType.VIEW && pkg
+          {formType != FormType.CREATE && pkg
             ? <Dropdown 
                 readOnly={true}
                 selectedValue={pkg ? pkg.containerType: undefined}
@@ -101,7 +134,7 @@ const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
         </div>
         <div className='basis-2/3'>
           <Choice
-            readOnly={formType == FormType.VIEW}
+            readOnly={formType != FormType.CREATE}
             choices={["S", "M", "L"]}
             label="Size"
             selectedValue={size}
@@ -149,17 +182,23 @@ const PackageForm: FC<PackageFormOpts> = ({ callbackFn, formType, pkg }) => {
         {callbackFn && <button 
           type='button' 
           disabled={!valid}
-          onClick={() => callbackFn({
-            type, size, compartments, 
-            pkgCost, capacity, imgUrl,
-            packagingTypeCombo
-          })}
+          onClick={() => {
+            if (formType == FormType.CREATE) {
+              callbackFn({
+                type, size, compartments, 
+                pkgCost, capacity, imgUrl,
+                packagingTypeCombo
+              })
+            } else {
+              callbackFn({ ...changes })
+            }
+          }}
           className={`py-2.5 px-6 text-sm rounded-md uppercase
               ${valid 
                 ? 'cursor-pointer text-indigo-500  bg-indigo-50 transition-all duration-500 hover:bg-indigo-100'
                 : 'cursor-not-allowed text-gray-300 bg-gray-100 '}
               font-semibold text-center shadow-xs `}>
-              Create Packaging
+              {formType == FormType.EDIT ? 'Update' : 'Create'} Packaging
           </button>}
       </div>}
     </div>

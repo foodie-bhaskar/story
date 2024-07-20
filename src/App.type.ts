@@ -191,6 +191,14 @@ export interface AssetPackage {
     name: string
 }
 
+export interface UpdatePackageAsset {
+    compartments?: number,
+    packagingCost?: number,
+    volume?: number,
+    imageUrl?: string,
+    packagingTypeCombo?: Option[]
+}
+
 export interface PackageAsset {
     compartments: number,
     packagingCost: number,

@@ -18,6 +18,7 @@ import Showcase from './pages/Showcase.tsx';
 import BrandProducts from './pages/BrandProducts.tsx';
 import Product from './pages/Product.tsx';
 import ViewAsset from './pages/ViewAsset.tsx';
+import EditAsset from './pages/EditAsset.tsx';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: "view-asset/:assetType/:assetId",
         element: <ViewAsset />,
+      },
+      {
+        path: "edit-asset/:assetType/:assetId",
+        element: <EditAsset />,
       },
       {
         path: "list-assets/:assetType",

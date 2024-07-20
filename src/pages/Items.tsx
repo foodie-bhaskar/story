@@ -72,7 +72,11 @@ function getMappings(assetType: string, nav: Function): Mapping {
             { 
               name: 'Name', 
               id: 'name',
-             
+              data: (row: PackageAsset) => {      
+                let to = `/edit-asset/package/${row.assetId}`;
+              
+                return _(row.name? <LinkButton label={row.name} to={to} nav={nav} />: '')
+              }
             },
             { name: '# of Compartments', id: 'compartments'},
             { name: 'Volume (in ml)', id: 'volume'},

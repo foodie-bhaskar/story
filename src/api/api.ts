@@ -1,16 +1,16 @@
-import { ProductAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
 const ENV = 'dev';
-// const UI_API = 'foodie-ui';
+const UI_API = 'foodie-api';
 const ASSET_API = 'foodie-asset';
-const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs';
+const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ijk3MzgxOTk4MjgiLCJuYW1lIjoiQWF5dXNoIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE3MjE0NzgwMTh9.AmSFOZHaiV1Ubqpj-05RkmP8WBkmxVQPKIvzS3-q4jk';
 
 const HEADERS = {
   headers: {
     Authorization: `Bearer ${AuthToken}`
-}
+  }
 }
 
 export async function fetchAssetsForType(assetType: string | undefined) {  
@@ -49,6 +49,16 @@ export async function fetchAsset(assetType: string, id?: string) {
   return axios.get(url, HEADERS)
 }
 
+export async function fetchUIResource(uiType: string, id: string) {
+  const url = `${BASE_URL}/${ENV}/${UI_API}?uiType=${uiType}&id=${id}`;
+  return axios.get(url, HEADERS);
+}
+
+export async function fetchResourcesForCascade(cascade: string) {
+  const url = `${BASE_URL}/${ENV}/${UI_API}?uiType=dropdown&filterName=CASCADE&filterValue=${cascade}`;
+  return axios.get(url, HEADERS);
+}
+
 export async function createAsset(assetType: string, data: ProductAsset) {
   try {
     const type = assetType.toUpperCase();
@@ -56,5 +66,16 @@ export async function createAsset(assetType: string, data: ProductAsset) {
     return axios.post(url, data, HEADERS);
   } catch (error) {
      throw new Error('Error during new Asset creation'); // Additional error details from the server
+  }
+}
+
+export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset) {
+
+  try {
+    const type = assetType.toUpperCase();
+    const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}&id=${assetId}`;
+    return axios.put(url, data, HEADERS);
+  } catch (error) {
+     throw new Error('Error during new Asset updation'); // Additional error details from the server
   }
 }

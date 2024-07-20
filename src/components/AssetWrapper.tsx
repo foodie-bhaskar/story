@@ -6,7 +6,7 @@ const Wrapper: FC<WrapperProps> = ({ type, content }) => {
     switch (type) {
         case AssetTypes.PACKAGE:
             // alert(`WP : ${JSON.stringify(content.package)}`);
-            return content.package ? <PackageForm formType={content.package.formType} pkg={content.package.pkg} />: null;
+            return content.package ? <PackageForm formType={content.package.formType} pkg={content.package.pkg} callbackFn={content.package.callbackFn}/>: null;
         default:
             return null; // Or handle an invalid type
     }
