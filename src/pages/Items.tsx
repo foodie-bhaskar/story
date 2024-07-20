@@ -33,7 +33,11 @@ function getMappings(assetType: string, nav: Function): Mapping {
           { name: 'Is Packet?', id: 'isPacket', data: (row: ItemOpts) => row.isPacket ? 'Yes': 'NO '},
           { name: 'Veg / Non-Veg', id: 'isVeg', data: (row: ItemOpts) => row.isVeg ? 'Veg': 'non-veg '},
           { name: 'Cuisine', id: 'cuisineCombo', data: (row: ItemOpts) => row.cuisineCombo.length ? capitalizeWords(row.cuisineCombo[0].value): '' },
-          { name: 'Type', id: 'typeCombo', data: (row: ItemOpts) => capitalizeWords(row.typeCombo[0].value) },
+          { name: 'Type', id: 'typeCombo', data: (row: ItemOpts) => {
+            if (row.typeCombo && row.typeCombo[0]) {
+              return capitalizeWords(row.typeCombo[0].value);
+            }
+          }},
           { name: 'Sub Type', id: 'typeCombo', data: (row: ItemOpts) => {
             if (row.typeCombo && row.typeCombo[1]) {
               return capitalizeWords(row.typeCombo[1].value);
