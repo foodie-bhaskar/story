@@ -264,7 +264,7 @@ const BrandProducts = () => {
 
       <div className='flex flex-row gap-8 px-10 mb-10'>
         <Count label='Unmapped Products' count={total - mappedProducts.length} isLoading={productsSummary.isFetching} />
-        <Count label='Products Defined' isLoading={isRefetchingProducts} array={mappedProducts} />
+        <Count label='Products Mapped' isLoading={isRefetchingProducts} array={mappedProducts} />
         <Count label='Weekly Additions' isLoading={productsSummary.isFetching} count={weekly} />
       </div>
 

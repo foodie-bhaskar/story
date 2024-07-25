@@ -26,8 +26,26 @@ function getMappings(assetType: string, nav: Function): Mapping {
     case 'item':
       let order = { 
         order: [
-          { name: 'ID', id: 'assetId'},
-          { name: 'Item', id: 'name'},
+          { 
+            name: 'ID', id: 'assetId',
+            data: (row: ItemOpts) => {      
+              let to = `/view-asset/item/${row.assetId}`;
+            
+              return _(row.assetId? <LinkButton label={row.assetId} to={to} nav={nav} />: '')
+            }
+          },
+          { 
+            name: 'Edit', id: 'name',
+            data: (row: ItemOpts) => {      
+              let to = `/edit-asset/item/${row.assetId}`;
+            
+              return _(row.name? <LinkButton label='Edit' to={to} nav={nav} />: '')
+            }
+
+          },
+          { 
+            name: 'Item', id: 'name'
+          },
           { name: 'Vendor', id: 'vendor', data: (row: ItemOpts) => capitalizeWords(row.vendor)},
           { name: 'Consumption', id: 'consumptionCount'},
           { name: 'Is Packet?', id: 'isPacket', data: (row: ItemOpts) => row.isPacket ? 'Yes': 'NO '},

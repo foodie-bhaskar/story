@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import ItemForm from '../components/ItemForm';
+import { FormType } from '@/App.type';
 
 interface ItemAsset {
     itemId: string,
@@ -92,7 +93,7 @@ const NewItemPage = () => {
             {mutation.isError && (
                 <p>Error: {mutation.error instanceof AxiosError && mutation.error ? mutation.error.response?.data.errorMessage : 'An error occurred'}</p>
             )}
-            {mutation.isPending ? 'Creating...' : <ItemForm readOnly={false} callbackFn={update} />
+            {mutation.isPending ? 'Creating...' : <ItemForm callbackFn={update} formType={FormType.CREATE} />
             }
         {/* </div> */}
     </div>)

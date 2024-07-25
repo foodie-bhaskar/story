@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from 'react';
 import FoodieText from '../core/FoodieText';
 import { BuildUpComboOpts } from '../App.type';
 
-const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages }) => {
+const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages, readOnly }) => {
     const borderOn = false;
     // const borderOn = true;
 
@@ -42,7 +42,7 @@ const BuildUpCombo: FC<BuildUpComboOpts> = ({ name, update, stages }) => {
                     let combo = [...buildUp];
                     combo[i] = { field: stage.field, value: parseInt(val)}
                     setBuildUp(combo);
-                }} value={`${buildUp[i].value}`} size='w-full' />
+                }} value={`${buildUp[i].value}`} size='w-full' readOnly={readOnly} />
             </div>)}
         </div>
     </fieldset>)

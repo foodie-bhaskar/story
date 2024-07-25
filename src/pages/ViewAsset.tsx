@@ -41,7 +41,7 @@ const ViewAsset = () => {
             setType(enumValue);
         }
 
-    }, [assetType])
+    }, [assetType]);
     
     useEffect(() => {
         if(error) {
@@ -56,6 +56,10 @@ const ViewAsset = () => {
                     pkg: data,
                     formType: FormType.VIEW
                 }}),
+                ...(assetType == 'item' && { item: {
+                    item: data,
+                    formType: FormType.VIEW
+                }}),
             }
 
             let temp = { ...content, ...ct };
@@ -63,7 +67,7 @@ const ViewAsset = () => {
             setContent(temp)
         }
 
-    }, [isPending, error, data])
+    }, [isPending, error, data]);
 
     return(<div className="ml-20 pt-10">
         <div className='flex flex-row gap-8 mb-10 text-gray-500'>

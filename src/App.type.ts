@@ -102,7 +102,9 @@ export interface Weight {
 }
 
 export interface WeightComboOpts {
-    update: Function
+    wt: Weight,
+    update: Function,
+    readOnly?: boolean
 }
 
 export interface CascadeComboOpts {
@@ -122,7 +124,9 @@ export interface Stage {
 export interface BuildUpComboOpts {
     name: string,
     stages: Stage[],
-    update: Function
+    update: Function,
+    values?: Option[],
+    readOnly?: boolean
 }
 
 export interface DropdownFormOpts {
@@ -139,7 +143,8 @@ export interface CheckboxOpts {
     label: string,
     info?: string
     checkFn: Function,
-    checked: boolean
+    checked: boolean,
+    readOnly?: boolean
 }
 
 export interface SequenceChoiceOpts {
@@ -172,11 +177,14 @@ export interface ItemOpts {
     id: string,
     vendor: string,
     isPacket: boolean,
+    // consumptionCount: number,
     isVeg: boolean,
     cuisineCombo: Option[],
     typeCombo: Option[],
     costBuildup: Option[],
-    weight: Weight
+    weight: Weight,
+    name?: string,
+    assetId?: string
 }
 
 export interface AssetItem {
@@ -217,9 +225,15 @@ export interface PackageFormOpts {
     callbackFn?: Function
 }
 
+export interface ItemFormOpts {
+    formType: FormType,
+    callbackFn?: Function
+    item?: ItemOpts
+}
+
 export interface WrapperContent {
     package?: PackageFormOpts;
-    item?: ItemOpts
+    item?: ItemFormOpts
 }
 
 export interface WrapperProps {
