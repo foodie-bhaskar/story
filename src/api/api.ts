@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -59,7 +59,7 @@ export async function fetchResourcesForCascade(cascade: string) {
   return axios.get(url, HEADERS);
 }
 
-export async function createAsset(assetType: string, data: ProductAsset) {
+export async function createAsset(assetType: string, data: ProductAsset | ItemAsset) {
   try {
     const type = assetType.toUpperCase();
     const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;

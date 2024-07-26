@@ -1,31 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import ItemForm from '../components/ItemForm';
-import { FormType } from '@/App.type';
+import { FormType, ItemAsset } from '@/App.type';
+import { createAsset } from '../api/api';
 
-interface ItemAsset {
-    itemId: string,
-    name: string,
-    vendor: string
-}
-
-async function createItemAsset(data: ItemAsset) {
-    try {
-        const assetType = 'ITEM';
-        // const { assetType } = data;
-        return axios.post(`https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset?assetType=${assetType}`, 
-            data,
-            {
-                headers: {
-                    Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJoYXNrYXIiLCJuYW1lIjoiQmhhc2thciBHb2dvaSIsInR5cGUiOiJzdXBlciIsInZhbHVlIjoiMDAwMDAwIiwiaWF0IjoxNzE1ODQ4Mzc0fQ.DArYQmB65k3-OIBkHDmIKbPLIFVqlfBg0VkOOgp3zVs'
-                }
-            }
-        );
-    } catch (error) {
-        throw new Error('Hello');
-        // throw new Error(error.response?.data.errorMessage); // Additional error details from the server
-    }
-}
+const assetType = 'item';
 
 const NewItemPage = () => {
 
@@ -34,7 +13,7 @@ const NewItemPage = () => {
     const mutation = useMutation({
         mutationFn: async (assetItem: ItemAsset) => {
             try {
-                const response = await createItemAsset(assetItem);
+                const response = await createAsset(assetType, assetItem);
                 return response.data;
             } catch (err) {
                 const error = err as AxiosError;
@@ -65,7 +44,7 @@ const NewItemPage = () => {
 
         const { id, name, vendor, weight, cost, typeCombo, cuisineCombo, isPacket, consumptionCount, isVeg } = obj;
         let assetItem = {
-            itemId: id,
+            id,
             name,
             vendor,
             weight,

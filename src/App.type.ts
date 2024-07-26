@@ -261,6 +261,14 @@ export interface ProductAsset {
     assetId?: string
 }
 
+export interface ItemAsset {
+    id: string,
+    name: string,
+    vendor: string,
+    assetId?: string
+}
+
+
 export enum DYNA_TYPE {
     TEXT = 'text',
     DROPDOWN = 'dropdown',
