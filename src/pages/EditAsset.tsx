@@ -73,7 +73,7 @@ const EditAsset = () => {
     });
 
     const update = async (obj: any) => {
-        alert(JSON.stringify(obj));
+        // alert(JSON.stringify(obj));
 
         let assetItem = {};
 
