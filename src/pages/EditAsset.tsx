@@ -54,39 +54,58 @@ const EditAsset = () => {
         onSuccess: (data, variables, context) => {
             console.log(data, variables);
             console.log('context', context)
-          // Query Invalidation (Recommended)
-          queryClient.invalidateQueries({ queryKey: ['asset', assetType] }); // Refetch the 'posts' query
-          queryClient.invalidateQueries({ queryKey: [assetType, assetId] }); // Refetch the 'posts' query
-    
-          // Or, if you prefer, you can update the cache directly
-          // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
+            // Query Invalidation (Recommended)
+            queryClient.invalidateQueries({ queryKey: ['asset', assetType] }); // Refetch the 'posts' query
+            queryClient.invalidateQueries({ queryKey: [assetType, assetId] }); // Refetch the 'posts' query
+        
+            // Or, if you prefer, you can update the cache directly
+            // queryClient.setQueryData(['posts'], (oldData: any) => [...oldData, data]);
         },
         onError: (error, variables, context) => {
             console.log('variables', variables);
             console.log('context', context)
-          // Handle errors, e.g., display an error message to the user
-          console.error('Error creating post:', error);
-          alert(JSON.stringify(error));
+            // Handle errors, e.g., display an error message to the user
+            console.error('Error creating post:', error);
+            alert(JSON.stringify(error));
         //   alert(error.response.data.errorMessage);
           // You can also use `context` to rollback optimistic updates if needed
         },
     });
 
     const update = async (obj: any) => {
-        // alert(JSON.stringify(obj));
+        alert(JSON.stringify(obj));
 
-        const { compartments, 
-            pkgCost, capacity,
-            packagingTypeCombo } = obj;
+        let assetItem = {};
 
-        let assetItem = {
-            packagingTypeCombo,
-            compartments,
-            packagingCost: pkgCost,
-            volume: capacity,
+        if (assetType == 'package') {
+
+            const { 
+                compartments, 
+                pkgCost, capacity,
+                packagingTypeCombo 
+            } = obj;
+
+            assetItem = {
+                packagingTypeCombo,
+                compartments,
+                packagingCost: pkgCost,
+                volume: capacity,
+            }
+        } else {
+            const { name, isVeg, vendor, isPacket, weight, costBuildup, typeCombo, cuisineCombo } = obj;
+            assetItem = {
+                name,
+                isVeg,
+                vendor,
+                isPacket,
+                weight,
+                costBuildup,
+                typeCombo,
+                cuisineCombo
+            }
         }
 
-        // alert(JSON.stringify(assetItem));
+        // alert(`Edit: ${JSON.stringify(assetItem)}`);
         let updateResponse = await mutation.mutateAsync(assetItem);
         console.log(JSON.stringify(updateResponse));
         // alert(JSON.stringify(updateResponse));
@@ -113,6 +132,11 @@ const EditAsset = () => {
             let ct = {
                 ...(assetType == 'package' && { package: {
                     pkg: data,
+                    formType: FormType.EDIT,
+                    callbackFn: update
+                }}),
+                ...(assetType == 'item' && { item: {
+                    item: data,
                     formType: FormType.EDIT,
                     callbackFn: update
                 }}),
