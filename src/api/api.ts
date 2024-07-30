@@ -69,11 +69,13 @@ export async function createAsset(assetType: string, data: ProductAsset | ItemAs
   }
 }
 
-export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset) {
+export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | ProductAsset) {
 
   try {
     const type = assetType.toUpperCase();
     const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}&id=${assetId}`;
+
+
     return axios.put(url, data, HEADERS);
   } catch (error) {
      throw new Error('Error during new Asset updation'); // Additional error details from the server

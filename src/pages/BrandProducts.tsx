@@ -14,6 +14,7 @@ import { ComponentChild } from 'preact';
 import { fetchAssetsForType, fetchCachesForType } from '../api/api';
 import Count from '@/core/Count';
 import ChipButton from '@/core/ChipButton';
+import FoodieToggle from '@/core/FoodieToggle';
 
 async function fetchAssetsForProductType(assetType: string, productType: string, productName: string) {  
   if (!assetType) {
@@ -47,6 +48,7 @@ const BrandProducts = () => {
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
   const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
+  const [hideMappedProducts, setHideMappedProducts] = useState<boolean>(true);
 
   const [isRefetchingProducts, setIsRefetchingProducts] = useState(false);
 
@@ -189,20 +191,25 @@ const BrandProducts = () => {
 
           // alert(`brandTypeProductPrefixes : ${brandTypeProductPrefixes}`);
 
-          brandProducts = brandProducts.map((bp: BrandProduct) => {
-            const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
+          brandProducts = !hideMappedProducts 
+            ? brandProducts.map((bp: BrandProduct) => {
+              const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
 
-            if (brandTypeProductPrefixes.includes(id)) {
-              // alert(`${JSON.stringify(brandTypeProductPrefixes)}: ${id}`);
-              return {
-                ...bp,
-                mapped: true
+              if (brandTypeProductPrefixes.includes(id)) {
+                // alert(`${JSON.stringify(brandTypeProductPrefixes)}: ${id}`);
+                return {
+                  ...bp,
+                  mapped: true
+                }
+              } else {
+                // alert(`This product is not mapped : ${id}`)
+                return bp;
               }
-            } else {
-              // alert(`This product is not mapped : ${id}`)
-              return bp;
-            }
-          })
+            })
+            : brandProducts.filter((bp: BrandProduct) => {
+                const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
+                return !brandTypeProductPrefixes.includes(id);
+            })
         }
         
         setTableData(brandProducts);
@@ -212,7 +219,7 @@ const BrandProducts = () => {
       }
     }
 
-  }, [isPending, error, data, assetType, mappedProducts]);
+  }, [isPending, error, data, assetType, mappedProducts, hideMappedProducts]);
 
   useEffect(() => {
     products.refetch();
@@ -268,15 +275,19 @@ const BrandProducts = () => {
         <Count label='Weekly Additions' isLoading={productsSummary.isFetching} count={weekly} />
       </div>
 
-      <div className='flex flex-row gap-4 px-10 mb-10 items-center'>
-        <span className='inline-block text-md font-regular uppercase text-slate-600 w-64'>Show Menu Products for: </span>
+      <div className='flex flex-row mx-10 ml-10 justify-between items-center'>
+        <div className='flex flex-row gap-4 items-center'>
+          <span className='inline-block text-md font-regular uppercase text-slate-600 w-64'>Show Menu Products for: </span>
 
-        {PRODUCT_TYPE_OPTIONS 
-          && PRODUCT_TYPE_OPTIONS.map(pt => <ChipButton key={pt.value} value={pt.value} label={pt.name} 
-            isActive={pt.value == productType} update={setSelectedProductType}
-            isLoading={isPending && selectedProductType == pt.value}
-             />)
-        }
+          {PRODUCT_TYPE_OPTIONS 
+            && PRODUCT_TYPE_OPTIONS.map(pt => <ChipButton key={pt.value} value={pt.value} label={pt.name} 
+              isActive={pt.value == productType} update={setSelectedProductType}
+              isLoading={isPending && selectedProductType == pt.value}
+              />)
+          }
+        </div>
+
+        <FoodieToggle label='Hide Mapped' action={setHideMappedProducts} active={hideMappedProducts} />
       </div>
       
       { isPending ? (isFetching ? <h4 className='italic text-md text-slate-400 ml-10 font-light'>Loading {productType} products ...</h4> : '')

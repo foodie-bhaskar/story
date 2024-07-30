@@ -288,7 +288,8 @@ export interface Item {
 export interface ItemQtyOtps {
     item: Item,
     qty: number,
-    readOnly?: boolean
+    readOnly?: boolean,
+    action?: Function
 }
 
 export interface Package {
@@ -300,4 +301,9 @@ export interface PackageQtyOtps {
     package: Package,
     qty: number,
     readOnly?: boolean
+}
+
+export interface Product {
+    items: ItemQtyOtps[],
+    packages: PackageQtyOtps[]
 }

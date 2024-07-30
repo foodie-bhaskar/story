@@ -15,9 +15,7 @@ const Button: FC<ButtonProps> = ({ label, update, valid, isSecondary }) => {
         : 'text-indigo-50 bg-indigo-500 hover:bg-indigo-700';
 
     useEffect(() => {
-        if (valid) {
-            setIsActive(valid)
-        }
+        setIsActive(valid)
     }, [valid])
 
     return <button 
