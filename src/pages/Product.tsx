@@ -3,12 +3,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios, { AxiosError } from 'axios';
 
-import { ItemQtyOtps, PackageQtyOtps, ProductAsset } from '@/App.type';
+import { ItemQtyOtps, PackageQtyOtps, ProductAsset, UpdateProductAsset } from '@/App.type';
 
-import { fetchAssetsForType, createAsset } from '../api/api';
+import { fetchAsset, createAsset, updateAsset, fetchAssetsForType } from '../api/api';
 import ProductEntryForm from './ProductEntryForm';
 import TransButton from '@/core/TransButton';
 import ProductCopier from '@/components/ProductCopier';
+import FoodieToggle from '@/core/FoodieToggle';
+import Loader from '@/core/Loader';
 
 const assetType = 'product';
 
@@ -26,56 +28,51 @@ const Product = () => {
     const page = searchParams.get('page');
 
     const [isManual, setIsManual] = useState(false);
+    const [isEditActive, setIsEditActive] = useState(false);
+
+    const [product, setProduct] = useState<Product>();
+    const [isProductLoading, setIsProductLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
 
-    const [product, setProduct] = useState<Product>();
-    const [isLoading, setIsLoading] = useState(false);
 
     const [errorMessage, setErrorMessage] = useState<string>('');
 
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
-    const products = useQuery({
-        queryKey: ['asset', 'product'],
+    const { isFetching, isPending, error, data } = useQuery({
+        queryKey: ['product', productId],
         queryFn: async () => {
-          try {
-            const rows = await fetchAssetsForType('product');
-            return rows.data;
-          } catch (err) {
-            const error = err as AxiosError;
-            throw error;
-          }
+            // if (productId) {
+                try {
+                    const data = await fetchAsset('product', productId);
+                    // alert(JSON.stringify(data.data.result));
+                    return data.data.result;
+                } catch (err) {
+                    const error = err as AxiosError;
+                    throw error;
+                }
+            // } else {
+                // return null;
+            // }
         },
-        staleTime: Infinity,
-        enabled: true
+        staleTime: 60 * 1000,
+        enabled: (page && page == 'view') ? true: false
     });
 
-    const createMapping = async (items: ItemQtyOtps[], packages: PackageQtyOtps[], tags: string[]) => {
-
-        if (productId && productName) {
-        
-            const body: ProductAsset = {
-                items,
-                packages,
-                tags,
-                id: productId,
-                name: productName,
-                isVeg: productType == 'non-veg' ? false: true
-            }
-            // alert(JSON.stringify(body))
-
-            await mutation.mutateAsync(body);
-
-            navigate(-1);
-        }
-    }
-
     const mutation = useMutation({
-        mutationFn: async (assetItem: ProductAsset) => {
+        mutationFn: async (assetItem: ProductAsset | UpdateProductAsset) => {
             try {
-                const response = await createAsset(assetType, assetItem);
+                let response;
+                if ('name' in assetItem) {
+                    response = await createAsset(assetType, assetItem);
+                
+                } else {
+                    response = await updateAsset(assetType, assetItem.assetId, assetItem);
+                }
+
                 return response.data;
             } catch (err) {
                 const error = err as AxiosError;
@@ -103,6 +100,113 @@ const Product = () => {
         },
     });
 
+    const products = useQuery({
+        queryKey: ['asset', 'product'],
+        queryFn: async () => {
+          try {
+            const rows = await fetchAssetsForType('product');
+            return rows.data;
+          } catch (err) {
+            const error = err as AxiosError;
+            throw error;
+          }
+        },
+        staleTime: Infinity,
+        enabled: (page && page == 'view') ? false: true
+    });
+
+    const createMapping = async (items: ItemQtyOtps[], packages: PackageQtyOtps[]) => {
+        // alert(`Create Mapping: ${JSON.stringify(items)}`)
+
+        if (productId && productName) {
+        
+            const body: ProductAsset = {
+                items,
+                packages,
+                id: productId,
+                name: productName,
+                isVeg: productType == 'non-veg' ? false: true
+            }
+            // alert(JSON.stringify(body))
+
+            await mutation.mutateAsync(body);
+
+            queryClient.setQueryData(['asset', 'cache', 'product-names'], (oldData: any) => {
+                // Update the old data here and return the new data
+                let mapped = oldData['count#mapped'];
+                let incrementedCount = mapped.data + 1;
+                let update =  { ...oldData, 'count#mapped': { ...mapped, data: incrementedCount, payload: `${incrementedCount}` } };
+                // alert(JSON.stringify(update));
+                return update;
+            });
+
+            queryClient.setQueryData(['cache', 'product'], (oldData: any) => {
+                // Update the old data here and return the new data
+                let { payload } = oldData;
+                let updatedPayload = [ ...payload, productId]
+                let update =  { ...oldData, payload: updatedPayload };
+                // alert(JSON.stringify(update));
+                return update;
+            });
+
+            queryClient.setQueryData(['asset', 'product'], (oldData: any) => {
+                // Update the old data here and return the new data
+                let { result } = oldData;
+                let updatedPayload = [ ...result, { ...body, assetId: productId }]
+                let update =  { ...oldData, result: updatedPayload };
+                // alert(`Adding: ${JSON.stringify({ ...body, assetId: productId })}`);
+                return update;
+            });
+
+            //queryKey: ['cache', 'product'],
+
+            navigate(-1);
+        }
+    }
+
+    const updateMapping = async (items: ItemQtyOtps[], packages: PackageQtyOtps[]) => {
+        // alert(`Create Mapping: ${JSON.stringify(items)}`)
+
+        if (productId && productName) {
+        
+            const body: UpdateProductAsset = {
+                assetId: productId,
+                items,
+                packages
+            }
+            // alert(JSON.stringify(body))
+
+            await mutation.mutateAsync(body);
+            
+            queryClient.invalidateQueries({ queryKey: ['product', productId] });
+
+            navigate(-1);
+        }
+    }
+
+    
+
+    useEffect(() => {
+        if (isFetching) {
+            setIsProductLoading(true)
+        } else if (!isPending && error) {
+            setIsProductLoading(false);
+            if (axios.isAxiosError(error)) {
+                setErrorMessage(`WARNING: ${error.response?.data}`);
+                if (error.response && error.response.status == 404) {
+                }
+            } else {
+                setErrorMessage(`WARNING: ${error.message}`);
+            }
+        } else if (!isPending && data) {
+            setIsProductLoading(false);
+            setProduct(data);
+        } else {
+            setIsProductLoading(false);
+        }
+    
+    }, [isPending, isFetching, error, data]);
+
     useEffect(() => {
         if (products.isFetching) {
             setIsLoading(true)
@@ -117,32 +221,25 @@ const Product = () => {
             }
         } else if (!products.isPending && products.data) {
             setIsLoading(false);
-            setMappedProducts(products.data);
+            // alert(`products loaded ${JSON.stringify(products.data.result)}`)
+            setMappedProducts(products.data.result);
         } else {
             setIsLoading(false);
         }
     
     }, [products.isPending, products.isFetching, products.error, products.data]);
 
-    useEffect(() => {
-        if (productId && mappedProducts && mappedProducts.length > 0) {
-            for (let i=0; i < mappedProducts.length; i++) {
-                const p = mappedProducts[i];
-                if (p.assetId == productId) {
-                    setProduct(p);
-                    break;                      
-                }
-            }
-        }
-    }, [mappedProducts, productId])
 
     return (<div className='lg-w-full mx-auto'>
-        <div className='flex flex-row mx-10 my-4 gap-10 items-center'>
-            <h1 className='text-xl text-indigo-400 font-extrabold'>{productName}</h1>
-            <div className={`text-gray-50 bg-gray-400 rounded px-2 h-10 py-2`}>{productId}</div>
-            <p className="text-sm leading-6 text-gray-600 italic">
-                Assign items with quantity and packaging details for this product
-            </p>
+        <div className={`${borderOn ? 'border border-red-700': ''} flex flex-row mx-10 my-4 justify-between items-center`}>
+            <div className={`${borderOn ? 'border border-red-700': ''} flex flex-row gap-10 items-center`}>
+                <h1 className='text-xl text-indigo-400 font-extrabold'>{productName}</h1>
+                <div className={`text-gray-50 bg-gray-400 rounded px-2 h-10 py-2`}>{productId}</div>
+                <p className="text-sm leading-6 text-gray-600 italic">
+                    Assign items with quantity and packaging details for this product
+                </p>
+            </div>
+            {page && <FoodieToggle label='Make Editable' action={setIsEditActive} active={isEditActive} />}
         </div>
         
 
@@ -155,11 +252,19 @@ const Product = () => {
             <p>{errorMessage}</p>
         </div>}
 
-        {((page && page == 'view' && product) || isManual) && productType && productId && productName && <div className='mx-10'>
+        {!page && isManual && productType && productId && productName && <div className='mx-10'>
             <div className='my-2'>
                 {!(page && page == 'view') && <h4 className='text-slate-400 text-lg font-light'>Manually add items and packaging</h4>}
             </div>
-            <ProductEntryForm readOnly={page && page == 'view'? true: false} product={product} update={createMapping} />
+            <ProductEntryForm readOnly={false} update={createMapping} />
+        </div>}
+
+        {page && page == 'view' && productType && productId && productName && <div 
+            className=' flex items-center justify-center min-h-48'>
+            {isProductLoading 
+                ? <Loader />
+                : <ProductEntryForm readOnly={!isEditActive? true: false} product={product} update={updateMapping} />
+            }
         </div>}
 
         {(!page || page != 'view') && !isManual && productName? (isLoading 

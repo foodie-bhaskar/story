@@ -83,7 +83,7 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
         </div>}
         <fieldset className="border border-gray-500 rounded pl-10 flex flex-row pt-4 pb-8 justify-between mb-10">
             <legend className='uppercase text-gray-500 text-sm rounded font-semibold '>
-                Assign Item and quantity &nbsp;&nbsp;
+                Assign Item & quantity &nbsp;&nbsp;
             </legend>
 
             <div className={`${borderOn ? 'border border-red-800': ''} basis-5/6`}> 
@@ -94,7 +94,7 @@ const ItemQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
                 <div className={`mt-6 ${borderOn ? 'border border-red-800': ''}`}>
                     <SeqChoice
                         label='Quantity'
-                        size={7} 
+                        size={6} 
                         step={1}
                         selectedValue={`${quantity}`}
                         selectedCallback={(c: string) => setQuantity(parseInt(c))} 

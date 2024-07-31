@@ -252,13 +252,18 @@ export interface BrandProduct {
 }
 
 export interface ProductAsset {
-    tags: string[],
+    assetId?: string
     packages: PackageQtyOtps[],
     items: ItemQtyOtps[],
     isVeg: boolean,
     id: string,
-    name: string,
-    assetId?: string
+    name: string
+}
+
+export interface UpdateProductAsset {
+    assetId: string
+    packages?: PackageQtyOtps[],
+    items?: ItemQtyOtps[]
 }
 
 export interface ItemAsset {
@@ -289,7 +294,8 @@ export interface ItemQtyOtps {
     item: Item,
     qty: number,
     readOnly?: boolean,
-    action?: Function
+    action?: Function,
+    theme?: string
 }
 
 export interface Package {
@@ -300,7 +306,9 @@ export interface Package {
 export interface PackageQtyOtps {
     package: Package,
     qty: number,
-    readOnly?: boolean
+    readOnly?: boolean,
+    action?: Function,
+    theme?: string
 }
 
 export interface Product {

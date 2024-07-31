@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, UpdateProductAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -69,7 +69,7 @@ export async function createAsset(assetType: string, data: ProductAsset | ItemAs
   }
 }
 
-export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | ProductAsset) {
+export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | UpdateProductAsset) {
 
   try {
     const type = assetType.toUpperCase();

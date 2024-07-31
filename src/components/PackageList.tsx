@@ -5,13 +5,24 @@ import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
 type PackageList = {
     packages:  PackageQtyOtps[],
-    readOnly?: boolean
+    readOnly?: boolean,
+    update?: Function,
+    theme?: string
 }
 
-const PackageList: FC<PackageList> = ({ packages, readOnly }) => {
+const PackageList: FC<PackageList> = ({ packages, readOnly, update, theme }) => {
 
     const [current, setCurrent] = useState<PackageQtyOtps[]>(packages);
     const uxHide = true;
+
+    const remove = (packageId: string) => {
+        let rows = [...current].filter(pkg => pkg.package.packageId != packageId)
+        setCurrent(rows);
+
+        if (update && typeof update == 'function') {
+            update(rows);
+        }
+    }
 
     useEffect(() => {
         setCurrent(packages);
@@ -27,8 +38,8 @@ const PackageList: FC<PackageList> = ({ packages, readOnly }) => {
                 <ChevronUpIcon className='size-6 '/>
             </div>}
 
-            {current.length > 0 && <ul className='divide-y divide-gray-200 border rounded-lg sm:mx-auto max-w-lg ps-10'>
-                {current.map(o => <PackageQty package={o.package} qty={o.qty} readOnly={readOnly}/>)}
+            {current.length > 0 && <ul className='rounded-lg sm:mx-auto max-w-lg'>
+                {current.map(o => <PackageQty package={o.package} qty={o.qty} readOnly={readOnly} action={remove} theme={theme} />)}
             </ul>}
         </div>
     );

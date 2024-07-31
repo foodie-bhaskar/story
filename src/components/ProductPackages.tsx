@@ -47,7 +47,7 @@ const ProductPackages: FC<PdtPkg> = ({ data, update, readOnly }) => {
         </div>}
         {showForm && <PackageQtyForm action={addPackage} errorMessage={errorMessage} />}
 
-        <PackageList packages={packages} />            
+        <PackageList packages={packages} readOnly={readOnly} />            
     </div>)
 }
 

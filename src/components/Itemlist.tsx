@@ -5,14 +5,25 @@ import { ChevronUpIcon } from '@heroicons/react/20/solid';
 
 type ItemList = {
     items:  ItemQtyOtps[],
-    readOnly?: boolean
+    readOnly?: boolean,
+    update?: Function,
+    theme?: string
 }
 
-const ItemList: FC<ItemList> = ({ items, readOnly }) => {
+const ItemList: FC<ItemList> = ({ items, readOnly, update, theme }) => {
 
     const [current, setCurrent] = useState<ItemQtyOtps[]>(items);
 
     const uxHide = true;
+
+    const remove = (itemId: string) => {
+        let rows = [...current].filter(item => item.item.itemId != itemId)
+        setCurrent(rows);
+
+        if (update && typeof update == 'function') {
+            update(rows);
+        }
+    }
 
     useEffect(() => {
         setCurrent(items);
@@ -28,8 +39,8 @@ const ItemList: FC<ItemList> = ({ items, readOnly }) => {
                 <ChevronUpIcon className='size-6 '/>
             </div>}
 
-            {current.length > 0 && <ul className='divide-y divide-gray-200 border rounded-lg sm:mx-auto max-w-lg ps-10'>
-                {current.map(o => <ItemQty item={o.item} qty={o.qty} readOnly={readOnly} />)}
+            {current.length > 0 && <ul className='rounded-lg sm:mx-auto max-w-lg'>
+                {current.map(o => <ItemQty key={o.item.itemId} item={o.item} qty={o.qty} readOnly={readOnly} action={remove} theme={theme} />)}
             </ul>}
         </div>
     );

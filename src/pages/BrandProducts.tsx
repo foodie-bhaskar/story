@@ -6,12 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
 import { localDate } from '@/lib/utils';
-import { BrandProduct, ProductAsset } from '@/App.type';
+import { BrandProduct } from '@/App.type';
 import { OneDArray } from 'gridjs/dist/src/types.js';
 import { ComponentChild } from 'preact';
 // import Dropdown from '@/core/Dropdown';
 // import FoodieText from '@/core/FoodieText';
-import { fetchAssetsForType, fetchCachesForType } from '../api/api';
+import { fetchAsset, fetchCachesForType } from '../api/api';
 import Count from '@/core/Count';
 import ChipButton from '@/core/ChipButton';
 import FoodieToggle from '@/core/FoodieToggle';
@@ -47,13 +47,14 @@ const BrandProducts = () => {
   
   const [tableData, setTableData] = useState();
   const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
-  const [mappedProducts, setMappedProducts] = useState<ProductAsset[]>([]);
+  const [mappedProducts, setMappedProducts] = useState<string[]>([]);
   const [hideMappedProducts, setHideMappedProducts] = useState<boolean>(true);
 
   const [isRefetchingProducts, setIsRefetchingProducts] = useState(false);
 
   const [total, setTotal] = useState(0);
   const [weekly, setWeekly] = useState(0);
+  const [mapped, setMapped] = useState(0);
 
   const navigate = useNavigate();
 
@@ -118,11 +119,13 @@ const BrandProducts = () => {
   });
 
   const products = useQuery({
-    queryKey: ['asset', 'product'],
+    queryKey: ['cache', 'product'],
     queryFn: async () => {
       try {
-        const data = await fetchAssetsForType('product');
+        // const data = await fetchAssetsForType('product');
+        const data = await fetchAsset('cache', 'asset_PRODUCT');
         const rows = data.data.result; //.map(item => ({ ...item, options: item.options.length}));
+        // alert(JSON.stringify(rows));
         return rows;
       } catch (err) {
         const error = err as AxiosError;
@@ -180,22 +183,12 @@ const BrandProducts = () => {
 
         let brandProducts = data.map((bp: BrandProduct) => ({ ...bp, mapped: false }));
 
-        // alert(`Got brand products : ${brandProducts.length}`);
-
         if (mappedProducts && mappedProducts.length) {
-          // alert(`mapped products : ${mappedProducts.length}`);
-          const brandTypeProductPrefixes = mappedProducts.map(mp => {
-            // alert(JSON.stringify(mp));
-            return mp.assetId;
-          });
-
-          // alert(`brandTypeProductPrefixes : ${brandTypeProductPrefixes}`);
-
           brandProducts = !hideMappedProducts 
             ? brandProducts.map((bp: BrandProduct) => {
               const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
 
-              if (brandTypeProductPrefixes.includes(id)) {
+              if (mappedProducts.includes(id)) {
                 // alert(`${JSON.stringify(brandTypeProductPrefixes)}: ${id}`);
                 return {
                   ...bp,
@@ -208,7 +201,7 @@ const BrandProducts = () => {
             })
             : brandProducts.filter((bp: BrandProduct) => {
                 const id = `${bp.brandTypeProductPrefix}-${bp.variantSequence}`;
-                return !brandTypeProductPrefixes.includes(id);
+                return !mappedProducts.includes(id);
             })
         }
         
@@ -221,9 +214,9 @@ const BrandProducts = () => {
 
   }, [isPending, error, data, assetType, mappedProducts, hideMappedProducts]);
 
-  useEffect(() => {
+ /*  useEffect(() => {
     products.refetch();
-  }, [])
+  }, []) */
 
   useEffect(() => {
     if (products.isFetching) {
@@ -237,9 +230,10 @@ const BrandProducts = () => {
           // if (products.error.response && products.error.response.status == 404) {
           // }
         }
-      } else if (products.data && products.data.length) {
-        // alert(`Products: ${JSON.stringify(products.data.length)}`);
-        setMappedProducts(products.data)
+      } else if (products.data) {
+        const result = products.data;
+        let productIds = result.payload;
+        setMappedProducts(productIds)
       }
     }
 
@@ -256,6 +250,7 @@ const BrandProducts = () => {
       // alert(productsSummary.data);
       setTotal(productsSummary.data['count#total'].data);
       setWeekly(productsSummary.data['count#weekly'].data);
+      setMapped(productsSummary.data['count#mapped'].data);
     }
 
   }, [productsSummary.isPending, productsSummary.isFetching, productsSummary.error, productsSummary.data])
@@ -270,9 +265,11 @@ const BrandProducts = () => {
     {assetType && <>
 
       <div className='flex flex-row gap-8 px-10 mb-10'>
-        <Count label='Unmapped Products' count={total - mappedProducts.length} isLoading={productsSummary.isFetching} />
-        <Count label='Products Mapped' isLoading={isRefetchingProducts} array={mappedProducts} />
+        <Count label='Unmapped Products' count={total - mapped} isLoading={productsSummary.isFetching} />
+        <Count label='Products Mapped' count={mapped} isLoading={productsSummary.isFetching} />
+        
         <Count label='Weekly Additions' isLoading={productsSummary.isFetching} count={weekly} />
+        <Count label='Products Mapped' isLoading={isRefetchingProducts} array={mappedProducts} />
       </div>
 
       <div className='flex flex-row mx-10 ml-10 justify-between items-center'>

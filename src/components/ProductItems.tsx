@@ -31,10 +31,11 @@ const ProductItems: FC<PdtItem> = ({ data, update, readOnly }) => {
         } else {
             setShowItemForm(false);
             setItems([...items, itemQty]);
-            let tagsUpdate: string[] = [...tags, name];
-            update([...items, itemQty], tagsUpdate);
-            setTags(tagsUpdate)
+            
             setItemError('');
+            let tagsUpdate: string[] = [...tags, name];
+            setTags(tagsUpdate);
+            update([...items, itemQty], tagsUpdate);
         }
     }
 
@@ -50,7 +51,11 @@ const ProductItems: FC<PdtItem> = ({ data, update, readOnly }) => {
         </div>}
         {showItemForm && <ItemQtyForm action={addItem} errorMessage={itemError} />}
 
-        <ItemList items={items} />            
+        <ItemList items={items} readOnly={readOnly} update={(rows: ItemQtyOtps[]) => {
+            setItems(rows);
+            update([...rows], rows.map(r => r.item.name));
+            
+        }}/>            
     </div>)
 }
 

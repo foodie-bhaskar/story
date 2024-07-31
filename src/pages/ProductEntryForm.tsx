@@ -4,12 +4,8 @@ import Button from '@/core/Button';
 import Loader from '@/core/Loader';
 import ProductItems from '@/components/ProductItems';
 import ProductPackages from '@/components/ProductPackages';
-import { ItemQtyOtps, PackageQtyOtps } from '@/App.type';
-
-type Product = {
-    items: ItemQtyOtps[],
-    packages: PackageQtyOtps[]
-}
+import { ItemQtyOtps, PackageQtyOtps, Product } from '@/App.type';
+import { isProductFormValid } from '@/lib/utils';
 
 type ProductFormOpts = {
     readOnly?: boolean,
@@ -25,45 +21,35 @@ const ProductEntryForm: FC<ProductFormOpts> = ({ readOnly, update, product }) =>
 
     const [valid, setValid] = useState(false);
 
-    const [items, setItems] = useState<ItemQtyOtps[]>(product && product.items ? product.items :[]);
-    const [tags, setTags] = useState<string[]>([]);
-    const [packages, setPackages] = useState(product && product.packages ? product.packages :[]);
+    const [items, setItems] = useState<ItemQtyOtps[]>(product ? product.items :[]);
+    const [packages, setPackages] = useState<PackageQtyOtps []>(product ? product.packages :[]);
 
-    const addItemQty = (items: ItemQtyOtps[], tags: string[]) => {
+    const addItemQty = (items: ItemQtyOtps[]) => {
+        // alert(`change : ${JSON.stringify(items)}`)
         setItems(items)
-        setTags(tags);
     }
 
     useEffect(() => {
-        if (items && items.length && packages && packages.length && !product) {
-            setValid(true);
-        } else {
-            setValid(false);
-        }
+        // alert(items.length);
+        setValid(isProductFormValid(items, packages, product));
+        
     }, [items, packages, product]);
-
-    useEffect(() => {
-       if (product && product.items && product.packages) {
-            setItems(product.items);
-            setPackages(product.packages);
-       }
-    }, [product]);
 
     return (<div className={`border border-gray-400 lg-w-full mx-auto rounded`}>
 
         <div className={`${borderOn ? 'border-red-800': ''} my-10 flex flex-row min-w-max`}>
-            <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-6`}>
-                <ProductItems update={addItemQty} data={items} readOnly={readOnly || isLoading} />
+            <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-2`}>
+                <ProductItems update={addItemQty} data={items} readOnly={readOnly} />
             </main>
             <aside className=" basis-5/12 ps-10">
-                <ProductPackages update={setPackages} data={packages} readOnly={readOnly || isLoading} />
+                <ProductPackages update={setPackages} data={packages} readOnly={readOnly} />
             </aside>
         </div>
 
         <div className='px-10 pb-10'>
-            {!isLoading && <Button label='Save' update={async () => {
+            {!isLoading && <Button label={product ? 'Update': 'Save'} update={async () => {
                 setIsLoading(true);
-                await update(items, packages, tags);
+                await update(items, packages);
                 setIsLoading(false);
             }} valid={valid} />}
             {isLoading && <Loader />}

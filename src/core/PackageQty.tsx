@@ -1,10 +1,37 @@
 import { FC } from 'react';
 import { PackageQtyOtps } from '../App.type';
 
+import AssetQty from '@/core/AssetQty';
+
 const PackageQty: FC<PackageQtyOtps> = (props) => {
     const { packageId, name } = props.package;
+    const { qty, readOnly, action, theme } = props;
 
-    const { qty, readOnly } = props;
+    return <AssetQty id={packageId} name={name} qty={qty} readOnly={readOnly} action={action} theme={theme} />
+
+    /* 
+
+    type ColorTheme = {
+        btn: string,
+        textBG: string
+    }
+
+    interface ColorThemes {
+        [key: string]: ColorTheme;
+      }
+      
+      const colors: ColorThemes = {
+        active: {
+          btn: 'bg-blue-500',
+          textBG: 'bg-slate-500 text-white',
+        },
+        disabled: {
+          btn: 'bg-gray-400',
+          textBG: 'text-gray-400 bg-gray-50',
+        }
+    }
+
+    const [realizedTheme] = useState<string>(!!readOnly? (theme? 'active': 'disabled'): 'active');
 
     return (
         <li key={packageId} className="group flex pe-8 py-2 gap-1 rounded-lg max-w-lg transition-opacity-250 duration-250 timing-ease-in-out bg-white">
@@ -20,7 +47,7 @@ const PackageQty: FC<PackageQtyOtps> = (props) => {
                 </button>
             </div>
         </li>
-    );
+    ); */
 }
   
 export default PackageQty;

@@ -70,26 +70,25 @@ function hasModifications(currentData: ItemQtyOtps[] | PackageQtyOtps[], existin
  * Check if product items and packages are filled to be valid
  */
 export function isProductFormValid(items: ItemQtyOtps[], packages: PackageQtyOtps[], product?: Product) {
-  let isValid = true; // set to true by default
+  let isValid = false; // set to false by default
 
   // product missing means new product mapping, so both items and packages need to there
   if (!product) {
     if (items && items.length && packages && packages.length) {
       console.log(`Product mapped with items::[${items.length}] and packages::[${packages.length}]`);
-    } else {
-      isValid = false;
+      isValid = true;
     }
-
   } else {
     // either items or packages need to be different or their quantity needs to be different
-
+    // alert(`product existis: ${isValid}`)
     // a - if items then compare with existing product.items
-    if (!hasModifications(items, product.items)) {
-      isValid = false;
+    if (hasModifications(items, product.items)) {
+      isValid = true;
+      // alert(`product existis: ${isValid}`);
     }
     // b - if packages then compare with existing product.packages
-    if (!hasModifications(packages, product.packages)) {
-      isValid = false;
+    if (hasModifications(packages, product.packages)) {
+      isValid = true;
     }
   }
 
