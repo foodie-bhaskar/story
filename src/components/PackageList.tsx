@@ -16,7 +16,7 @@ const PackageList: FC<PackageList> = ({ packages, readOnly, update, theme }) => 
     const uxHide = true;
 
     const remove = (packageId: string) => {
-        let rows = [...current].filter(pkg => pkg.package.packageId != packageId)
+        let rows = [...current].filter(pkg => pkg.package.packageId != packageId);
         setCurrent(rows);
 
         if (update && typeof update == 'function') {

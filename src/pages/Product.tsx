@@ -42,7 +42,7 @@ const Product = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
-    const { isFetching, isPending, error, data } = useQuery({
+    const { isFetching, isPending, error, data, refetch } = useQuery({
         queryKey: ['product', productId],
         queryFn: async () => {
             // if (productId) {
@@ -177,14 +177,25 @@ const Product = () => {
             // alert(JSON.stringify(body))
 
             await mutation.mutateAsync(body);
+
+            /* queryClient.setQueryData(['product', productId], (oldData: any) => {
+                // Update the old data here and return the new data
+                let update = { ...oldData };
+
+                if (items) {
+                    update = { ...update, items };
+                }
+                if (packages) {
+                    update = { ...update, packages };
+                }
+                return update;
+            }); */
             
             queryClient.invalidateQueries({ queryKey: ['product', productId] });
 
             navigate(-1);
         }
     }
-
-    
 
     useEffect(() => {
         if (isFetching) {
@@ -228,6 +239,12 @@ const Product = () => {
         }
     
     }, [products.isPending, products.isFetching, products.error, products.data]);
+
+    useEffect(() => {
+        if (page && page == 'view' && !product) {
+            refetch();
+        }
+    }, [product, page])
 
 
     return (<div className='lg-w-full mx-auto'>

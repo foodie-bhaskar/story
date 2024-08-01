@@ -41,13 +41,17 @@ const ProductPackages: FC<PdtPkg> = ({ data, update, readOnly }) => {
         }
     }, [data])
 
-    return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
+    return (<div className={`${borderOn ? 'border border-yellow-500': ''} min-w-96`}>
         {!readOnly && !showForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
             <TransButton label='Assign Package & Quantity' update={() => setShowForm(true)} />
         </div>}
         {showForm && <PackageQtyForm action={addPackage} errorMessage={errorMessage} />}
 
-        <PackageList packages={packages} readOnly={readOnly} />            
+        <PackageList packages={packages} readOnly={readOnly} update={(rows: PackageQtyOtps[]) => {
+            setPackages(rows);
+            update(rows);
+            
+        }}/>            
     </div>)
 }
 

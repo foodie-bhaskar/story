@@ -35,13 +35,13 @@ const ProductEntryForm: FC<ProductFormOpts> = ({ readOnly, update, product }) =>
         
     }, [items, packages, product]);
 
-    return (<div className={`border border-gray-400 lg-w-full mx-auto rounded`}>
+    return (<div className={`border border-gray-400 lg-w-full rounded`}>
 
         <div className={`${borderOn ? 'border-red-800': ''} my-10 flex flex-row min-w-max`}>
             <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-2`}>
                 <ProductItems update={addItemQty} data={items} readOnly={readOnly} />
             </main>
-            <aside className=" basis-5/12 ps-10">
+            <aside className="basis-6/12 ps-10">
                 <ProductPackages update={setPackages} data={packages} readOnly={readOnly} />
             </aside>
         </div>

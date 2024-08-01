@@ -45,7 +45,7 @@ const ProductItems: FC<PdtItem> = ({ data, update, readOnly }) => {
         }
     }, [data])
 
-    return (<div className={`${borderOn ? 'border border-yellow-500': ''}`}>
+    return (<div className={`${borderOn ? 'border border-yellow-500': ''} min-w-96`}>
         {!readOnly && !showItemForm && <div className='inline-flex gap-2 flex-row w-full space-around ps-10 -mt-2 mb-2'>
             <TransButton label='Assign Item and quantity' update={() => setShowItemForm(true)} />
         </div>}

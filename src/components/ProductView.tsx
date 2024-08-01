@@ -17,6 +17,8 @@ const ProductView: FC<ProductViewOpts> = ({ data, update, btnLabel, readOnly, th
     let borderOn = false;
     // borderOn = true;
 
+    console.log(borderOn)
+
     const [isActedUpon, setIsActedUpon] = useState(false);
 
     useEffect(() => {
