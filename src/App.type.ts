@@ -199,6 +199,15 @@ export interface AssetPackage {
     name: string
 }
 
+export interface AssetProduct {
+    assetId: string
+    packages: PackageQtyOtps[],
+    items: ItemQtyOtps[],
+    isVeg: boolean,
+    id: string,
+    name: string
+}
+
 export interface UpdatePackageAsset {
     compartments?: number,
     packagingCost?: number,
@@ -314,4 +323,9 @@ export interface PackageQtyOtps {
 export interface Product {
     items: ItemQtyOtps[],
     packages: PackageQtyOtps[]
+}
+
+export interface FilterOpts {
+    value: string,
+    field?: string
 }

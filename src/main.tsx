@@ -19,6 +19,7 @@ import BrandProducts from './pages/BrandProducts.tsx';
 import Product from './pages/Product.tsx';
 import ViewAsset from './pages/ViewAsset.tsx';
 import EditAsset from './pages/EditAsset.tsx';
+import ItemProducts from './pages/ItemProducts.tsx';
 
 const router = createBrowserRouter([
   {
@@ -82,7 +83,11 @@ const router = createBrowserRouter([
         path: "showcase",
         element: <Showcase />,
       },
-    ],
+      {
+        path: "item-products",
+        element: <ItemProducts />,
+      }
+    ]
   }
 ]);
 

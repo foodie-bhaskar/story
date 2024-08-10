@@ -5,12 +5,36 @@ const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
 const ENV = 'dev';
 const UI_API = 'foodie-api';
 const ASSET_API = 'foodie-asset';
+const QUERY_API = 'foodie-search';
 const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ijk3MzgxOTk4MjgiLCJuYW1lIjoiQWF5dXNoIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE3MjE0NzgwMTh9.AmSFOZHaiV1Ubqpj-05RkmP8WBkmxVQPKIvzS3-q4jk';
 
 const HEADERS = {
   headers: {
     Authorization: `Bearer ${AuthToken}`
   }
+}
+
+const ASSET_LSI_MAP: Record<string, string> = {
+  'product': 'ITEM-NAME'
+}
+
+export async function queryAssetsForValue(assetType: string, value: string, key?: string) {
+  if (!key) {
+
+  }
+
+  let lsiSKPrefix = 'ITEM-NAME';
+
+  if (key) {
+    lsiSKPrefix = key
+  } else if (ASSET_LSI_MAP[assetType]) {
+    lsiSKPrefix = ASSET_LSI_MAP[assetType]
+  }
+
+  const type = assetType.toUpperCase();
+  const url = `${BASE_URL}/${ENV}/${QUERY_API}?assetType=${type}&key=${lsiSKPrefix}&id=${value}`;
+
+  return axios.get(url, HEADERS);
 }
 
 export async function fetchAssetsForType(assetType: string | undefined) {  
@@ -25,8 +49,6 @@ export async function fetchAssetsForType(assetType: string | undefined) {
   return axios.get(url, HEADERS);
 }
 
-//https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com/dev/foodie-asset
-// ?assetType=CACHE&filterName=product-names&filterValue=count
 export async function fetchCachesForType(cacheType: string, group: string) {  
   if (!cacheType) {
     throw new Error('Cache type is required');

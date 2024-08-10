@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { ItemQtyOtps, PackageQtyOtps, Product } from '@/App.type';
+import { AssetItem, ItemQtyOtps, PackageQtyOtps, Product } from '@/App.type';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,6 +24,20 @@ export function localDate(timeInMillis: number) {
   const date = new Date(timeInMillis);
   return date.toLocaleDateString(); //
 }
+
+function isKnownField(field: string): field is keyof AssetItem {
+  return ['assetId', 'itemId', 'name'].includes(field);
+}
+
+
+export function includesInObject(o: AssetItem, value: string, field?: string): boolean {
+  if (field && isKnownField(field)) {
+    return o[field]?.toLowerCase().includes(value.toLowerCase()) ?? false;
+  } else {
+    return o.name.toLowerCase().includes(value.toLowerCase());
+  }
+}
+
 
 function getAssetIdQty(assetQty: ItemQtyOtps | PackageQtyOtps): string {
   let { qty } = assetQty;
