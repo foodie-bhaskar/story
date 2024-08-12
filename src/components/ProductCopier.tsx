@@ -24,11 +24,11 @@ const ProductCopier: FC<PdtCopierOpts> = ({ productName, availableProducts, upda
     // alert(JSON.stringify(availableProducts));
 
     return (<div className={`${borderOn ? 'border border-green-700': ''}`}>
-        <div className='my-2 mx-10 flex flex-row justify-between items-center'>
-            <h4 className='text-slate-400 text-lg font-light'>Copy from an existing product mapping</h4>
+        <div className='my-2 flex flex-row justify-between items-center'>
+            <h4 className='text-slate-400 text-lg font-light italic'>Copying from an existing mapping</h4>
             <FoodieText label={""} fieldName={""} value={productName} action={setFilterPartial} size="w-96"/>
         </div>
-        <div className={`flex flex-row mx-10 min-h-96 gap-1 ${borderOn ? 'border border-green-700': ''}`}>
+        <div className={`flex flex-row min-h-96 gap-1 ${borderOn ? 'border border-green-700': ''}`}>
             <div className={`basis-2/5 py-4 pe-4 ${!copiedProduct ? 'border border-slate-400': ''}`}>
                 {copiedProduct 
                     ? (isLoading ? <div className='h-96 text-center align-middle'><Loader /></div>

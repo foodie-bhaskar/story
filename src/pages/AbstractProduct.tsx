@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from 'axios';
 
-import { ItemQtyOtps, PackageQtyOtps, ProductAsset, AbstractProductAsset, Product } from '@/App.type';
+import { ItemQtyOtps, PackageQtyOtps, ProductAsset, AbstractProductAsset } from '@/App.type';
 
 import { updateAsset, fetchAssetsForType } from '../api/api';
 import ProductEntryForm from './ProductEntryForm';
@@ -26,12 +26,31 @@ const ProductManager: FC<ProductManagerOpts> = ({ update, product, availableProd
     // borderOn = true;
     
     const [isView, setIsView] = useState(product.items ? true: false);
+    const [isManual, setIsManual] = useState(false);
 
     return <div className={`${borderOn ? 'border border-green-700': ''} mx-10 `}>
-        <div className='mb-4 w-full flex flex-row-reverse'>
-            <FoodieToggle label='Editable' action={() => setIsView(!isView)} active={!isView} />
-        </div>
-        <ProductEntryForm readOnly={isView} update={update} product={product}/>
+        {product.items && <>
+            <div className='mb-4 w-full flex flex-row-reverse'>
+                <FoodieToggle label='Editable' action={() => setIsView(!isView)} active={!isView} />
+            </div>
+            <ProductEntryForm readOnly={isView} update={update} product={product}/>
+        </>}
+        
+        {!product.items && (<>
+            <div className={`${borderOn ? 'border border-red-700': ''} flex flex-row justify-between mt-8`}>
+                <div>{!isManual && <TransButton label='Manually add items and packaging' update={() => setIsManual(true)} />}</div>
+                <div>{isManual && <TransButton label='Copy from an existing product mapping' update={() => setIsManual(false)} />}</div>
+            </div>
+            
+            {isManual 
+                ? <><div className='mb-2'>
+                        <h4 className='text-slate-400 text-lg font-light italic'>Manually adding items and packaging</h4>
+                    </div>
+                    <ProductEntryForm readOnly={false} update={update} product={product}/>
+                </>
+                : <ProductCopier productName={product.name} availableProducts={availableProducts} update={update} />
+            }
+        </>)}
     </div>
 }
 
@@ -40,9 +59,6 @@ const AbstractProduct = () => {
     // borderOn = true;
 
     let { productId } = useParams();
-
-    const [isManual, setIsManual] = useState(false);
-    
     
     const [product, setProduct] = useState<AbstractProductAsset>();
     
