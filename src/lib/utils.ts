@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { AssetItem, ItemQtyOtps, PackageQtyOtps, Product } from '@/App.type';
+import { AbstractProductAsset, AssetItem, ItemQtyOtps, PackageQtyOtps } from '@/App.type';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -83,11 +83,11 @@ function hasModifications(currentData: ItemQtyOtps[] | PackageQtyOtps[], existin
 /*
  * Check if product items and packages are filled to be valid
  */
-export function isProductFormValid(items: ItemQtyOtps[], packages: PackageQtyOtps[], product?: Product) {
+export function isProductFormValid(items: ItemQtyOtps[], packages: PackageQtyOtps[], product: AbstractProductAsset) {
   let isValid = false; // set to false by default
 
   // product missing means new product mapping, so both items and packages need to there
-  if (!product) {
+  if (!product.items) {
     if (items && items.length && packages && packages.length) {
       console.log(`Product mapped with items::[${items.length}] and packages::[${packages.length}]`);
       isValid = true;

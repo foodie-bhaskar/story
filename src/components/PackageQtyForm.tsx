@@ -26,7 +26,7 @@ const PackageQtyForm: FC<FormAction> = ({ action, errorMessage }) => {
     const [ready, setReady] = useState<boolean>(false);
     const [quantity, setQuantity] = useState<number>(1);
 
-    const [packages, setPackages] = useState([{ value: '', name: ' --- please select ---'}]);
+    const [packages, setPackages] = useState([{ value: '', name: ' --- please select or type ---'}]);
 
     const { isPending, error, data } = useQuery({
         queryKey: ['asset', assetType],
