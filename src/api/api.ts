@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, UpdateProductAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, UpdateProductAsset, AbstractProductAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -91,13 +91,10 @@ export async function createAsset(assetType: string, data: ProductAsset | ItemAs
   }
 }
 
-export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | UpdateProductAsset) {
-
+export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | AbstractProductAsset) {
   try {
     const type = assetType.toUpperCase();
     const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}&id=${assetId}`;
-
-
     return axios.put(url, data, HEADERS);
   } catch (error) {
      throw new Error('Error during new Asset updation'); // Additional error details from the server

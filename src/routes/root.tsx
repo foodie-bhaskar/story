@@ -38,6 +38,9 @@ export default function Root() {
                 <Link to={`list-assets/brand-products`}>Menu Products</Link>
               </li>
               <li>
+                <Link to={`abstract-products`}>Products</Link>
+              </li>
+              <li>
                 <Link to={`showcase`}>Showcase</Link>
               </li>
             </ul>

@@ -139,7 +139,7 @@ const ItemForm: FC<ItemFormOpts> = ({ formType, callbackFn, item }) => {
             </div>
             <div className='basis-1/3'>
               <FoodieText label='Name' fieldName='name' action={setName} value={name} size='w-full' 
-                readOnly={formType == FormType.VIEW}
+                readOnly={formType != FormType.CREATE}
               />
             </div>            
             <div className='basis-1/3'>

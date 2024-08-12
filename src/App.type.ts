@@ -269,6 +269,16 @@ export interface ProductAsset {
     name: string
 }
 
+export interface AbstractProductAsset {
+    assetId: string
+    packages: PackageQtyOtps[],
+    items: ItemQtyOtps[],
+    isVeg: boolean,
+    name: string,
+    createdAt: number,
+    primary: string
+}
+
 export interface UpdateProductAsset {
     assetId: string
     packages?: PackageQtyOtps[],

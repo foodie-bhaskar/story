@@ -20,6 +20,8 @@ import Product from './pages/Product.tsx';
 import ViewAsset from './pages/ViewAsset.tsx';
 import EditAsset from './pages/EditAsset.tsx';
 import ItemProducts from './pages/ItemProducts.tsx';
+import AbstractProducts from './pages/AbstractProducts.tsx';
+import AbstractProduct from './pages/AbstractProduct.tsx';
 
 const router = createBrowserRouter([
   {
@@ -72,6 +74,10 @@ const router = createBrowserRouter([
         element: <Product />,
       },
       {
+        path: "abstract-product/:productId",
+        element: <AbstractProduct />,
+      },
+      {
         path: "product/:productType/:productId/:productName",
         element: <Product />,
       },
@@ -86,6 +92,10 @@ const router = createBrowserRouter([
       {
         path: "item-products",
         element: <ItemProducts />,
+      },
+      {
+        path: "abstract-products",
+        element: <AbstractProducts />,
       }
     ]
   }
