@@ -70,17 +70,18 @@ const BrandProducts = () => {
             { name: 'Arrived', id: 'createdAt', data: (row: BrandProduct) => localDate(row.createdAt)},
             { name: 'ID', id: 'brandTypeProductPrefix', data: (row: BrandProduct) => `${row.brandTypeProductPrefix}-${row.variantSequence}` },
             { name: 'Map Items', data: (row: BrandProduct) => {
-              const { productType, brandTypeProductPrefix, variantSequence, productName } = row;
-              const productPageUrl = `/product/${productType}/${brandTypeProductPrefix}-${variantSequence}/${productName}`;
+              const { brandTypeProductPrefix, variantSequence } = row;
+              const productPageUrl = `/product/${brandTypeProductPrefix}-${variantSequence}`;
               return !row.mapped 
                 ? _(<div className='text-center'>
-                      <button 
+                    <span className='text-sm italic font-light'>Restricted</span>
+                      {/* <button 
                         className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
-                        onClick={() => navigate(productPageUrl)}>Map</button>
+                        onClick={() => navigate(productPageUrl)}>Map</button> */}
                     </div>)
                 : _(<div className='text-center'>
                       <span className='cursor-pointer text-sm uppercase text-indigo-600 underline font-light italic'
-                        onClick={() => navigate(`${productPageUrl}?page=view`)}
+                        onClick={() => navigate(productPageUrl)}
                       >View</span>
                     </div>);
             }}

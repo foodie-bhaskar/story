@@ -1,6 +1,6 @@
 import { AssetProduct, FilterOpts, ProductAsset } from "@/App.type";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 import FoodieText from "@/core/FoodieText";
 import AssetLoaderList from "@/components/AssetLoaderList";
@@ -18,7 +18,7 @@ const ItemProducts = () => {
 
     const [selectedProduct, setSelectedProduct] = useState<ProductAsset>();
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
         setApiFilter({
@@ -56,11 +56,11 @@ const ItemProducts = () => {
                 {selectedProduct && <ProductView 
                     data={selectedProduct} 
                     btnLabel='View' 
-                    update={(product: ProductAsset) => {
-                        const vegTypePartial = product.isVeg ? 'veg': 'non-veg';
-                        let url = `/product/${vegTypePartial}/${product.id}/${product.name}?page=view`
+                    update={() => {
+                        // const vegTypePartial = product.isVeg ? 'veg': 'non-veg';
+                        // let url = `/product/${vegTypePartial}/${product.id}/${product.name}?page=view`
                         // alert(`View this product: ${url}`);
-                        navigate(url);
+                        // navigate(url);
                     }} 
                     readOnly={true} 
                 />}

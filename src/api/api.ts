@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, UpdateProductAsset, AbstractProductAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
