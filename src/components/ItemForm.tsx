@@ -92,7 +92,7 @@ const ItemForm: FC<ItemFormOpts> = ({ formType, callbackFn, item }) => {
         }
 
         if (item.cuisineCombo.length != cuisineCombo.length
-          || (cuisineCombo.find((t, i) => (t.value != item.typeCombo[i].value)))) {
+          || (cuisineCombo.find((t, i) => (t.value != item.cuisineCombo[i].value)))) {
           isValid = true;
           payload = { ...payload, cuisineCombo };
         }
@@ -171,7 +171,6 @@ const ItemForm: FC<ItemFormOpts> = ({ formType, callbackFn, item }) => {
               <FoodieCheckbox label='Packet Status' info='It is a packet' checked={isPacket} checkFn={setIsPacket}
                 readOnly={formType == FormType.VIEW}
               />
-              {/* <ToggleComplex toggle={packetToggle} component={component} /> */}
             </div>
           </div>
           <WeightCombo update={setWeight} wt={weight} readOnly={formType == FormType.VIEW} />
@@ -191,7 +190,7 @@ const ItemForm: FC<ItemFormOpts> = ({ formType, callbackFn, item }) => {
             cascade='cuisine' 
             hierarchy={['cuisine', 'sub-cuisine']} 
             update={setCuisineCombo}
-            value={item ? item.cuisineCombo: undefined}
+            value={item && item.cuisineCombo? item.cuisineCombo: undefined}
             readOnly={formType == FormType.VIEW}
           />
 
