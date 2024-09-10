@@ -40,6 +40,9 @@ export default function Root() {
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                 <Link to={`abstract-products`}>Products</Link>
               </li>
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`production`}>Production</Link>
+              </li>
               {/* <li>
                 <Link to={`showcase`}>Showcase</Link>
               </li> */}

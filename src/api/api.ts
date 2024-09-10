@@ -59,6 +59,23 @@ export async function fetchCachesForType(cacheType: string, group: string) {
   return axios.get(url, HEADERS);
 }
 
+export async function fetchCachesForRange(cacheType: string, range: string[]) {  
+  if (!cacheType) {
+    throw new Error('Cache type is required');
+  }
+
+  let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=CACHE&filterName=${cacheType}`;
+
+  url = range.reduce((acc, val) => {
+    acc = `${acc}&filterValue=${val}`
+    return acc;
+  }, url);
+  
+  //assetType=CACHE&filterName=production-date&filterValue=2024-09-03&filterValue=2024-09-05
+
+  return axios.get(url, HEADERS);
+}
+
 export async function fetchAsset(assetType: string, id?: string) {
   if (!id) {
       throw new Error('Asset Id is required');

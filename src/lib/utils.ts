@@ -2,6 +2,26 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { AbstractProductAsset, AssetItem, ItemQtyOtps, PackageQtyOtps } from '@/App.type';
 
+type Month = 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 'Jun' | 'Jul' | 'Aug' | 'Sep' | 'Oct' | 'Nov' | 'Dec';
+const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const MONTH_IDX: Record<Month, string> = {
+  'Jan': '01',
+  'Feb': '02',
+  'Mar': '03',
+  'Apr': '04',
+  'May': '05',
+  'Jun': '06',
+  'Jul': '07',
+  'Aug': '08',
+  'Sep': '09',
+  'Oct': '10',
+  'Nov': '11',
+  'Dec': '12'
+};
+
+const MONTH_NAMES = Object.keys(MONTH_IDX) as Month[];
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -23,6 +43,77 @@ export function capitalizeWords(str: string) {
 export function localDate(timeInMillis: number) {
   const date = new Date(timeInMillis);
   return date.toLocaleDateString(); //
+}
+
+export function formattedDate(providedDate: Date | undefined = undefined) {
+  const defDate = providedDate || new Date();
+
+  const [, mon, date, year] = defDate.toDateString().split(' ') as [string, Month, string, string];
+  
+  return `${year}-${MONTH_IDX[mon]}-${date.padStart(2, '0')}`;
+}
+
+export function convertDateFormat(dateString: string): string {
+  // Parse the input date
+  const [year, month, day] = dateString.split('-');
+
+  // Find the month name
+  const monthName = MONTH_NAMES[parseInt(month) - 1];
+
+  // Format the new date string
+  return `${day}-${monthName}-${year.slice(-2)}`;
+}
+
+export function convertToDayNameFormat(dateString: string): string {
+  const [year, month, day] = dateString.split('-').map(Number);
+  
+  const date = new Date(year, month - 1, day);  // month is 0-indexed in Date constructor
+  
+  const dayOfMonth = day;
+  const monthName = MONTH_NAMES[date.getMonth()];
+  const dayOfWeek = DAYS_OF_WEEK[date.getDay()];
+
+  return `${dayOfMonth} ${monthName}, ${dayOfWeek}`;
+}
+
+export function convertISOToISTFormat(isoDateString: string): string {
+  const date = new Date(isoDateString);
+  
+  // Convert to IST (UTC+5:30)
+  const istDate = new Date(date.getTime() + (5.5 * 60 * 60 * 1000));
+
+  const day = istDate.getUTCDate();
+  const month = MONTH_NAMES[istDate.getUTCMonth()];
+  const hours = istDate.getUTCHours();
+  const minutes = istDate.getUTCMinutes();
+
+  // Round minutes to nearest 5
+  const roundedMinutes = Math.round(minutes / 5) * 5;
+  
+  // Format hours and minutes
+  const formattedTime = `${hours}:${roundedMinutes.toString().padStart(2, '0')}`;
+
+  return `${day} ${month}, ${formattedTime}`;
+}
+
+export function getDateDaysAgo(days: number): string {
+  const today = new Date();
+  const pastDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
+  
+  const [, mon, date, year] = pastDate.toDateString().split(' ') as [string, Month, string, string];
+  
+  return `${year}-${MONTH_IDX[mon]}-${date.padStart(2, '0')}`;
+}
+
+export function dateRange(daysAgo: number | undefined = undefined) {
+  const range = [];
+
+  if (daysAgo) {
+    range.push(getDateDaysAgo(daysAgo))
+  }
+
+  range.push(formattedDate());
+  return range;
 }
 
 function isKnownField(field: string): field is keyof AssetItem {

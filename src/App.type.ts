@@ -193,6 +193,26 @@ export interface AssetItem {
     name: string
 }
 
+export interface Cache {
+    data: number,
+    payload: ProductionBatchCache[],
+    createdAt: string,
+    type: string
+    group: string,
+    distinctItems?: number
+}
+
+export interface PacketItemQty {
+    itemId: number,
+    name: string,
+    qty: number
+}
+
+export interface ProductionBatchCache {
+    batchNo: number,
+    items: PacketItemQty[]
+}
+
 export interface AssetPackage {
     assetId: string,
     packageId?: string,

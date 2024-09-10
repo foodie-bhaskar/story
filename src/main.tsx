@@ -22,6 +22,8 @@ import EditAsset from './pages/EditAsset.tsx';
 import ItemProducts from './pages/ItemProducts.tsx';
 import AbstractProducts from './pages/AbstractProducts.tsx';
 import AbstractProduct from './pages/AbstractProduct.tsx';
+import Production from './pages/Production.tsx';
+import ProductionDay from './pages/ProductionDay.tsx';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
       {
         path: "dropdown",
         element: <DropdownsPage />,
+      },
+      {
+        path: "production",
+        element: <Production />,
+      },
+      {
+        path: "production/:date",
+        element: <ProductionDay />,
       },
       {
         path: "dropdown/:dropdownName",
