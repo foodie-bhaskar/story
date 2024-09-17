@@ -10,6 +10,7 @@ import { ComponentChild } from 'preact';
 import { useNavigate } from 'react-router-dom';
 import { Cache } from '@/App.type';
 import LinkButton from '@/core/LinkButton';
+import CircleValue from '@/core/CircleValue';
 
 type Mapping = {
   order: OneDArray<ComponentChild>
@@ -26,14 +27,70 @@ function getMappings(assetType: string, nav: Function): Mapping {
             { 
               name: 'Production Date', 
               id: 'group',
-              data: (row: Cache) => {                    
-                return _(<LinkButton label={convertDateFormat(row.group)} to={row.group} nav={nav} />)
+              formatter: (cell: string) => _(<div className="flex justify-center">                  
+                <LinkButton label={convertDateFormat(cell)} to={cell} nav={nav} />
+              </div>)
+            },
+            { name: 'Batches', id: 'payload', 
+              formatter: (cell: Cache[]) => _(<div className="flex justify-center">
+                {cell.length == 1 
+                  ? <span className="font-light text-gray-500">1</span> 
+                  : <CircleValue value={`${cell.length}`} />
+                }
+                </div> 
+              )
+            },
+            { name: 'Packets', id: 'data', formatter: (cell: number) => _(
+              <div className="text-center">
+                <div className="font-light text-gray-500">{cell}</div>
+              </div>
+            )},
+            { name: 'Items', id: 'distinctItems', formatter: (cell: number) => _(
+              <div className="text-center">
+                <div className="font-light text-gray-500">{cell}</div>
+              </div>
+            )},
+            
+            { name: 'Uploaded At', id: 'createdAt', sort: false,
+              formatter: (cell: string) => _(
+                <div className="text-center">
+                  <div className="font-light italic text-gray-500">
+                    {convertISOToISTFormat(cell)}
+                  </div>
+                </div>
+              )
+            },
+            { name: 'Updated At', id: 'updatedAt',
+              formatter: (cell: string) => _(
+                <div className="text-center">
+                  {cell ? <div className="font-light italic text-gray-500">
+                      {convertISOToISTFormat(cell)}
+                    </div>
+                    : ''
+                  }
+                </div>
+                
+              )
+            },
+            { name: _(<div className="font-bold text-center">Status</div>),
+              sort: false,
+              id: 'isPending'
+              , data: (row: Cache) => {                    
+                return row.isPending === undefined ? '': (
+                  row.isPending ? _(<div className='flex justify-center w-full'>
+                      <button 
+                        className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
+                        onClick={() => alert('')}>Generate</button>
+                    </div>)
+                    : _(<div className='text-center'>
+                         <button 
+                        className={"py-2 px-10 rounded uppercase cursor-pointer text-green-700 bg-green-100 font-extrabold"} 
+                        onClick={() => alert('')}>View
+                        </button>
+                      </div>)
+                )
               }
             },
-            { name: '# of Batches', id: 'payload', data: (row: Cache) => row.payload.length},
-            { name: 'Total Packets', id: 'data'},
-            { name: 'Items', id: 'distinctItems'},
-            { name: 'Upload Time', id: 'createdAt', data: (row: Cache) => convertISOToISTFormat(row.createdAt)}
           ]
         }
       } catch (e) {
@@ -58,7 +115,7 @@ const Production = () => {
     let borderOn = false;
     // borderOn = true;
     
-    const [ range ] = useState<string[]>(dateRange(30));
+    const [ range ] = useState<string[]>(dateRange(7));
     const [tableData, setTableData] = useState();
     const nav =  useNavigate();
     const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
@@ -132,7 +189,7 @@ const Production = () => {
               sort={true}
               resizable={true}
               className={{  
-                td: 'min-w-24'
+                td: 'min-w-14'
               }}
             />
         </div>}

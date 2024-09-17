@@ -76,6 +76,28 @@ export function convertToDayNameFormat(dateString: string): string {
   return `${dayOfMonth} ${monthName}, ${dayOfWeek}`;
 }
 
+/* Format = 2024-09-16T15:40:19.444Z */
+export function isDateString(str: string | undefined) {
+  let valid = false;
+  if (str && str.length == 24) {
+    valid = true;
+     // Try to parse the string as a date using ISO 8601 format
+    const parts = str.split('T');
+    if (parts.length == 2) {
+      if (parts[0].length == 10 && parts[0].split('-').length == 3 && parts[1].length == 13 && parts[1].split(':').length == 3) {
+        const date = new Date(str);
+        // Check if the parsed date is valid and not NaN
+        valid = !isNaN(date.getTime());
+        // valid = true;
+      }
+    } 
+  }
+  return valid;
+}
+
+/*s
+*/
+
 export function convertISOToISTFormat(isoDateString: string): string {
   const date = new Date(isoDateString);
   
@@ -88,7 +110,7 @@ export function convertISOToISTFormat(isoDateString: string): string {
   const minutes = istDate.getUTCMinutes();
 
   // Round minutes to nearest 5
-  const roundedMinutes = Math.round(minutes / 5) * 5;
+  const roundedMinutes = minutes; //Math.floor(minutes / 5) * 5;
   
   // Format hours and minutes
   const formattedTime = `${hours}:${roundedMinutes.toString().padStart(2, '0')}`;

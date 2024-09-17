@@ -6,7 +6,7 @@ const PacketQtyRow: FC<PacketItemQty> = ({ itemId, name, qty}) => {
     let borderOn = false;
     // borderOn = true;
 
-    const MAX_QTY = 200;
+    const MAX_QTY = 180;
 
     return <div key={itemId} className={`${borderOn ? 'border border-pink-700': ''} flex flex-row justify-start w-full items-center `}>
         <PacketQty itemId={itemId} name={name} qty={qty}  />
@@ -22,10 +22,10 @@ const PacketQtyRow: FC<PacketItemQty> = ({ itemId, name, qty}) => {
 const PacketItemList:FC<{ data: PacketItemQty[] }> = ({ data })  => {
 
     let borderOn = false;
-    borderOn = true;
+    // borderOn = true;
 
     return (
-        <div className={`flex flex-row min-h-96 gap-1 ${borderOn ? 'border border-gray-700': ''} p-4 rounded`}>
+        <div className={`flex flex-row min-h-72 gap-1 ${borderOn ? 'border border-gray-700': ''} rounded`}>
            <ul className='rounded-lg w-full'>
                 {data.map(pkt => <PacketQtyRow {...pkt} key={pkt.itemId} />)}
             </ul>
@@ -37,12 +37,14 @@ const BatchSummary: FC<ProductionBatchCache> = ({ batchNo, items }) => {
     let borderOn = false;
     // borderOn = true;
 
+    console.log('batchNo', batchNo)
+
     // alert(JSON.stringify(items[0]))
 
     return (<div className={`${borderOn ? 'border border-green-700': ''}`}>
-        <div className='my-2 flex flex-row justify-between items-center'>
+        {/* <div className='my-2 flex flex-row justify-between items-center'>
             <h4 className='text-slate-500 text-lg font-bold italic'>Batch # {batchNo} </h4>
-        </div>
+        </div> */}
         <PacketItemList data={items} />
     </div>)
 }

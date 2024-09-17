@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import Loader from "@/core/Loader";
 import Count from '@/core/Count';
+import CollapsibleDiv from '@/core/CollapsibleDiv';
 import BatchSummary from "@/components/BatchSummary";
 
 const Summary: FC<Cache> = ({ data, payload, createdAt, distinctItems }) => {
@@ -57,21 +58,25 @@ const ProductionDay = () => {
     });
 
     useEffect(() => {
-        if (isFetching) {
-        } else {
-          if (error) {
-            if (axios.isAxiosError(error)) {
-              alert(error.response?.data);
-              // if (error.response && error.response.status == 404) {
-              // }
-            }
-          } else if (data) {
-            // alert(JSON.stringify(data));
-            setProduction(data[0]);
+      if (isFetching) {
+      } else {
+        if (error) {
+          if (axios.isAxiosError(error)) {
+            alert(error.response?.data);
+            // if (error.response && error.response.status == 404) {
+            // }
           }
+        } else if (data) {
+          // alert(JSON.stringify(data));
+          setProduction(data[0]);
         }
-    
-      }, [isPending, isFetching, error, data]);
+      }
+  
+    }, [isPending, isFetching, error, data]);
+
+    useEffect(() => {
+      window.scrollTo(0, 0)
+    }, []);
 
     return (<div className={`${borderOn ? 'border border-red-700': ''} mx-10 mt-4 min-h-screen overflow-y-scroll`}>
         {date && <>
@@ -79,16 +84,26 @@ const ProductionDay = () => {
                 {convertToDayNameFormat(date)}
             </h1>
             
-            <div className={`${borderOn ? 'border border-red-700': ''} min-h-96`}>
+            <div className={`${borderOn ? 'border border-red-700': ''} min-h-96 mb-24`}>
                 {isFetching 
                     ? <div className='h-96 text-center align-middle'><Loader /></div>
                     : production && <div className="pt-4">
                         <Summary {...production} />
-                        {production.payload && production.payload.map(batch => <BatchSummary {...batch} />)}
+                        {production.payload && production.payload.map((batch, i) => 
+                          
+                          <CollapsibleDiv className="mb-8" custom={date} info={[
+                            `Batch # ${batch.batchNo}`,
+                            batch.batchTime,
+                            `Items: ${batch.items.length}`,
+                            batch.batchPackets? `Packets: ${batch.batchPackets}`: ``
+                          ]} key={batch.batchNo} 
+                            initiallyOpen={production.payload.length == 1 ? true: (i == production.payload.length - 1 ? true: false)}>
+                            <BatchSummary {...batch} />
+                          </CollapsibleDiv>
+                        )}
                       </div>
                 }
             </div>
-            <div className='mt-20 h-96 text-center align-middle'> END </div>
         </>}
         {!date && <h1>Invalid date</h1>}
         

@@ -197,9 +197,11 @@ export interface Cache {
     data: number,
     payload: ProductionBatchCache[],
     createdAt: string,
+    updatedAt?: string,
     type: string
     group: string,
     distinctItems?: number
+    isPending?: boolean
 }
 
 export interface PacketItemQty {
@@ -210,7 +212,9 @@ export interface PacketItemQty {
 
 export interface ProductionBatchCache {
     batchNo: number,
-    items: PacketItemQty[]
+    items: PacketItemQty[],
+    batchPackets: number,
+    batchTime: string
 }
 
 export interface AssetPackage {
