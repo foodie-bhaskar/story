@@ -91,12 +91,7 @@ const ProductionDay = () => {
                         <Summary {...production} />
                         {production.payload && production.payload.map((batch, i) => 
                           
-                          <CollapsibleDiv className="mb-8" custom={date} info={[
-                            `Batch # ${batch.batchNo}`,
-                            batch.batchTime,
-                            `Items: ${batch.items.length}`,
-                            batch.batchPackets? `Packets: ${batch.batchPackets}`: ``
-                          ]} key={batch.batchNo} 
+                          <CollapsibleDiv className="mb-8" custom={date} batch={batch} key={batch.batchNo} 
                             initiallyOpen={production.payload.length == 1 ? true: (i == production.payload.length - 1 ? true: false)}>
                             <BatchSummary {...batch} />
                           </CollapsibleDiv>

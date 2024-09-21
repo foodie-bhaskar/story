@@ -214,7 +214,9 @@ export interface ProductionBatchCache {
     batchNo: number,
     items: PacketItemQty[],
     batchPackets: number,
-    batchTime: string
+    batchTime: string,
+    downloadLink?: string,
+    linkExpiryTime?: number
 }
 
 export interface AssetPackage {

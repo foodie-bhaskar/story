@@ -74,22 +74,22 @@ function getMappings(assetType: string, nav: Function): Mapping {
             },
             { name: _(<div className="font-bold text-center">Status</div>),
               sort: false,
-              id: 'isPending'
-              , data: (row: Cache) => {                    
-                return row.isPending === undefined ? '': (
-                  row.isPending ? _(<div className='flex justify-center w-full'>
-                      <button 
-                        className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
-                        onClick={() => alert('')}>Generate</button>
-                    </div>)
-                    : _(<div className='text-center'>
-                         <button 
-                        className={"py-2 px-10 rounded uppercase cursor-pointer text-green-700 bg-green-100 font-extrabold"} 
-                        onClick={() => alert('')}>View
-                        </button>
-                      </div>)
-                )
-              }
+              id: 'isPending',
+              formatter: (cell: string) => _(
+                <div className="text-center">
+                  {cell === undefined ? ''
+                  : <div className="w-40">
+                    {cell 
+                      ? <div className={"py-2 rounded uppercase text-yellow-700 bg-yellow-100 font-bold"}>
+                          pending
+                        </div>
+                      : <div className={"py-2 rounded uppercase text-green-700 bg-green-100 font-bold"}>
+                          done
+                      </div>
+                    }
+                    </div>}
+                </div>
+              )
             },
           ]
         }
@@ -104,6 +104,19 @@ function getMappings(assetType: string, nav: Function): Mapping {
       }
   }
 }
+
+/* row.isPending ?
+                      <div 
+                        className={"py-2 px-10 rounded uppercase cursor-pointer text-indigo-500 bg-indigo-50 font-extrabold"} 
+                        >Generate</button>
+                    </div>)
+                    : _(<div className='text-center'>
+                         <button 
+                        className={"py-2 px-10 rounded uppercase cursor-pointer text-green-700 bg-green-100 font-extrabold"} 
+                        onClick={() => alert('')}>View
+                        </button>
+                      </div>)
+                ) */
 
 function getColumns(assetType: string, fields: string[], nav: Function) {
   console.log('fields', fields)
