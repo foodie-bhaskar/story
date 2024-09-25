@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { dateRange, convertDateFormat, convertISOToISTFormat } from '@/lib/utils';
+import { dateRange, convertDateFormat, convertISOToISTFormat, formattedDate } from '@/lib/utils';
 import { fetchCachesForRange } from '../api/api';
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
@@ -133,6 +133,8 @@ const Production = () => {
     const nav =  useNavigate();
     const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
 
+    const today = formattedDate();
+
     const { isPending, isFetching, error, data } = useQuery({
         queryKey: ['cache', 'production-date'],
         queryFn: async () => {
@@ -182,27 +184,36 @@ const Production = () => {
     return (<div className={`${borderOn ? 'border border-red-700': ''} mx-10 my-4 `}>
         <h1 className="text-lg text-slate-600 font-semibold uppercase">Production History</h1>
 
-        { isPending && `Fetch history for the duration [${range[0]} - ${range[1]}] ...`}
+        <div className={`${borderOn ? 'border border-red-700': ''} h-16 flex flex-row`}>
+          <div className={`${borderOn ? 'border border-red-700': ''} basis-9/12 align-middle`}>
+          { isPending && `Fetch history for the duration [${range[0]} - ${range[1]}] ...`}
+          </div>
+          <div className={`${borderOn ? 'border border-red-700': ''} basis-3/12 flex justify-center`}>
+            <LinkButton label="Create Production" to={today} nav={nav} showAsButton={true} />
+          </div> 
+        </div>
 
-        {tableData && <div className="container -ms-8 pt-4">
+        {tableData && <div className="pt-4">
             <h4>{data.length} production days</h4>
             <Grid
               data={tableData}
               columns={columns}
-              search={true}
+              search={false}
               pagination={{
-                limit: 10,
+                limit: 7,
               }}
               fixedHeader={true}
               style={ { 
                 table: { 
-                  'white-space': 'nowrap'
+                  'white-space': 'nowrap',
+                  'width': '100%'
                 }
               }}
               sort={true}
               resizable={true}
               className={{  
-                td: 'min-w-14'
+                td: 'min-w-14',
+                tr: 'min-w-max'
               }}
             />
         </div>}
