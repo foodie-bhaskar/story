@@ -10,10 +10,12 @@ import Loader from "@/core/Loader";
 interface AssetLoaderOpts {
     type: string,
     update?: Function,
-    localFilter?: FilterOpts
+    localFilter?: FilterOpts,
+    assetFilter?: FilterOpts,
+    classPart?: string
 }
 
-const AssetLoaderList: FC<AssetLoaderOpts> = ({ type, update, localFilter }) => {
+const AssetLoaderList: FC<AssetLoaderOpts> = ({ type, update, localFilter, assetFilter, classPart = '' }) => {
 
     const [items, setItems] = useState<AssetItem []>([]);
 
@@ -21,8 +23,8 @@ const AssetLoaderList: FC<AssetLoaderOpts> = ({ type, update, localFilter }) => 
         queryKey: ['asset', type],
         queryFn: async () => {
           try {
-            const data = await fetchAssetsForType(type);
-            const rows = data.data.result;
+            const data = await fetchAssetsForType(type, assetFilter);
+            let rows = data.data.result;
             return rows;
           } catch (err) {
             const error = err as AxiosError;
@@ -55,7 +57,7 @@ const AssetLoaderList: FC<AssetLoaderOpts> = ({ type, update, localFilter }) => 
        
       }, [localFilter, data]);
 
-    return <div className="rounded sm:mx-auto max-w-lg overflow-y-hidden h-screen border-2 border-gray-300 p-4">
+    return <div className={`rounded sm:mx-auto max-w-lg overflow-y-hidden h-screen border-2 border-gray-300 px-2 ${classPart}`}>
         <div className="text-center">{
             isPending 
                 ? <Loader />

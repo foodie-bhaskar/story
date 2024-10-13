@@ -47,15 +47,17 @@ const CollapsibleDiv: FC<CollapsibleDivProps> = ({
                 Download Stickers
               </a>
             </div>}
-            {TIME_LEFT <= 0 && <div className="bg-white mb-1 rounded h-8 flex flex-row justify-center items-center">
+            {batch.downloadLink && TIME_LEFT <= 0 && TIME_LEFT > -1000 * 60 * 60 * 18 && <><div className="bg-white mb-1 rounded h-8 flex flex-row justify-center items-center">
               <CircleAlert className="w-5 h-5 mr-6 text-red-600" />
               <span className={`text-red-800 mr-2`}>Link Expired</span>
               <FileText className="w-5 h-5 mr-2" />
-            </div>}
+            </div>
             <div className="overflow-hidden h-1 text-xs flex bg-white">
               <div style={{ width: `${100 - Math.floor((TIME_LEFT*100)/MAX)}%` }} 
                 className={`shadow-none flex flex-col text-center whitespace-nowrap justify-end bg-red-700`}></div>
-            </div>
+            </div></>}
+
+            {!batch.downloadLink && <span className="font-light text-gray-400">Generating...   Refresh</span>}
           </div>
           <div className="basis-2/12 font-light">Items: <span className="text-gray-800 text-xl font-semibold">{batch.items.length}</span></div>
           <div className="basis-2/12 font-light">Packets: <span className="text-gray-800 text-xl font-semibold">{batch.batchPackets}</span></div>

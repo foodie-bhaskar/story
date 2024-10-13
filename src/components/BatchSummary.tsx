@@ -6,7 +6,7 @@ const PacketQtyRow: FC<PacketItemQty> = ({ itemId, name, qty}) => {
     let borderOn = false;
     // borderOn = true;
 
-    const MAX_QTY = 180;
+    const MAX_QTY = 250;
 
     return <div key={itemId} className={`${borderOn ? 'border border-pink-700': ''} flex flex-row justify-start w-full items-center `}>
         <PacketQty itemId={itemId} name={name} qty={qty}  />
@@ -25,7 +25,7 @@ const PacketItemList:FC<{ data: PacketItemQty[] }> = ({ data })  => {
     // borderOn = true;
 
     return (
-        <div className={`flex flex-row min-h-72 gap-1 ${borderOn ? 'border border-gray-700': ''} rounded`}>
+        <div className={`flex flex-row min-h-36 gap-1 ${borderOn ? 'border border-gray-700': ''} rounded`}>
            <ul className='rounded-lg w-full'>
                 {data.map(pkt => <PacketQtyRow {...pkt} key={pkt.itemId} />)}
             </ul>

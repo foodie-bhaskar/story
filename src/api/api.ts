@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache } from '@/App.type';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -37,14 +37,20 @@ export async function queryAssetsForValue(assetType: string, value: string, key?
   return axios.get(url, HEADERS);
 }
 
-export async function fetchAssetsForType(assetType: string | undefined) {  
+export async function fetchAssetsForType(assetType: string | undefined, filter?: FilterOpts) {  
   if (!assetType) {
     throw new Error('Asset type is required');
   }
 
   const type = assetType.toUpperCase();
 
-  const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+  let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+
+  if (filter) {
+    url = `${url}&filterName=${filter.field}&filterValue=${filter.value}`
+  }
+
+  //assetType=ITEM&filterName=PACKET&filterValue=1
 
   return axios.get(url, HEADERS);
 }
@@ -98,17 +104,22 @@ export async function fetchResourcesForCascade(cascade: string) {
   return axios.get(url, HEADERS);
 }
 
-export async function createAsset(assetType: string, data: ProductAsset | ItemAsset) {
+export async function createAsset(assetType: string, data: ProductAsset | ItemAsset | Cache, id?: string) {
   try {
     const type = assetType.toUpperCase();
-    const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+    let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+    // foodie-asset?assetType=CACHE&id=production-date_2024-10-08
+
+    if (id) {
+      url = `${url}&id=${id}`
+    }
     return axios.post(url, data, HEADERS);
   } catch (error) {
      throw new Error('Error during new Asset creation'); // Additional error details from the server
   }
 }
 
-export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | AbstractProductAsset) {
+export async function updateAsset(assetType: string, assetId: string, data: UpdatePackageAsset | AbstractProductAsset | Cache) {
   try {
     const type = assetType.toUpperCase();
     const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}&id=${assetId}`;

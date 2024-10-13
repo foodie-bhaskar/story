@@ -16,7 +16,7 @@ const AssetList: FC<AssetListOpts> = ({ data, update }) => {
         setItems(data);
     }, [data])
 
-    return <>{items && items.length > 0 && <ul className='rounded sm:mx-auto max-w-lg overflow-y-scroll h-screen '>
+    return <>{items && items.length > 0 && <ul className='rounded sm:mx-auto max-w-lg overflow-y-scroll h-screen pb-8'>
         {items.map(o => <li key={o.assetId} className="my-2">
             <AssetListItem id={o.assetId} name={o.name} action={(assetId: string) => {
                 setSelectedItem(assetId);
@@ -27,6 +27,11 @@ const AssetList: FC<AssetListOpts> = ({ data, update }) => {
                 
             }} active={selectedItem == o.assetId} />
         </li>)}
+        <li className="flex flex-row gap-2 justify-around items-center my-4">
+            <div className="h-0.5 basis-4/12 bg-gray-500"></div>
+            <div className="h-2 basis-2 bg-gray-500 rounded-full"></div>
+            <div className="h-0.5 basis-4/12 bg-gray-500"></div>
+        </li>
     </ul>}</>
 }
 

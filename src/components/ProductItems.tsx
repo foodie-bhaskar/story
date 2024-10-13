@@ -54,8 +54,7 @@ const ProductItems: FC<PdtItem> = ({ data, update, readOnly }) => {
         <ItemList items={items} readOnly={readOnly} update={(rows: ItemQtyOtps[]) => {
             setItems(rows);
             update([...rows], rows.map(r => r.item.name));
-            
-        }}/>            
+        }} />            
     </div>)
 }
 

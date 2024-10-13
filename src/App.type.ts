@@ -167,6 +167,11 @@ export interface ChoiceOpts {
     selectedCallback: Function
 }
 
+export interface SearchOpts {
+    placeholder: string,
+    callback: Function
+}
+
 export interface Weight {
     total: number,
     main: number,
@@ -318,7 +323,6 @@ export interface ItemAsset {
     assetId?: string
 }
 
-
 export enum DYNA_TYPE {
     TEXT = 'text',
     DROPDOWN = 'dropdown',
@@ -364,4 +368,9 @@ export interface Product {
 export interface FilterOpts {
     value: string,
     field?: string
+}
+
+export interface APIResult {
+    done: boolean,
+    error?: string
 }
