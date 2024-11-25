@@ -49,6 +49,9 @@ export default function Root() {
                 <Link to={`production`}>Production</Link>
               </li>
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`shipment`}>Shipment</Link>
+              </li>
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                 <h4>Version: {version}</h4>
               </li>
               {/* <li>
