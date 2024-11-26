@@ -223,3 +223,12 @@ export function isProductFormValid(items: ItemQtyOtps[], packages: PackageQtyOtp
 
   return isValid;
 }
+
+export function replaceHashMarks(input: string) {
+    // return input.replace(/#/g, "-H-");
+    return input.replace(/#/g, "%23");
+}
+
+export function restoreHashMarks(encoded: string) {
+    return encoded.replace(/-H-/g, "#");
+}

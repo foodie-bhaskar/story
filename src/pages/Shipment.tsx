@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { dateRange, convertDateFormat, convertISOToISTFormat, formattedDate } from '@/lib/utils';
+import { dateRange, convertDateFormat, convertISOToISTFormat } from '@/lib/utils';
 import { fetchCachesForRange } from '../api/api';
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { Cache } from '@/App.type';
 import LinkButton from '@/core/LinkButton';
 import CircleValue from '@/core/CircleValue';
+import { replaceHashMarks } from '@/lib/utils';
 
 type Mapping = {
   order: OneDArray<ComponentChild>
@@ -106,17 +107,17 @@ function getMappings(assetType: string, nav: Function): Mapping {
         mappings = {
           order: [
             { 
+              name: 'Shipment ID', 
+              id: 'group',
+              formatter: (cell: string) => _(<div className="flex justify-start">        
+                <LinkButton label={cell} to={replaceHashMarks(cell)} nav={nav} />
+              </div>)
+            },
+            { 
               name: 'Shipment Date', 
               id: 'group',
               formatter: (cell: string) => _(<div className="flex justify-center">
                 <div className="font-light text-gray-500">{convertDateFormat(cell.split('#')[0].substring(4))}</div>       
-              </div>)
-            },
-            { 
-              name: 'Shipment ID', 
-              id: 'group',
-              formatter: (cell: string) => _(<div className="flex justify-center">        
-                <LinkButton label={cell} to={cell} nav={nav} />
               </div>)
             },
             { 
@@ -221,8 +222,6 @@ const Shipment = () => {
     const nav =  useNavigate();
     const [columns, setColumns] = useState<OneDArray<ComponentChild>>([]);
 
-    const today = formattedDate();
-
     const { isPending, isFetching, error, data } = useQuery({
         queryKey: ['cache', 'shipment'],
         queryFn: async () => {
@@ -300,7 +299,7 @@ const Shipment = () => {
               sort={true}
               resizable={true}
               className={{  
-                td: 'min-w-16',
+                td: 'w-auto',
                 tr: 'min-w-max'
               }}
             />

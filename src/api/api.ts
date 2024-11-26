@@ -1,4 +1,5 @@
 import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache } from '@/App.type';
+import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
@@ -70,15 +71,23 @@ export async function fetchCachesForRange(cacheType: string, range: string[]) {
   if (!cacheType) {
     throw new Error('Cache type is required');
   }
+  // alert(range[0]);
 
   let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=CACHE&filterName=${cacheType}`;
 
   url = range.reduce((acc, val) => {
-    acc = `${acc}&filterValue=${val}`
+
+    acc = `${acc}&filterValue=${replaceHashMarks(val)}`
     return acc;
   }, url);
+
+  if (range.length == 1) {
+    url = `${url}&fullSort=true`
+  }
   
   //assetType=CACHE&filterName=production-date&filterValue=2024-09-03&filterValue=2024-09-05
+  // SHP-2024-11-24#13#1
+  // alert(url);
 
   return axios.get(url, HEADERS);
 }

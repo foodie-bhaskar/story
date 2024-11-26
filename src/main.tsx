@@ -24,6 +24,8 @@ import AbstractProducts from './pages/AbstractProducts.tsx';
 import AbstractProduct from './pages/AbstractProduct.tsx';
 import Production from './pages/Production.tsx';
 import ProductionDay from './pages/ProductionDay.tsx';
+import Shipment from './pages/Shipment.tsx';
+import ShipmentSummary from './pages/ShipmentSummary.tsx';
 
 const router = createBrowserRouter([
   {
@@ -40,8 +42,16 @@ const router = createBrowserRouter([
         element: <Production />,
       },
       {
+        path: "shipment",
+        element: <Shipment />,
+      },
+      {
         path: "production/:date",
         element: <ProductionDay />,
+      },
+      {
+        path: "shipment/:shipmentId",
+        element: <ShipmentSummary />,
       },
       {
         path: "dropdown/:dropdownName",
