@@ -365,6 +365,12 @@ export interface Product {
     packages: PackageQtyOtps[]
 }
 
+export interface Store {
+    id: string,
+    name: string,
+    city: string
+}
+
 export interface FilterOpts {
     value: string,
     field?: string

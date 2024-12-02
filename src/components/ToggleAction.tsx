@@ -1,10 +1,9 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState, useEffect, ReactNode } from 'react';
 import { DropdownOpts, FieldOpts, ToggleActionOpts, Child, SequenceChoiceOpts, SupportedComponents } from '../App.type';
 import FoodieText, { isFoodieText } from '../core/FoodieText';
 import FoodieToggle from '../core/FoodieToggle';
 import Dropdown, { isDropdown } from '../core/Dropdown';
 import SeqChoice, { isSeqChoice } from '../core/SeqChoice';
-// import { Field } from '@headlessui/react';
 
 const SUPPORTED_COMPONENTS: SupportedComponents = {
     'text': FoodieText,
@@ -29,8 +28,8 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
 
     const [isOn, setIsOn] = useState<boolean>(!!state.valueOf());
     // const [childComponent, setChildComponent] = useState(FoodieText);
-    const [childEle, setChildEle] = useState<FC<FieldOpts> | FC<DropdownOpts> | FC<SequenceChoiceOpts>>();
-    const [offChildEle, setOffChildEle] = useState<FC<FieldOpts> | FC<DropdownOpts> | FC<SequenceChoiceOpts>>();
+    const [childEle, setChildEle] = useState<ReactNode>(null);
+    const [offChildEle, setOffChildEle] = useState<ReactNode>(null);
     const [isRow, setIsRow] = useState<boolean>(false);
 
     const getElement = (child: Child, readOnly: boolean | undefined) => {
@@ -40,22 +39,11 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         // let processedOpts: (FieldOpts | DropdownOpts | SequenceChoiceOpts) = opts;
         let processedOpts: FieldOpts | DropdownOpts | SequenceChoiceOpts = opts;
 
-        // alert( `Processed opts: ${JSON.stringify(processedOpts)}`);
 
-       /*  if (component.valueOf() == 'dropdown' && !opts.selectedCallback) {
-            alert(`selectedCallback is missing: keys [${JSON.stringify(opts)}]`)
-        } */
 
         if (readOnly) {
             processedOpts = { ...opts, readOnly: true }; 
         }
-
-        // return renderField(coreComponent, opts)
-
-        // let opts = processedOpts as SequenceChoiceOpts;
-        // return <SeqChoice { ...processedOpts as SequenceChoiceOpts } />;
-
-        // return <Dropdown {...processedOpts} />
 
         if (isFoodieText(coreComponent)) {
             // alert('Foodie');
@@ -172,35 +160,7 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
         
         const { on } = children;
 
-        /* if (linkedExternalVal && linkedExternalVal.length > 0 && on) {
-
-            let opts = { ...on.opts };
-
-            if (typeof linkedExternalVal == 'string') {
-                opts = {
-                    ...on,
-                    opts: {
-                        ...on.opts,
-                        value: linkedExternalVal
-                    }
-                };
-            } else if (linkedExternalVal instanceof Array) {
-                opts = {
-                    ...on,
-                    opts: {
-                        ...on.opts,
-                        options: linkedExternalVal
-                    }
-                }
-            }
-
-            let onElement = getElement({
-                ...on,
-                opts
-            }, readOnly);
-
-            setChildEle(onElement);
-        } */
+        
         
         if (on && linkedExternalVal) {
             // alert(`typeof linkedExternalVal ${typeof linkedExternalVal}`)
@@ -269,10 +229,10 @@ const ToggleAction: FC<ToggleActionOpts> = ({ toggle, children, linkedExternalVa
 
             {isOn && <>
                 {isLoading && <>loading...</>}
-                {!isLoading && <>{childEle}</>}
+                {!isLoading && childEle}
             </>}
 
-            {!isOn && <>{offChildEle}</>}
+            {!isOn && offChildEle}
         </div>
     </div>);
 }

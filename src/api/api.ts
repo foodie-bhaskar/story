@@ -64,8 +64,17 @@ export async function fetchCachesForType(cacheType: string, group: string) {
 
   const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=CACHE&filterName=${cacheType}&filterValue=${group}`;
 
+  // alert(url);
+
   return axios.get(url, HEADERS);
+
+  //assetType=CACHE&filterName=store-details&filterValue=default' 
 }
+
+export const fetchStores = async () => {
+  return fetchCachesForType('store-details', 'default')
+};
+
 
 export async function fetchCachesForRange(cacheType: string, range: string[]) {  
   if (!cacheType) {
