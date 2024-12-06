@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { dateRange, convertDateFormat } from '@/lib/utils';
-import { fetchCachesForRange, fetchStores } from '../api/api';
+import { fetchCachesForRange, fetchStores, fetchItemPacket } from '../api/api';
 import { useQueries } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { Grid, _ } from 'gridjs-react';
@@ -21,8 +21,18 @@ type StoreDetail = {
   city: string;
 }
 
+type ItemPacketDetail = {
+  itemId: string,
+  name: string,
+  weight: number
+}
+
 type StoreCache = {
   [key: string]: StoreDetail;
+}
+
+type ItemsCache = {
+  [key: string]: ItemPacketDetail;
 }
 
 type ShipmentRow = {
@@ -31,11 +41,12 @@ type ShipmentRow = {
   storeId: string;
   packetCount: number,
   itemCount: number
-  scannedTime: string
+  scannedTime: string,
+  payload: ItemNameQtyMap
 }
 
 interface ItemNameQtyMap {
-  [key: string]: string;
+  [key: string]: number;
 }
 
 interface ShipmentCache {
@@ -51,18 +62,20 @@ interface ShipmentCache {
 }
 
 export const useCombinedQueries = (range: string[]) => {
-  const [shipmentQuery, storeDetailsQuery] = useQueries({
+  const [shipmentQuery, storeDetailsQuery, itemPacketQuery] = useQueries({
     queries: [
       {
         queryKey: ['cache', 'shipment', range],
         queryFn: async () => {
           try {
             const data = await fetchCachesForRange('shipment', range);
+
+            // alert(JSON.stringify(data.data.result[0].payload))
             
             const rows = data.data.result.map((row: ShipmentCache) => {
               
               const {
-                group, storeId, data, distinctItems, createdAt
+                group, storeId, data, distinctItems, createdAt, payload
               } = row;
 
               const [shpDtSuffix, ] = group.split('#');
@@ -72,7 +85,8 @@ export const useCombinedQueries = (range: string[]) => {
                 packetCount: data,
                 itemCount: distinctItems || 0,
                 shippedDate: shpDtSuffix.substring(4),
-                scannedTime: createdAt
+                scannedTime: createdAt,
+                payload
               }
               return shpmnt;
             });
@@ -101,6 +115,22 @@ export const useCombinedQueries = (range: string[]) => {
         },
         staleTime: Infinity,
         enabled: true
+      },
+      {
+        queryKey: ['cache', 'items-packet'],
+        queryFn: async () => {
+          try {
+            const data = await fetchItemPacket();
+  
+            const itemMap: ItemsCache = data.data.result[0].payload;
+            return itemMap;
+          } catch (err) {
+            const error = err as AxiosError;
+            throw error;
+          }
+        },
+        staleTime: Infinity,
+        enabled: true
       }
     ]
   });
@@ -111,13 +141,26 @@ export const useCombinedQueries = (range: string[]) => {
     if (
       shipmentQuery.isSuccess && 
       storeDetailsQuery.isSuccess && 
+      itemPacketQuery.isSuccess && 
+
       shipmentQuery.data && 
+      itemPacketQuery.data && 
       storeDetailsQuery.data
     ) {
       return shipmentQuery.data.map((shipment: ShipmentRow) => {
-       
+        const { payload } = shipment;
+
+        let weightInGms = 0;
+
+        for (const [itemIdName, qty] of Object.entries(payload)) {
+          const [itemId, ] = itemIdName.split('-');
+          const packetWt = itemPacketQuery.data[itemId].weight * qty;
+          weightInGms += packetWt
+        }
+
         return {
           ...shipment,
+          weight: weightInGms,
           storeDetails: storeDetailsQuery.data[shipment.storeId] || null
         };
       });
@@ -128,13 +171,14 @@ export const useCombinedQueries = (range: string[]) => {
   }, [
     shipmentQuery.isSuccess, 
     storeDetailsQuery.isSuccess, 
+    itemPacketQuery.isSuccess, 
     shipmentQuery.data, 
-    storeDetailsQuery.data
+    storeDetailsQuery.data,
+    itemPacketQuery.data
   ]);
 
   return {
     shipment: {
-      // data: shipmentQuery.data,
       data: mergedData,
       originalData: shipmentQuery.data,
       isPending: shipmentQuery.isPending,
@@ -147,7 +191,13 @@ export const useCombinedQueries = (range: string[]) => {
       isFetching: storeDetailsQuery.isFetching,
       error: storeDetailsQuery.error
     },
-    isAllQueriesComplete: shipmentQuery.isSuccess && storeDetailsQuery.isSuccess
+    itemPackets: {
+      data: itemPacketQuery.data,
+      isPending: itemPacketQuery.isPending,
+      isFetching: itemPacketQuery.isFetching,
+      error: itemPacketQuery.error
+    },
+    isAllQueriesComplete: shipmentQuery.isSuccess && storeDetailsQuery.isSuccess && itemPacketQuery.isSuccess
   };
 };
 
@@ -218,18 +268,11 @@ const Shipment = () => {
                     <div className="font-light text-gray-500">{cell}</div>
                   </div>
                 )},
-                /* { name: 'Scanned At', id: 'scannedTime',
-                  formatter: (cell: string) => _(
-                    <div className="text-center">
-                      {cell ? <div className="font-light italic text-gray-500">
-                          {convertISOToISTFormat(cell)}
-                        </div>
-                        : ''
-                      }
-                    </div>
-                    
-                  )
-                }, */
+                { name: 'Weight', id: 'weight', formatter: (cell: number) => _(
+                  <div className="text-center">
+                    <div className="font-light text-gray-500">{(cell/1000).toFixed(2)}</div>
+                  </div>
+                )}
               ]
             }
           } catch (e) {

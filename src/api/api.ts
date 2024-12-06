@@ -75,6 +75,10 @@ export const fetchStores = async () => {
   return fetchCachesForType('store-details', 'default')
 };
 
+export const fetchItemPacket = async () => {
+  return fetchCachesForType('items-packet', 'default')
+};
+
 
 export async function fetchCachesForRange(cacheType: string, range: string[]) {  
   if (!cacheType) {
