@@ -1,7 +1,7 @@
 import { FC, useEffect, useState, useMemo } from "react";
 import { NavigateFunction, useParams } from 'react-router-dom';
 import { convertToDayNameFormat, convertISOToISTFormat } from '@/lib/utils';
-import { Cache, ProductionBatchCache, PacketItemQty } from "@/App.type";
+import { ProductionBatchCache, PacketItemQty } from "@/App.type";
 import { fetchCachesForRange, fetchStores, fetchItemPacket } from '../api/api';
 import { useQueries } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
@@ -261,7 +261,7 @@ const ShipmentSummary = () => {
     // borderOn = true;
 
     const nav =  useNavigate();
-    const [shipmentDetails, setShipmentDetails] = useState<Cache>();
+    const [shipmentDetails, setShipmentDetails] = useState<ShipmentRow>();
   
     const [batch, setBatch] = useState<ProductionBatchCache>();
     const { shipment, isAllQueriesComplete } = useCombinedQueries(shipmentId);
@@ -301,15 +301,18 @@ const ShipmentSummary = () => {
           }
         } else if (shipment.data && shipment.data.length > 0) {
           // alert(JSON.stringify(Object.keys(shipment.data[0])));
-          const { 
+         /*  const { 
             shipmentId, storeId, packetCount, itemCount, shippedDate, scannedTime, payload, weight, storeDetails 
-          } = shipment.data[0];
+          } = shipment.data[0]; */
             // setLabel('Create Another Batch');
             setShipmentDetails(shipment.data[0]);
 
            
 
             // alert(JSON.stringify(payload));
+            const { 
+              packetCount, scannedTime, payload
+            } = shipment.data[0];
 
             const itemPktCount: Record<string, string> = payload;
             
