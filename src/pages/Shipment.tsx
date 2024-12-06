@@ -270,7 +270,7 @@ const Shipment = () => {
                 )},
                 { name: 'Weight', id: 'weight', formatter: (cell: number) => _(
                   <div className="text-center">
-                    <div className="font-light text-gray-500">{(cell/1000).toFixed(2)}</div>
+                    <div className="font-light text-gray-500">{Math.ceil(cell/1000)}</div>
                   </div>
                 )}
               ]
