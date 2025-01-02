@@ -1,10 +1,11 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, ElasticQuery, Range } from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
 const ENV = 'dev';
 const UI_API = 'foodie-api';
+const ELASTIC_API = 'foodie-elastic';
 const ASSET_API = 'foodie-asset';
 const QUERY_API = 'foodie-search';
 // const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ijk3MzgxOTk4MjgiLCJuYW1lIjoiQWF5dXNoIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE3MjE0NzgwMTh9.AmSFOZHaiV1Ubqpj-05RkmP8WBkmxVQPKIvzS3-q4jk';
@@ -44,6 +45,10 @@ export async function fetchAssetsForType(assetType: string | undefined, filter?:
     throw new Error('Asset type is required');
   }
 
+  if (assetType === 'store') {
+    return fetchStores();
+  }
+
   const type = assetType.toUpperCase();
 
   let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
@@ -71,6 +76,20 @@ export async function fetchCachesForType(cacheType: string, group: string) {
   //assetType=CACHE&filterName=store-details&filterValue=default' 
 }
 
+export async function fetchStoreCachesForType(storeId: string, cacheType: string) {  
+  if (!cacheType) {
+    throw new Error('Cache type is required');
+  }
+
+  const url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=CACHE&filterName=${cacheType}&storeId=${storeId}`;
+
+  // alert(url);
+
+  return axios.get(url, HEADERS);
+
+  //assetType=CACHE&filterName=store-details&filterValue=default' 
+}
+
 export const fetchStores = async () => {
   return fetchCachesForType('store-details', 'default')
 };
@@ -79,6 +98,10 @@ export const fetchItemPacket = async () => {
   return fetchCachesForType('items-packet', 'default')
 };
 
+export async function fetchCachesForRangeTS(cacheType: string, range: Range) { 
+
+  return fetchCachesForRange(cacheType, [range.start, range.end]);
+}
 
 export async function fetchCachesForRange(cacheType: string, range: string[]) {  
   if (!cacheType) {
@@ -150,4 +173,34 @@ export async function updateAsset(assetType: string, assetId: string, data: Upda
   } catch (error) {
      throw new Error('Error during new Asset updation'); // Additional error details from the server
   }
+}
+
+export async function fetchElastic(query: ElasticQuery) {
+  const {
+    indexCore, term, filter, range
+  } = query;
+
+  /* indexCore: coreIndex,
+            term: { name: terms[0], value: terms[1] },
+            filter: { name: filters[0], value: filters[1] },
+            range: range.split('#'); */
+
+  // index=item-consumption&termName=storeId&termValue=79
+  // &filterName=isPacket&filterValue=true
+  // &rangeStart=2024-11-26&rangeEnd=2024-12-27#13#1
+  
+  let url = `${BASE_URL}/${ENV}/${ELASTIC_API}`;
+
+  url = `${url}?index=${indexCore}&termName=${term.name}&termValue=${term.value}`;
+
+  if (filter) {
+    url = `${url}&filterName=${filter.name}&filterValue=${filter.value}`;
+  }
+
+  if (range) {
+    url = `${url}&rangeStart=${range.start}&rangeEnd=${range.end}`;
+  }
+  
+  
+  return axios.get(url, HEADERS)
 }
