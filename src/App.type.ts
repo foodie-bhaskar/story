@@ -20,6 +20,16 @@ export interface Child {
     opts: FieldOpts | DropdownOpts | SequenceChoiceOpts
 }
 
+export interface NV {
+    name: string,
+    value: string
+}
+
+export interface Range {
+    start: string,
+    end: string
+}
+
 export interface Option {
     name: string,
     value: string,
@@ -198,11 +208,39 @@ export interface AssetItem {
     name: string
 }
 
+export interface StoreDetail {
+    store_id: string,
+    storeName: string,
+    city: string,
+    state: string
+}
+
+export interface ItemNameQtyMap {
+    [key: string]: number;
+  }
+
+export interface StoreCache {
+    [key: string]: StoreDetail
+}
+
 export interface Cache {
     data: number,
     payload: ProductionBatchCache[],
     createdAt: string,
     updatedAt?: string,
+    type: string
+    group: string,
+    distinctItems?: number
+    isPending?: boolean,
+    storeId?: string
+}
+
+export interface ShipmentCache {
+    data: number,
+    payload: ItemNameQtyMap,
+    createdAt: string,
+    updatedAt?: string,
+    storeId: string,
     type: string
     group: string,
     distinctItems?: number
@@ -379,4 +417,23 @@ export interface FilterOpts {
 export interface APIResult {
     done: boolean,
     error?: string
+}
+
+export interface ElasticQuery {
+    indexCore: string,
+    term: NV,
+    filter?: NV,
+    range?: Range
+}
+
+export interface Shipment {
+    packets: number,
+    items: number,
+    shippedDate: string,
+    shipmentId: string
+}
+
+export interface QueryArg {
+    queryKey: string [],
+    range?: Range
 }
