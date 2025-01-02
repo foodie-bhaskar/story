@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { AbstractProductAsset, AssetItem, ItemQtyOtps, PackageQtyOtps } from '@/App.type';
+import { AbstractProductAsset, AssetItem, ItemQtyOtps, PackageQtyOtps, Range } from '@/App.type';
 
 type Month = 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 'Jun' | 'Jul' | 'Aug' | 'Sep' | 'Oct' | 'Nov' | 'Dec';
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -138,6 +138,15 @@ export function dateRange(daysAgo: number | undefined = undefined) {
   return range;
 }
 
+export function dateRangeTS(daysAgo: number) {
+  const range: Range = {
+    start: getDateDaysAgo(daysAgo),
+    end: formattedDate()
+  };
+
+  return range;
+}
+
 function isKnownField(field: string): field is keyof AssetItem {
   return ['assetId', 'itemId', 'name'].includes(field);
 }
@@ -231,4 +240,28 @@ export function replaceHashMarks(input: string) {
 
 export function restoreHashMarks(encoded: string) {
     return encoded.replace(/-H-/g, "#");
+}
+
+export function calculateDaysDifference(start: string, end: string): number {
+  // date in yyyy-mm-dd format
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  // Calculate the difference in milliseconds
+  const differenceInMilliseconds = endDate.getTime() - startDate.getTime();
+
+  // Convert milliseconds to days
+  const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
+
+  return Math.round(differenceInDays); // Optional: round to the nearest whole number
+}
+
+export const RangeConverter = {
+  toString: (range?: Range) => {
+    return range? `${range.start}#${range.end}`: '';
+  },
+  toRange: (rangeStr: string) => {
+    const dates = rangeStr.split('#')
+    return { start: dates[0], end: dates[1] }
+  }
 }
