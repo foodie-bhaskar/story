@@ -1,3 +1,4 @@
+import { QueryFunction, QueryKey } from '@tanstack/react-query';
 import { FC } from 'react';
 
 export interface AppProps {
@@ -434,6 +435,14 @@ export interface Shipment {
 }
 
 export interface QueryArg {
-    queryKey: string [],
+    queryKey: QueryKey,
     range?: Range
+}
+
+export interface Query {
+    primary: string,
+    type: string,
+    info: string,
+    range?: Range,
+    queryFn: QueryFunction
 }
