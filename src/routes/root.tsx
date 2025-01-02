@@ -11,8 +11,8 @@ export default function Root() {
     // borderOn = true;
 
     return (<QueryClientProvider client={queryClient}>
-      <div className={`${borderOn ? ' border border-red-400': ''} h-max min-h-screen flex flex-row `}>
-        <aside  className="basis-1/6  bg-slate-300 max-w-44">
+      <div className={`${borderOn ? ' border border-red-400': ''} h-max min-h-screen flex flex-row`}>
+        <aside className="min-w-24  bg-slate-300 max-w-44">
           <nav>
             <ul className={`${borderOn ? 'border border-red-400': ''} ms-2 mt-10 flex flex-col items-start gap-4`}>
               {packetOnly === 'false' && <>
@@ -31,6 +31,7 @@ export default function Root() {
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-assets/rid`}>RIDs</Link>
                 </li>
+                
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-assets/item`}>Items</Link>
                 </li>
@@ -44,7 +45,9 @@ export default function Root() {
                   <Link to={`abstract-products`}>Products</Link>
                 </li>
               </>}
-
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`list-assets/store`}>Stores</Link>
+              </li>
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                 <Link to={`production`}>Production</Link>
               </li>
