@@ -1,10 +1,10 @@
 import { FC } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { NavigateFunction } from 'react-router-dom';
 
 type ButtonProps = {
     label: string,
     to: string,
-    nav: Function,
+    nav: NavigateFunction,
     showAsButton?: boolean
 }
 

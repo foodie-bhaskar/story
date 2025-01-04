@@ -1,5 +1,7 @@
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 import { FC } from 'react';
+import { OneDArray } from 'gridjs/dist/src/types.js';
+import { ComponentChild } from 'preact';
 
 export interface AppProps {
     title: string;
@@ -445,4 +447,20 @@ export interface Query {
     info: string,
     range?: Range,
     queryFn: QueryFunction
+}
+
+export interface Row {
+    [key: string]: string | number | boolean
+}
+
+export interface Mapping {
+    order: OneDArray<ComponentChild>
+}
+
+interface Group {
+    [key: string]: string
+}
+  
+export interface Asset {
+    [key: string]: Group
 }

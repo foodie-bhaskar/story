@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { dateRangeTS, formattedDate } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { Range, Query } from '@/App.type';
@@ -14,12 +14,14 @@ const Production = () => {
   const nav =  useNavigate();
   const today = formattedDate();
   const [ range, setRange ] = useState<Range>(dateRangeTS(7));
+
+  const assetType = 'production-date';
   const [ query, setQuery ] = useState<Query>();
 
   useEffect(() => {
     setQuery({
       primary: 'cache',
-      type: 'production-date',
+      type: assetType,
       info: `${range.start} - ${range.end}`,
       range,
       queryFn: queryProductionDays
@@ -34,7 +36,7 @@ const Production = () => {
 
       <RangeBox range={range} onRangeChange={setRange} />
 
-      {query && <QueryTable query={query} nav={nav} />}
+      {query && <QueryTable query={query} nav={nav} assetType={assetType} />}
     </div>);
 }
 
