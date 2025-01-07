@@ -84,17 +84,17 @@ const router = createBrowserRouter([
         element: <EditAsset />,
       },
       {
-        path: "list-assets/:assetType",
+        path: "list-asset/:assetType",
         element: <Items />,
       },
       {
         path: "list-assets/brand-products",
         element: <BrandProducts />,
       },
-      {
+      /* {
         path: "list-asset/:assetType",
         element: <Test />,
-      },
+      }, */
       {
         path: "product/:productId",
         element: <Product />,
@@ -124,7 +124,7 @@ const router = createBrowserRouter([
         element: <AbstractProducts />,
       },
       {
-        path: "store/:storeId",
+        path: "store-inventory/:storeId",
         element: <Store />,
       },
       {

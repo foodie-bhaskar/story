@@ -1,4 +1,4 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, Range } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, Range, StoreCache, AssetRow, StoreDetail } from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
 
@@ -46,7 +46,9 @@ export async function fetchAssetsForType(assetType: string | undefined, filter?:
   }
 
   if (assetType === 'store') {
-    return fetchStores();
+    const response = await fetchStores();
+    // alert(JSON.stringify(response));
+    return response;
   }
 
   const type = assetType.toUpperCase();
@@ -91,7 +93,27 @@ export async function fetchStoreCachesForType(storeId: string, cacheType: string
 }
 
 export const fetchStores = async () => {
-  return fetchCachesForType('store-details', 'default')
+  const data = await fetchCachesForType('store-details', 'default');
+
+  const storeMap: StoreCache = data.data.result[0].payload;
+  const stores: StoreDetail[] = Object.values(storeMap);
+
+  const storesAsset: AssetRow[] = stores.map((s: StoreDetail) => {
+    const { storeName, store_id, city, state } = s;
+
+    const asset: AssetRow = {
+      assetId: store_id,
+      assetType: 'store',
+      createdAt: 1,
+      name: storeName,
+      city,
+      state
+    };
+
+    return asset;
+  });
+
+  return { data: { result: storesAsset} };
 };
 
 export const fetchItemPacket = async () => {

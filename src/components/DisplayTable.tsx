@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import "gridjs/dist/theme/mermaid.css";
 import LinkButton from '@/core/LinkButton';
-import { convertDateFormat, convertISOToISTFormat, capitalizeWords} from '@/lib/utils';
+import { convertDateFormat, convertISOToISTFormat, capitalizeWords } from '@/lib/utils';
 import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field } from '@/App.type';
 import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
@@ -25,11 +25,11 @@ type CellConfig = {
 }
 
   
-function formatterFn(formatType: string, valueType: string, nav: NavigateFunction): Function {
+function formatterFn(assetType: string, formatType: string, valueType: string, nav: NavigateFunction): Function {
 
   const {
     LINK, COUNT, ALERT_COUNT, DATETIME, STATUS, PLAIN, CAPITALIZE,
-    FLAG, BINARY_STATUS
+    FLAG, BINARY_STATUS, DYNA_LINK
   } = VALID_FMT_TYPES;
 
   const { LINK_VIEW, EDIT_LINK } = VALUE_TYPES;
@@ -50,7 +50,7 @@ function formatterFn(formatType: string, valueType: string, nav: NavigateFunctio
 
     const linkToVal = (cell: string) => {
       if ([LINK_VIEW, EDIT_LINK].includes(valueType)) {
-        return LINK_VIEW == valueType ? `/view-asset/item/${cell}` : `/edit-asset/item/${cell}` ;
+        return LINK_VIEW == valueType ? `/view-asset/${assetType}/${cell}` : `/edit-asset/${assetType}/${cell}` ;
 
       } else {
         return cell;
@@ -136,6 +136,23 @@ function formatterFn(formatType: string, valueType: string, nav: NavigateFunctio
       <div className="text-center">{cell ? 'Veg': 'NON-VEG'}</div>
     )
     return fn;
+
+  } else if (DYNA_LINK == formatType) {
+
+    const linkToVal = (cell: string) => {
+      return `/${assetType}-${valueType}/${cell}`;
+    }
+
+    if (!!nav) {
+      const fn: Function = (cell: string) => _(<div className="flex justify-center">                  
+        <LinkButton label={valueType} to={linkToVal(cell)} nav={nav} />
+      </div>)
+
+      return fn;
+
+    } else {
+      throw new Error('NavigateFunction argument is required for [link]');
+    }
   }
 
   throw new Error('Unimplemented');
@@ -151,7 +168,7 @@ function displayCol(assetType: string, columnId: string, nav: NavigateFunction, 
         const { name, formatType, valueType } = asset[columnId];
   
         try {
-          const fn: Function = formatterFn(formatType, valueType, nav);
+          const fn: Function = formatterFn(assetType, formatType, valueType, nav);
             return {
               formatter: fn,
               id: columnId,
@@ -191,10 +208,9 @@ function getMappings(mappingType: string, nav: NavigateFunction, map: CellConfig
  * Transforms api response to row data
  */
 export function transform(assetType: string, data: Cache[] | AssetRow[], nav: NavigateFunction, map: CellConfig): TransformResponse {
-    const [first] = data;
-    
-
-     // Type guard function
+  const [first] = data;
+  
+  // Type guard function
   function isAssetRow(item: Cache | AssetRow): item is AssetRow {
     return 'assetType' in item && 'assetId' in item && 'createdAt' in item;
   }
@@ -237,6 +253,8 @@ export function transform(assetType: string, data: Cache[] | AssetRow[], nav: Na
   // alert(`mapping type: ${mappingType}`)
   
     console.log('assetType', assetType);
+    // alert(`assetType type: ${assetType}`)
+
 
     let cols: Mapping = getMappings(mappingType.toLowerCase(), nav, map);
     
@@ -256,22 +274,28 @@ export function transform(assetType: string, data: Cache[] | AssetRow[], nav: Na
             // alert(total);
           
           } else if (value instanceof Array) {
+            
             const [first] = value;
 
-            if (isOption(first) || isField(first)) {
-              (value as Option[] | Field[]).forEach(o => {
+            if (first) {
+            
+              if (isOption(first) || isField(first)) {
+                // alert(`Array: ${key} - ${JSON.stringify(first)}`);
+                (value as Option[] | Field[]).forEach(o => {
 
-                if (isOption(o)) {
-                  acc[o.name] = o.value;
-                
-                } else {
-                  acc[o.field] = o.value;
-                }
-                
-              });
-            } else {
-              // alert(JSON.stringify(first))
-              acc[key] = `${value.length}`;
+                  if (isOption(o)) {
+                    // alert(`Option: ${o.name} - ${o.value}`);
+                    acc[o.name] = o.value;
+                  
+                  } else {
+                    acc[o.field] = o.value;
+                  }
+                  
+                });
+              } else {
+                // alert(JSON.stringify(first))
+                acc[key] = `${value.length}`;
+              }
             }
 
             // alert(JSON.stringify(value.map(v => v.name)))
@@ -285,7 +309,8 @@ export function transform(assetType: string, data: Cache[] | AssetRow[], nav: Na
   
       return { 
         ...row, 
-        ...(!!row['assetId'] && { 'editId': row['assetId'] })
+        ...(!!row['assetId'] && { 'editId': row['assetId'] }),
+        ...(!!row['assetId'] && assetType == 'store' && { 'dynaLink': row['assetId'] })
       };
     });
   
@@ -307,7 +332,7 @@ const DisplayTable: FC<{ tableData: Row [], cols: Mapping}> = ({ tableData, cols
     style={ { 
       table: { 
         'white-space': 'nowrap',
-        'width': '100%'
+        width: '80%'
       }
     }}
     sort={true}

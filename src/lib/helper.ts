@@ -9,7 +9,8 @@ export const VALID_FMT_TYPES = {
     PLAIN: 'plain',
     CAPITALIZE: 'capitalize',
     FLAG: 'flag',
-    BINARY_STATUS: 'binary'
+    BINARY_STATUS: 'binary',
+    DYNA_LINK: 'dynaLink'
 }
   
 export  const VALUE_TYPES = {
@@ -19,7 +20,8 @@ export  const VALUE_TYPES = {
     BOOLEAN: 'boolean',
     STR_VAL: 'string',
     LINK_VIEW: 'linkView',
-    EDIT_LINK: 'editLink'
+    EDIT_LINK: 'editLink',
+    INV_LINK: 'inventory'
 }
 
 export const MAP: { [key: string]: Asset} = {
@@ -164,6 +166,75 @@ export const MAP: { [key: string]: Asset} = {
       valueType: VALUE_TYPES.STR_VAL
     }
   },
+  'package': {
+    'assetId': {
+      name: 'ID',
+      formatType: VALID_FMT_TYPES.LINK,
+      valueType: VALUE_TYPES.LINK_VIEW
+    },
+    'editId': {
+      name: 'Edit',
+      formatType: VALID_FMT_TYPES.LINK,
+      valueType: VALUE_TYPES.EDIT_LINK
+    },
+    'name': {
+      name: 'Name',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'compartments': {
+      name: '# of Compartments',
+      formatType: VALID_FMT_TYPES.ALERT_COUNT,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'volume': {
+      name: 'Volume (in ml)',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'packagingCost': {
+      name: 'Cost',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'packaging-type': {
+      name: 'Packaging Type',
+      formatType: VALID_FMT_TYPES.CAPITALIZE,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'packaging-sub-type': {
+      name: 'Packaging Sub Type',
+      formatType: VALID_FMT_TYPES.CAPITALIZE,
+      valueType: VALUE_TYPES.STR_VAL
+    }
+  },
+  'store': {
+    'assetId': {
+      name: 'ID',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'name': {
+      name: 'Name',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'city': {
+      name: 'City',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'state': {
+      name: 'State',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'dynaLink': {
+      name: 'View',
+      formatType: VALID_FMT_TYPES.DYNA_LINK,
+      valueType: VALUE_TYPES.INV_LINK
+    }
+  }
 }
 
 /* {

@@ -36,7 +36,7 @@ export default function Root() {
                   <Link to={`list-asset/item`}>Items</Link>
                 </li>
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`list-assets/package`}>Packagings</Link>
+                  <Link to={`list-asset/package`}>Packagings</Link>
                 </li>
                 {/* <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-assets/brand-products`}>Brand Products</Link>
@@ -46,7 +46,7 @@ export default function Root() {
                 </li>
               </>}
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                <Link to={`list-assets/store`}>Stores</Link>
+                <Link to={`list-asset/store`}>Stores</Link>
               </li>
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                 <Link to={`production`}>Production</Link>
@@ -63,7 +63,7 @@ export default function Root() {
             </ul>
           </nav>
         </aside>
-        <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} w-full  `}>
+        <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} max-basis-10/12  `}>
           <Outlet />
         </main>
       </div>

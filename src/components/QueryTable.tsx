@@ -4,7 +4,6 @@ import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { NavigateFunction } from 'react-router-dom';
 import axios from 'axios';
 import { _ } from 'gridjs-react';
-// import "gridjs/dist/theme/mermaid.css";
 import { Cache, Query, Row, Mapping, AssetRow } from '@/App.type';
 import { MAP } from "@/lib/helper";
 import DisplayTable, { transform } from '@/components/DisplayTable';
@@ -49,6 +48,7 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
             // }
           }
         } else if (apiQuery.data) {
+          // alert(JSON.stringify(apiQuery.data.length));
           const { cols, rows } = transform(assetType, apiQuery.data, nav, MAP);
           setColumns(cols);
           setTableData(rows);
@@ -57,7 +57,7 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
   
     }, [apiQuery.isPending, apiQuery.isFetching, apiQuery.error, apiQuery.data]);
   
-    return <div className={`${borderOn ? 'border border-red-700': ''} my-4 flex flex-col gap-8`}>
+    return <div className={`${borderOn ? 'border border-red-700': ''} flex flex-col min-h-48 min-w-96 items-center justify-around`}>
       {!apiQuery.isFetching && !apiQuery.data && <h4>{query.info} fetching ... </h4>}
   
       {apiQuery.isFetching && <Loader />}
