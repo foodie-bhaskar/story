@@ -5,7 +5,7 @@ import { NavigateFunction } from 'react-router-dom';
 import axios from 'axios';
 import { _ } from 'gridjs-react';
 // import "gridjs/dist/theme/mermaid.css";
-import { Cache, Query, Row, Mapping } from '@/App.type';
+import { Cache, Query, Row, Mapping, AssetRow } from '@/App.type';
 import { MAP } from "@/lib/helper";
 import DisplayTable, { transform } from '@/components/DisplayTable';
 import Loader from '@/core/Loader';
@@ -23,9 +23,16 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
   const [columns, setColumns] = useState<Mapping>();
 
     const qFn: QueryFunction = query.queryFn;
+
+    /* setQuery({
+      primary: 'asset',
+      type: assetType,
+      info: `Querying for assets of type: ${assetType}`,
+      queryFn: queryAssets
+    }); */
   
-    const apiQuery: UseQueryResult<Cache []> = useQuery({
-      queryKey: [query.primary, query.type, RC.toString(query.range)],
+    const apiQuery: UseQueryResult<Cache [] | AssetRow[]> = useQuery({
+      queryKey: [query.primary, query.type, ...[query.range && RC.toString(query.range)]],
       queryFn: qFn,
       staleTime: Infinity,
       enabled: true

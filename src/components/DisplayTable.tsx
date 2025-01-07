@@ -1,12 +1,10 @@
-
-import "gridjs/dist/theme/mermaid.css";
-import LinkButton from '@/core/LinkButton';
-import { convertDateFormat, convertISOToISTFormat} from '@/lib/utils';
-
-import { Row, Mapping, Cache, Asset } from '@/App.type';
-import { Grid, _ } from 'gridjs-react';
 import { FC } from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import "gridjs/dist/theme/mermaid.css";
+import LinkButton from '@/core/LinkButton';
+import { convertDateFormat, convertISOToISTFormat, capitalizeWords} from '@/lib/utils';
+import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field } from '@/App.type';
+import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
 import { VALID_FMT_TYPES, VALUE_TYPES } from "@/lib/helper";
 
@@ -30,15 +28,38 @@ type CellConfig = {
 function formatterFn(formatType: string, valueType: string, nav: NavigateFunction): Function {
 
   const {
-    LINK, COUNT, ALERT_COUNT, DATETIME, STATUS
-  } = VALID_FMT_TYPES
+    LINK, COUNT, ALERT_COUNT, DATETIME, STATUS, PLAIN, CAPITALIZE,
+    FLAG, BINARY_STATUS
+  } = VALID_FMT_TYPES;
+
+  const { LINK_VIEW, EDIT_LINK } = VALUE_TYPES;
 
   if (LINK == formatType) {
-    const labelFn = VALUE_TYPES.DATE == valueType ? convertDateFormat: (cell: string) => cell;
+    const labelFn = (cell: string) => {
+
+      if ([LINK_VIEW, EDIT_LINK].includes(valueType)) {
+        return LINK_VIEW == valueType ? cell: 'EDIT';
+
+      } else if (VALUE_TYPES.DATE == valueType) {
+        return convertDateFormat(cell)
+
+      } else {
+        return cell;
+      }
+    }
+
+    const linkToVal = (cell: string) => {
+      if ([LINK_VIEW, EDIT_LINK].includes(valueType)) {
+        return LINK_VIEW == valueType ? `/view-asset/item/${cell}` : `/edit-asset/item/${cell}` ;
+
+      } else {
+        return cell;
+      }
+    }
 
     if (!!nav) {
       const fn: Function = (cell: string) => _(<div className="flex justify-center">                  
-        <LinkButton label={labelFn(cell)} to={cell} nav={nav} />
+        <LinkButton label={labelFn(cell)} to={linkToVal(cell)} nav={nav} />
       </div>)
 
       return fn;
@@ -92,6 +113,29 @@ function formatterFn(formatType: string, valueType: string, nav: NavigateFunctio
       </div>
     )
     return fn;
+
+  } else if (PLAIN == formatType) {
+    const fn: Function = (cell: string) => _(
+      <div className="text-center">{cell}</div>
+    )
+    return fn;
+  } else if (CAPITALIZE == formatType) {
+    const fn: Function = (cell: string) => _(
+      <div className="text-center">{capitalizeWords(cell)}</div>
+    )
+    return fn;
+
+  } else if (FLAG == formatType) {
+    const fn: Function = (cell: boolean) => _(
+      <div className="text-center">{cell ? 'Yes': 'NO '}</div>
+    )
+    return fn;
+
+  } else if (BINARY_STATUS == formatType) {
+    const fn: Function = (cell: boolean) => _(
+      <div className="text-center">{cell ? 'Veg': 'NON-VEG'}</div>
+    )
+    return fn;
   }
 
   throw new Error('Unimplemented');
@@ -125,13 +169,13 @@ function displayCol(assetType: string, columnId: string, nav: NavigateFunction, 
     }
   }
 
-function getMappings(cacheType: string, nav: NavigateFunction, map: CellConfig): Mapping {
+function getMappings(mappingType: string, nav: NavigateFunction, map: CellConfig): Mapping {
    let mappings: any = [];
     try {
 
-        const cols = map[cacheType];
+        const cols = map[mappingType];
         const order: CellDisplay[] = Object.keys(cols).map(c => {
-        return displayCol(cacheType, c, nav, map)
+        return displayCol(mappingType, c, nav, map)
         });
         mappings = {
         order
@@ -146,28 +190,103 @@ function getMappings(cacheType: string, nav: NavigateFunction, map: CellConfig):
 /*
  * Transforms api response to row data
  */
-export function transform(assetType: string, data: Cache[], nav: NavigateFunction, map: CellConfig): TransformResponse {
-    const [first, ] = data;
+export function transform(assetType: string, data: Cache[] | AssetRow[], nav: NavigateFunction, map: CellConfig): TransformResponse {
+    const [first] = data;
+    
+
+     // Type guard function
+  function isAssetRow(item: Cache | AssetRow): item is AssetRow {
+    return 'assetType' in item && 'assetId' in item && 'createdAt' in item;
+  }
+
+  function isOption(value: any): value is Option {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'name' in value &&
+        'value' in value &&
+        typeof value.name === 'string' &&
+        typeof value.value === 'string'
+    );
+  }
+
+  function isField(value: any): value is Field {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'field' in value &&
+        'value' in value &&
+        typeof value.field === 'string' &&
+        typeof value.value === 'string'
+    );
+  }
+
+
+  let mappingType;
+
+  // Check if first item is AssetRow
+  if (isAssetRow(first)) {
+    mappingType = first.assetType;
+    // ... rest of the code for AssetRow case
+  } else {
     const { type } = first;
+    mappingType = type;
+    
+  }
+
+  // alert(`mapping type: ${mappingType}`)
   
     console.log('assetType', assetType);
-  
-    let cols: Mapping = getMappings(type, nav, map);
+
+    let cols: Mapping = getMappings(mappingType.toLowerCase(), nav, map);
     
-    const rows: Row[] = data.map((d: Cache) => {
+    const rows: Row[] = data.map((d: any) => {
       const row: Row = Object.entries(d).reduce((acc: Row, entry) => {
-        const key = entry[0];
-        let value = typeof entry[1] === 'string' || typeof entry[1] === 'number' || typeof entry[1] === 'boolean'? entry[1]: 'N/A';
-  
-        if (entry[1] instanceof Array) {
-          value = entry[1].length;
+        const [key, value] = entry;
+
+        if (['string', 'number', 'boolean'].includes(typeof value)) {
+          acc[key] = value as string | number | boolean;
+        
+        } else {
+          if (key == 'weight') {
+            // alert(value);
+            const { total } = value as Weight;
+            acc[key] = `${total}`;
+
+            // alert(total);
+          
+          } else if (value instanceof Array) {
+            const [first] = value;
+
+            if (isOption(first) || isField(first)) {
+              (value as Option[] | Field[]).forEach(o => {
+
+                if (isOption(o)) {
+                  acc[o.name] = o.value;
+                
+                } else {
+                  acc[o.field] = o.value;
+                }
+                
+              });
+            } else {
+              // alert(JSON.stringify(first))
+              acc[key] = `${value.length}`;
+            }
+
+            // alert(JSON.stringify(value.map(v => v.name)))
+        
+          }
         }
-  
-        acc[key] = value;
+        // alert(JSON.stringify(acc))
         return acc;
       }, {});
+      
   
-      return row;
+      return { 
+        ...row, 
+        ...(!!row['assetId'] && { 'editId': row['assetId'] })
+      };
     });
   
     return {

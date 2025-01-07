@@ -29,18 +29,18 @@ export default function Root() {
                   <Link to={`packaging/new`}>New Package Type</Link>
                 </li>
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`list-assets/rid`}>RIDs</Link>
+                  <Link to={`list-asset/rid`}>RIDs</Link>
                 </li>
                 
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`list-assets/item`}>Items</Link>
+                  <Link to={`list-asset/item`}>Items</Link>
                 </li>
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-assets/package`}>Packagings</Link>
                 </li>
-                <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                {/* <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-assets/brand-products`}>Brand Products</Link>
-                </li>
+                </li> */}
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`abstract-products`}>Products</Link>
                 </li>

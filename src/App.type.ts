@@ -464,3 +464,15 @@ interface Group {
 export interface Asset {
     [key: string]: Group
 }
+
+export interface AssetRow {
+    assetType: string,
+    assetId: string,
+    createdAt: number,
+    [key: string]: string | number
+}
+
+export interface Field {
+    field: string,
+    value: string
+}

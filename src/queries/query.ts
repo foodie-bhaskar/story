@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
-import { fetchStores, fetchStoreCachesForType, fetchElastic, fetchCachesForRangeTS } from '@/api/api';
-import { StoreCache, ShipmentCache, ElasticQuery, QueryArg } from '@/App.type';
+import { fetchStores, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType } from '@/api/api';
+import { StoreCache, ShipmentCache, QueryArg, AssetRow } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 
@@ -29,8 +29,8 @@ import { QueryFunction, QueryKey } from '@tanstack/react-query';
       const error = err as AxiosError;
       throw error;
     }
-} */
-
+}
+ */
 export async function queryStoresCache() {
     try {
       const data = await fetchStores();
@@ -45,7 +45,7 @@ export async function queryStoresCache() {
 
 export async function queryStoreShipments(q: QueryArg) {
     try {
-        const [ , group, storeId ] = q.queryKey;
+        const [ , group, storeId ] = q.queryKey as string[];
 
         if (storeId && group) {
             const data = await fetchStoreCachesForType(storeId, 'shipment');
@@ -62,10 +62,22 @@ export async function queryStoreShipments(q: QueryArg) {
         }
 }
 
-export const queryProductionDays: QueryFunction<Cache[], QueryKey> = async (q: QueryArg) => {
+export const queryProductionDays: QueryFunction<Cache, QueryKey> = async (q: QueryArg) => {
   try {
     const [, type, rangeStr] = q.queryKey as string[];
     const data = await fetchCachesForRangeTS(type, RC.toRange(rangeStr));
+    const rows = data.data.result;
+    return rows;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
+export const queryAssets: QueryFunction<AssetRow[], QueryKey> = async (q: QueryArg) => {
+  try {
+    const [, assetType] = q.queryKey as string[];
+    const data = await fetchAssetsForType(assetType);
     const rows = data.data.result;
     return rows;
   } catch (err) {

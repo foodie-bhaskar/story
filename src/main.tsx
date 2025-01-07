@@ -26,6 +26,8 @@ import Production from './pages/Production.tsx';
 import ProductionDay from './pages/ProductionDay.tsx';
 import Shipment from './pages/Shipment.tsx';
 import ShipmentSummary from './pages/ShipmentSummary.tsx';
+import Store from './pages/Store.tsx';
+import Test from './pages/Test.tsx';
 
 const router = createBrowserRouter([
   {
@@ -90,6 +92,10 @@ const router = createBrowserRouter([
         element: <BrandProducts />,
       },
       {
+        path: "list-asset/:assetType",
+        element: <Test />,
+      },
+      {
         path: "product/:productId",
         element: <Product />,
       },
@@ -116,6 +122,14 @@ const router = createBrowserRouter([
       {
         path: "abstract-products",
         element: <AbstractProducts />,
+      },
+      {
+        path: "store/:storeId",
+        element: <Store />,
+      },
+      {
+        path: "test",
+        element: <Test />,
       }
     ]
   }

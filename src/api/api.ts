@@ -1,11 +1,11 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, ElasticQuery, Range } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, Range } from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
 
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
 const ENV = 'dev';
 const UI_API = 'foodie-api';
-const ELASTIC_API = 'foodie-elastic';
+// const ELASTIC_API = 'foodie-elastic';
 const ASSET_API = 'foodie-asset';
 const QUERY_API = 'foodie-search';
 // const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ijk3MzgxOTk4MjgiLCJuYW1lIjoiQWF5dXNoIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE3MjE0NzgwMTh9.AmSFOZHaiV1Ubqpj-05RkmP8WBkmxVQPKIvzS3-q4jk';
@@ -175,15 +175,15 @@ export async function updateAsset(assetType: string, assetId: string, data: Upda
   }
 }
 
-export async function fetchElastic(query: ElasticQuery) {
+/* export async function fetchElastic(query: ElasticQuery) {
   const {
     indexCore, term, filter, range
   } = query;
 
-  /* indexCore: coreIndex,
+  indexCore: coreIndex,
             term: { name: terms[0], value: terms[1] },
             filter: { name: filters[0], value: filters[1] },
-            range: range.split('#'); */
+            range: range.split('#');
 
   // index=item-consumption&termName=storeId&termValue=79
   // &filterName=isPacket&filterValue=true
@@ -203,4 +203,4 @@ export async function fetchElastic(query: ElasticQuery) {
   
   
   return axios.get(url, HEADERS)
-}
+} */
