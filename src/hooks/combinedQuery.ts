@@ -1,12 +1,13 @@
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { queryStoresCache, queryStoreShipments } from '@/queries/query';
-import { StoreDetail, ShipmentCache, Shipment, IDValueMap } from '@/App.type';
+import { StoreDetail, ShipmentCache, Shipment } from '@/App.type';
 import { Range, SummaryCache, AssetRow } from "@/App.type";
-import { AxiosError } from 'axios';
-import { fetchItemPacket } from '@/api/api';
+// import { AxiosError } from 'axios';
+// import { fetchItemPacket } from '@/api/api';
 import { queryAssets, querySummary, querySummaryRange } from '@/queries/query';
-import { genAssetIdMap, extractStoreDetails, mergeSummation, reduceToIDValue } from '@/lib/helper';
+// import { genAssetIdMap, extractAssetDetails, mergeSummation, reduceToIDValue, mergeExtract, merge } from '@/lib/helper';
+import { mergeSummation, mergeExtract, merge } from '@/lib/helper';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 import { RangeConverter as RC } from '@/lib/utils';
 
@@ -55,16 +56,16 @@ type StoreCache = {
   [key: string]: StoreDetail;
 } */
 
-type ItemPacketDetail = {
+/* type ItemPacketDetail = {
   itemId: string,
   name: string,
   weight: number
-}
+} */
 
-type ItemsCache = {
+/* type ItemsCache = {
   [key: string]: ItemPacketDetail;
 }
-
+ */
 export const useDynamicQueries = (configs: QueryConfig[] | QueryConfigGeneric[]) => {
     const queries = useQueries({
       queries: configs.map(config => ({
@@ -218,107 +219,140 @@ export const useShipmentSummaryQueries = (shipmentId: string) => {
     };
 }
 
+interface MergeCfg {
+  fn: Function,
+  propName: string
+}
+
+interface QueryCfg {
+  queryKey: string[],
+  queryFn: QueryFunction<SummaryCache[] | AssetRow[], QueryKey>
+  mergeCfg?: MergeCfg
+}
+
 export const useShipmentQueries = (range: Range) => {
-  const [shipmentQuery, storeDetailsQuery, itemPacketQuery] = useQueries({
+
+  const secondaryCfg: MergeCfg = {
+    fn: mergeSummation,
+    propName: 'weight'
+  }
+
+  const tertiaryCfg: MergeCfg = {
+    fn: mergeExtract,
+    propName: 'weight'
+  }
+
+  const queries: QueryCfg[] = [
+    {
+      queryKey: ['cache', 'shipment', RC.toString(range)],
+      queryFn: querySummaryRange
+    },
+    {
+      queryKey: ['asset', 'item'],
+      queryFn: queryAssets,
+      mergeCfg: secondaryCfg
+    },
+    {
+      queryKey: ['asset', 'store'],
+      queryFn: queryAssets,
+      mergeCfg: tertiaryCfg
+    }
+  ];
+
+  return usePageQueries(queries);
+}
+
+export const usePageQueries = (queries: QueryCfg[]) => {
+  const [primary, secondary, tertiary] = queries;
+
+  const [primaryQuery, secondaryQuery, tertiaryQuery] = useQueries({
     queries: [
       {
-        queryKey: ['cache', 'shipment', RC.toString(range)],
-        queryFn: querySummaryRange,
+        queryKey: primary.queryKey,
+        queryFn: primary.queryFn,
         staleTime: Infinity,
         enabled: true
       },
       {
-        queryKey: ['asset', 'store'],
-        queryFn: queryAssets,
+        queryKey: secondary.queryKey,
+        queryFn: secondary.queryFn,
         staleTime: Infinity,
         enabled: true
       },
       {
-        queryKey: ['cache', 'items-packet'],
-        queryFn: async () => {
-          try {
-            const data = await fetchItemPacket();
-  
-            const itemMap: ItemsCache = data.data.result[0].payload;
-            return itemMap;
-          } catch (err) {
-            const error = err as AxiosError;
-            throw error;
-          }
-        },
+        queryKey: tertiary.queryKey,
+        queryFn: tertiary.queryFn,
         staleTime: Infinity,
         enabled: true
-      }
+      },
+      
     ]
   });
 
   // Ensure both queries are complete before merging
   const mergedData: SummaryCache[] = useMemo(() => {
     // Check if both queries are successful and have data
-    if (
-      shipmentQuery.isSuccess && 
-      storeDetailsQuery.isSuccess && 
-      itemPacketQuery.isSuccess && 
-
-      shipmentQuery.data && 
-      itemPacketQuery.data && 
-      storeDetailsQuery.data
+    if (primaryQuery.isSuccess && secondaryQuery.isSuccess
+      && ((!!tertiaryQuery && tertiaryQuery.isSuccess) || !tertiaryQuery) 
+      && primaryQuery.data && secondaryQuery.data
+      && ((!!tertiaryQuery && tertiaryQuery.data) || !tertiaryQuery) 
     ) {
 
-      const primary = shipmentQuery.data;
-      const source = storeDetailsQuery.data;
-      const sourceMap = genAssetIdMap(source);
-      
+      const primary = primaryQuery.data;
+      return primary.map((main) => {
 
-      return primary.map((shipment) => {
+        const { payload, storeId } = main as SummaryCache;
 
-        const { payload, storeId } = shipment as SummaryCache;
+        let mergeSecondary, mergeTertiary;
 
-        const storeDetails = shipment.storeId ? extractStoreDetails(storeId, sourceMap): {};
-
-        const propName = 'weight';
-        const sourceMap2: IDValueMap = reduceToIDValue(itemPacketQuery.data, propName);
-
-        const weightInGms = mergeSummation(sourceMap2, payload as IDValueMap);
+        if (secondary.mergeCfg && tertiaryQuery && tertiaryQuery.data) {
+          const secondarySource = secondaryQuery.data as AssetRow[];
+          mergeSecondary = merge(secondary.mergeCfg, payload, secondarySource, storeId);
+        }
+        
+        if (tertiary.mergeCfg && tertiaryQuery && tertiaryQuery.data) {
+          const tertiarySource = tertiaryQuery.data as AssetRow[];
+          mergeTertiary = merge(tertiary.mergeCfg, payload, tertiarySource, storeId);
+        }
         
         return {
-          ...shipment,
-          ...storeDetails,
-          weightInGms
+          ...main,
+          ...(mergeSecondary && { ...mergeSecondary }),
+          ...(mergeTertiary && { ...mergeTertiary })
         }
       });
     }
 
     return [];
   }, [
-    shipmentQuery.isSuccess, 
-    storeDetailsQuery.isSuccess, 
-    itemPacketQuery.isSuccess, 
-    shipmentQuery.data, 
-    storeDetailsQuery.data,
-    itemPacketQuery.data
+    primaryQuery.isSuccess, 
+    secondaryQuery.isSuccess, 
+    tertiaryQuery.isSuccess, 
+    primaryQuery.data, 
+    secondaryQuery.data,
+    tertiaryQuery.data
   ]);
 
   return {
-    shipment: {
-      data: shipmentQuery.data,
-      isPending: shipmentQuery.isPending,
-      isFetching: shipmentQuery.isFetching,
-      error: shipmentQuery.error
+    primary: {
+      data: primaryQuery.data,
+      isPending: primaryQuery.isPending,
+      isFetching: primaryQuery.isFetching,
+      error: primaryQuery.error
     },
-    storeDetails: {
-      data: storeDetailsQuery.data,
-      isPending: storeDetailsQuery.isPending,
-      isFetching: storeDetailsQuery.isFetching,
-      error: storeDetailsQuery.error
+    secondary: {
+      data: secondaryQuery.data,
+      isPending: secondaryQuery.isPending,
+      isFetching: secondaryQuery.isFetching,
+      error: secondaryQuery.error
     },
-    itemPackets: {
-      data: itemPacketQuery.data,
-      isPending: itemPacketQuery.isPending,
-      isFetching: itemPacketQuery.isFetching,
-      error: itemPacketQuery.error
+    tertiary: {
+      data: tertiaryQuery.data,
+      isPending: tertiaryQuery.isPending,
+      isFetching: tertiaryQuery.isFetching,
+      error: tertiaryQuery.error
     },
     mergedData,
-    isAllQueriesComplete: shipmentQuery.isSuccess && storeDetailsQuery.isSuccess && itemPacketQuery.isSuccess
+    isAllQueriesComplete: primaryQuery.isSuccess && secondaryQuery.isSuccess && tertiaryQuery.isSuccess
   };
 };

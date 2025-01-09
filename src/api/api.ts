@@ -1,5 +1,5 @@
 import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, 
-  Cache, Range, StoreCache, AssetRow, StoreDetail
+  Cache, Range, AssetRow, Asset, Group
 } from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
@@ -47,10 +47,8 @@ export async function fetchAssetsForType(assetType: string | undefined, filter?:
     throw new Error('Asset type is required');
   }
 
-  if (assetType === 'store') {
-    const response = await fetchStores();
-    // alert(JSON.stringify(response));
-    return response;
+  if (['store', 'item'].includes(assetType)) {
+    return fetchAssetsCache(assetType);
   }
 
   const type = assetType.toUpperCase();
@@ -94,28 +92,33 @@ export async function fetchStoreCachesForType(storeId: string, cacheType: string
   //assetType=CACHE&filterName=store-details&filterValue=default' 
 }
 
-export const fetchStores = async () => {
-  const data = await fetchCachesForType('store-details', 'default');
+export const fetchAssetsCache = async (type: string) => {
+  const cacheTypeMap: {[key: string]: string} = {
+    'store': 'store-details',
+    'item': 'items-packet'
+  }
+  const data = await fetchCachesForType(cacheTypeMap[type], 'default');
 
-  const storeMap: StoreCache = data.data.result[0].payload;
-  const stores: StoreDetail[] = Object.values(storeMap);
+  const [only] = data.data.result
 
-  const storesAsset: AssetRow[] = stores.map((s: StoreDetail) => {
-    const { storeName, store_id, city, state } = s;
+  const { payload } = only;
 
+  const assetMap: Asset = payload;
+
+  const assets: AssetRow[] = Object.values(assetMap).map((s: Group) => {
+    const { store_id, itemId, storeName, ...rest } = s; 
     const asset: AssetRow = {
-      assetId: store_id,
-      assetType: 'store',
+      assetId: type === 'store' ? store_id: itemId,
+      assetType: type,
       createdAt: 1,
-      name: storeName,
-      city,
-      state
+      ...(storeName && { name: storeName }),
+      ...rest
     };
 
     return asset;
   });
 
-  return { data: { result: storesAsset} };
+  return { data: { result: assets } };
 };
 
 /* export const fetchAssetCacheMap = async () => {

@@ -469,7 +469,7 @@ export interface Mapping {
     order: OneDArray<ComponentChild>
 }
 
-interface Group {
+export interface Group {
     [key: string]: string
 }
   
@@ -496,3 +496,10 @@ export interface AssetIdMap {
 export interface IDValueMap {
     [key: string]: number
 }
+
+
+export interface MergeCfg {
+    fn: Function,
+    propName: string
+}
+  

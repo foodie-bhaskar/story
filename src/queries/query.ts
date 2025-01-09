@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { fetchStores, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType } from '@/api/api';
+import { fetchAssetsCache, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType } from '@/api/api';
 import { SummaryCache, ShipmentCache, QueryArg, AssetRow } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
@@ -33,9 +33,9 @@ import { QueryFunction, QueryKey } from '@tanstack/react-query';
  */
 export async function queryStoresCache() {
     try {
-      const data = await fetchStores();
+      const data = await fetchAssetsCache('store');
 
-      const stores = data.data.result[0].payload;
+      const stores = data.data.result
       return stores;
     } catch (err) {
       const error = err as AxiosError;

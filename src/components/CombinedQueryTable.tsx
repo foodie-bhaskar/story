@@ -44,7 +44,7 @@ const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ assetType, range, nav
             </div>
   
          {isAllQueriesComplete && tableData && <div className="pt-4">
-              <h4>{mergedData.length} shipments</h4>
+              <h4>{mergedData.length} {assetType}s</h4>
         {!isAllQueriesComplete && <Loader />}
   
       {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} />}

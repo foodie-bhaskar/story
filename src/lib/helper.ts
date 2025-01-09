@@ -1,4 +1,4 @@
-import { Asset, AssetRow, AssetIdMap, IDValueMap } from '@/App.type';
+import { Asset, AssetRow, AssetIdMap, IDValueMap, MergeCfg } from '@/App.type';
 
 export const VALID_FMT_TYPES = {
     LINK: 'link',
@@ -265,7 +265,7 @@ export const MAP: { [key: string]: Asset} = {
       formatType: VALID_FMT_TYPES.PLAIN,
       valueType: VALUE_TYPES.NUMBER
     },
-    'weightInGms': {
+    'weight': {
       name: 'Weight (Kg)',
       formatType: VALID_FMT_TYPES.ROUND,
       valueType: VALUE_TYPES.NUMBER
@@ -288,6 +288,18 @@ export const MAP: { [key: string]: Asset} = {
   }
 }
 
+
+export function reduceToIDValue(assets: AssetRow[], numValueProp: string): IDValueMap {
+  return assets.reduce((acc: IDValueMap, asset: AssetRow) => {
+    const { assetId } = asset;
+
+    if (asset[numValueProp] && typeof asset[numValueProp] == 'number') {
+      acc[assetId] = asset[numValueProp] as number;
+    }
+    return acc;
+  }, {});
+}
+
 export function genAssetIdMap(assets: AssetRow[]) {
   return assets.reduce((acc: AssetIdMap, asset: AssetRow) => {
     acc[asset.assetId] = asset;
@@ -295,12 +307,18 @@ export function genAssetIdMap(assets: AssetRow[]) {
   }, {});
 }
 
-export function extractStoreDetails(storeId: string, stores: AssetIdMap) {
-  const { assetId, assetType, createdAt, ...rest } = stores[storeId];
+export function extractAssetDetails(id: string, map: AssetIdMap) {
+  // alert('extractAssetDetails');
+  const { assetId, assetType, createdAt, ...rest } = map[id];
+  // alert(JSON.stringify(rest));
   return { ...rest };
 }
 
-export function mergeSummation(sourceMap: IDValueMap, idsCountMap: IDValueMap): number {
+export function mergeSummation(mergeSource: AssetRow[], idsCountMap: IDValueMap, propName: string): number {
+  // alert('mergeSummation')
+  // const sourceMap: AssetIdMap = genAssetIdMap(mergeSource);
+  const sourceMap: IDValueMap = reduceToIDValue(mergeSource, propName);
+  // alert(JSON.stringify(sourceMap));
   return Object.entries(idsCountMap).reduce((acc: number, idCount) => {
     const [assetId, count] = idCount;
     let id = assetId;
@@ -308,18 +326,29 @@ export function mergeSummation(sourceMap: IDValueMap, idsCountMap: IDValueMap): 
       id = assetId.split('-')[0];
     }
     acc += sourceMap[id] * count;
+    // alert(acc)
     return acc;
   }, 0);
 }
 
-export function reduceToIDValue(assetMap: any, numValueProp: string): IDValueMap {
-  return Object.entries(assetMap).reduce((acc: IDValueMap, assetEntry) => {
-    const [assetId, asset] = assetEntry as [string, any];
-
-    if (asset[numValueProp] && typeof asset[numValueProp] == 'number') {
-      acc[assetId] = asset[numValueProp];
-    }
-    return acc;
-  }, {});
+export function mergeExtract(mergeSource: AssetRow[], idsCountMap: IDValueMap, propName: string, mergeId: string) {
+  console.log(idsCountMap);
+  console.log(propName);
+  const sourceMap = genAssetIdMap(mergeSource);
+  // alert(JSON.stringify(sourceMap));
+  return extractAssetDetails(mergeId, sourceMap);
 }
 
+export function merge(cfg: MergeCfg, payload: IDValueMap, source: AssetRow[], mergeId: string) {
+  const mergeFn = cfg.fn;
+
+  const merged = mergeFn(source, payload, cfg.propName, mergeId);
+
+  if (typeof merged == 'object') {
+    return merged
+  } else {
+    return {
+      [cfg.propName]: merged
+    }
+  }
+}
