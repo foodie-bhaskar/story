@@ -1,4 +1,6 @@
-import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, Cache, Range, StoreCache, AssetRow, StoreDetail } from '@/App.type';
+import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, 
+  Cache, Range, StoreCache, AssetRow, StoreDetail
+} from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
 
@@ -115,6 +117,30 @@ export const fetchStores = async () => {
 
   return { data: { result: storesAsset} };
 };
+
+/* export const fetchAssetCacheMap = async () => {
+  const data = await fetchCachesForType('store-details', 'default');
+
+  const storeMap: AssetIdMap = data.data.result[0].payload;
+  const stores: StoreDetail[] = Object.values(storeMap);
+
+  const storesAsset: AssetRow[] = stores.map((s: StoreDetail) => {
+    const { storeName, store_id, city, state } = s;
+
+    const asset: AssetRow = {
+      assetId: store_id,
+      assetType: 'store',
+      createdAt: 1,
+      name: storeName,
+      city,
+      state
+    };
+
+    return asset;
+  });
+
+  return { data: { result: storeMap} };
+}; */
 
 export const fetchItemPacket = async () => {
   return fetchCachesForType('items-packet', 'default')

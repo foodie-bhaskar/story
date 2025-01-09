@@ -12,12 +12,12 @@ const Items = () => {
 
   useEffect(() => {
       if (assetType) {
-          setQuery({
+        setQuery({
           primary: 'asset',
           type: assetType,
           info: `Querying for assets of type: ${assetType}`,
           queryFn: queryAssets
-          });
+        });
       }
     }, [assetType])
 

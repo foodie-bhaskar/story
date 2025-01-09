@@ -23,15 +23,19 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
 
     const qFn: QueryFunction = query.queryFn;
 
-    /* setQuery({
-      primary: 'asset',
-      type: assetType,
-      info: `Querying for assets of type: ${assetType}`,
-      queryFn: queryAssets
-    }); */
-  
+    const { primary, type, range } = query;
+
+    const queryKey = [
+      primary,
+      type
+    ];
+
+    if (range) {
+      queryKey.push(RC.toString(range))
+    }
+
     const apiQuery: UseQueryResult<Cache [] | AssetRow[]> = useQuery({
-      queryKey: [query.primary, query.type, ...[query.range && RC.toString(query.range)]],
+      queryKey,
       queryFn: qFn,
       staleTime: Infinity,
       enabled: true

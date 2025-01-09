@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
-import { fetchStores, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType } from '@/api/api';
-import { StoreCache, ShipmentCache, QueryArg, AssetRow } from '@/App.type';
+import { fetchStores, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType } from '@/api/api';
+import { SummaryCache, ShipmentCache, QueryArg, AssetRow } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 
@@ -35,8 +35,8 @@ export async function queryStoresCache() {
     try {
       const data = await fetchStores();
 
-      const storeMap: StoreCache = data.data.result[0].payload;
-      return storeMap;
+      const stores = data.data.result[0].payload;
+      return stores;
     } catch (err) {
       const error = err as AxiosError;
       throw error;
@@ -74,12 +74,37 @@ export const queryProductionDays: QueryFunction<Cache, QueryKey> = async (q: Que
   }
 };
 
+export const querySummaryRange: QueryFunction<SummaryCache[], QueryKey> = async (q: QueryArg) => {
+  try {
+    const [, type, rangeStr] = q.queryKey as string[];
+    const data = await fetchCachesForRangeTS(type, RC.toRange(rangeStr));
+    const rows = data.data.result;
+    return rows;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
 export const queryAssets: QueryFunction<AssetRow[], QueryKey> = async (q: QueryArg) => {
   try {
     const [, assetType] = q.queryKey as string[];
     const data = await fetchAssetsForType(assetType);
     const rows = data.data.result;
     return rows;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
+export const querySummary: QueryFunction<SummaryCache, QueryKey> = async (q: QueryArg) => {
+  try {
+    const [, assetType, group] = q.queryKey as string[];
+    const data = await fetchCachesForType(assetType, group);
+    const rows = data.data.result;
+    const summary: SummaryCache = rows[0];
+    return summary;
   } catch (err) {
     const error = err as AxiosError;
     throw error;

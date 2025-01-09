@@ -1,16 +1,18 @@
-import { Asset } from '@/App.type';
+import { Asset, AssetRow, AssetIdMap, IDValueMap } from '@/App.type';
 
 export const VALID_FMT_TYPES = {
     LINK: 'link',
     COUNT: 'count',
     ALERT_COUNT: 'alertCount',
     DATETIME: 'dateTime',
+    DATE: 'date',
     STATUS: 'status',
     PLAIN: 'plain',
     CAPITALIZE: 'capitalize',
     FLAG: 'flag',
     BINARY_STATUS: 'binary',
-    DYNA_LINK: 'dynaLink'
+    DYNA_LINK: 'dynaLink',
+    ROUND: 'round'
 }
   
 export  const VALUE_TYPES = {
@@ -21,7 +23,9 @@ export  const VALUE_TYPES = {
     STR_VAL: 'string',
     LINK_VIEW: 'linkView',
     EDIT_LINK: 'editLink',
-    INV_LINK: 'inventory'
+    INV_LINK: 'inventory',
+    DT_W_PREFIX: 'prefixedDate',
+    HASH_VAL: 'hashValue'
 }
 
 export const MAP: { [key: string]: Asset} = {
@@ -234,22 +238,88 @@ export const MAP: { [key: string]: Asset} = {
       formatType: VALID_FMT_TYPES.DYNA_LINK,
       valueType: VALUE_TYPES.INV_LINK
     }
+  },
+  'shipment': {
+    'summaryId': {
+      name: 'Shipment Id',
+      formatType: VALID_FMT_TYPES.LINK,
+      valueType: VALUE_TYPES.HASH_VAL
+    },
+    'summaryDateWPrefix': { 
+      name: 'Ship Date',
+      formatType: VALID_FMT_TYPES.DATE,
+      valueType: VALUE_TYPES.DT_W_PREFIX
+    },
+    'storeId': {
+      name: 'Store #',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'data': {
+      name: 'Packets',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'distinctItems': {
+      name: 'Items',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'weightInGms': {
+      name: 'Weight (Kg)',
+      formatType: VALID_FMT_TYPES.ROUND,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'name': {
+      name: 'Store Name',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'city': {
+      name: 'City',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'state': {
+      name: 'State',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
   }
 }
 
-/* {
-  "assetType": "RID",
-  "timestamp": "6/30/2023, 9:00:34 PM",
-  "brandName": "Bowl 99",
-  "createdAt": 1688139034628,
-  "storeId": "112",
-  "storeName": "Lakkasandra",
-  "rid": "167158",
-  "isActive": true,
-  "assetId": "167158",
-  "brandId": "1",
-  "aggregator": "Swiggy"
-} */
-  
+export function genAssetIdMap(assets: AssetRow[]) {
+  return assets.reduce((acc: AssetIdMap, asset: AssetRow) => {
+    acc[asset.assetId] = asset;
+    return acc;
+  }, {});
+}
 
+export function extractStoreDetails(storeId: string, stores: AssetIdMap) {
+  const { assetId, assetType, createdAt, ...rest } = stores[storeId];
+  return { ...rest };
+}
+
+export function mergeSummation(sourceMap: IDValueMap, idsCountMap: IDValueMap): number {
+  return Object.entries(idsCountMap).reduce((acc: number, idCount) => {
+    const [assetId, count] = idCount;
+    let id = assetId;
+    if (assetId.split('-').length > 1) {
+      id = assetId.split('-')[0];
+    }
+    acc += sourceMap[id] * count;
+    return acc;
+  }, 0);
+}
+
+export function reduceToIDValue(assetMap: any, numValueProp: string): IDValueMap {
+  return Object.entries(assetMap).reduce((acc: IDValueMap, assetEntry) => {
+    const [assetId, asset] = assetEntry as [string, any];
+
+    if (asset[numValueProp] && typeof asset[numValueProp] == 'number') {
+      acc[assetId] = asset[numValueProp];
+    }
+    return acc;
+  }, {});
+}
 

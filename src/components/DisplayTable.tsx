@@ -2,8 +2,8 @@ import { FC } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import "gridjs/dist/theme/mermaid.css";
 import LinkButton from '@/core/LinkButton';
-import { convertDateFormat, convertISOToISTFormat, capitalizeWords } from '@/lib/utils';
-import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field } from '@/App.type';
+import { convertDateFormat, convertISOToISTFormat, capitalizeWords, replaceHashMarks } from '@/lib/utils';
+import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCache } from '@/App.type';
 import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
 import { VALID_FMT_TYPES, VALUE_TYPES } from "@/lib/helper";
@@ -29,10 +29,10 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
 
   const {
     LINK, COUNT, ALERT_COUNT, DATETIME, STATUS, PLAIN, CAPITALIZE,
-    FLAG, BINARY_STATUS, DYNA_LINK
+    FLAG, BINARY_STATUS, DYNA_LINK, DATE, ROUND
   } = VALID_FMT_TYPES;
 
-  const { LINK_VIEW, EDIT_LINK } = VALUE_TYPES;
+  const { LINK_VIEW, EDIT_LINK, DT_W_PREFIX, HASH_VAL } = VALUE_TYPES;
 
   if (LINK == formatType) {
     const labelFn = (cell: string) => {
@@ -51,6 +51,9 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
     const linkToVal = (cell: string) => {
       if ([LINK_VIEW, EDIT_LINK].includes(valueType)) {
         return LINK_VIEW == valueType ? `/view-asset/${assetType}/${cell}` : `/edit-asset/${assetType}/${cell}` ;
+      
+      } else if (HASH_VAL == valueType) {
+        return replaceHashMarks(cell);
 
       } else {
         return cell;
@@ -115,7 +118,7 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
     return fn;
 
   } else if (PLAIN == formatType) {
-    const fn: Function = (cell: string) => _(
+    const fn: Function = (cell: string | number) => _(
       <div className="text-center">{cell}</div>
     )
     return fn;
@@ -137,6 +140,15 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
     )
     return fn;
 
+  } else if (DATE == formatType) {
+    const fn: Function = (cell: string) => _(
+      <div className="text-center">{ DT_W_PREFIX == valueType 
+        ? convertDateFormat(cell.split('-').slice(-3).join('-'))
+        : convertDateFormat(cell)
+      }</div>
+    )
+    return fn;
+
   } else if (DYNA_LINK == formatType) {
 
     const linkToVal = (cell: string) => {
@@ -153,9 +165,17 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
     } else {
       throw new Error('NavigateFunction argument is required for [link]');
     }
-  }
+  } else if (ROUND == formatType) {
 
-  throw new Error('Unimplemented');
+    const fn: Function = (cell: number) => _(<div className="text-center">
+        {(cell/1000).toFixed(2)}
+      </div>)
+
+      return fn;
+
+  } else {
+    throw new Error('Unimplemented');
+  }
 }
 
 
@@ -207,11 +227,11 @@ function getMappings(mappingType: string, nav: NavigateFunction, map: CellConfig
 /*
  * Transforms api response to row data
  */
-export function transform(assetType: string, data: Cache[] | AssetRow[], nav: NavigateFunction, map: CellConfig): TransformResponse {
+export function transform(assetType: string, data: SummaryCache[] | Cache[] | AssetRow[], nav: NavigateFunction, map: CellConfig): TransformResponse {
   const [first] = data;
   
   // Type guard function
-  function isAssetRow(item: Cache | AssetRow): item is AssetRow {
+  function isAssetRow(item: SummaryCache | Cache | AssetRow): item is AssetRow {
     return 'assetType' in item && 'assetId' in item && 'createdAt' in item;
   }
 
@@ -271,8 +291,6 @@ export function transform(assetType: string, data: Cache[] | AssetRow[], nav: Na
             const { total } = value as Weight;
             acc[key] = `${total}`;
 
-            // alert(total);
-          
           } else if (value instanceof Array) {
             
             const [first] = value;
@@ -310,10 +328,14 @@ export function transform(assetType: string, data: Cache[] | AssetRow[], nav: Na
       return { 
         ...row, 
         ...(!!row['assetId'] && { 'editId': row['assetId'] }),
-        ...(!!row['assetId'] && assetType == 'store' && { 'dynaLink': row['assetId'] })
+        ...(!!row['assetId'] && assetType == 'store' && { 'dynaLink': row['assetId'] }),
+        ...(!!row['group'] && assetType == 'shipment' && { 'summaryId': row['group'] }),
+        ...(!!row['group'] && typeof row['group'] == 'string'
+         && assetType == 'shipment' && { 'summaryDateWPrefix': row['group'].split('#')[0] })
       };
     });
   
+    // alert(JSON.stringify(Object.keys(rows[0])));
     return {
       cols,
       rows

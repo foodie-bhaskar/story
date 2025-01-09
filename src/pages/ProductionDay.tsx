@@ -237,10 +237,12 @@ const ProductionDay = () => {
                     : production 
                       ? <div className="pt-4">
                         <Summary cache={production} nav={nav} date={date} />
-                        {production.payload && production.payload.map((batch) => 
-                          <CollapsibleDiv className="mb-8" custom={date} batch={batch} key={batch.batchNo} initiallyOpen={false}>
-                            <BatchSummary {...batch} />
+                        {production.payload && production.payload.map((batch) => {
+                          const prodBatch: ProductionBatchCache = batch as ProductionBatchCache;
+                          return <CollapsibleDiv className="mb-8" custom={date} batch={prodBatch} key={batch.batchNo} initiallyOpen={false}>
+                            <BatchSummary {...prodBatch} />
                           </CollapsibleDiv>
+                        }
                         )}
                       </div>
                       : today != date && <div className="pt-4 h-20 flex flex-row gap-6 items-center">

@@ -228,7 +228,7 @@ export interface StoreCache {
 
 export interface Cache {
     data: number,
-    payload: ProductionBatchCache[],
+    payload: ProductionBatchCache[] | IDValueMap[],
     createdAt: string,
     updatedAt?: string,
     type: string
@@ -239,6 +239,18 @@ export interface Cache {
 }
 
 export interface ShipmentCache {
+    data: number,
+    payload: ItemNameQtyMap,
+    createdAt: string,
+    updatedAt?: string,
+    storeId: string,
+    type: string
+    group: string,
+    distinctItems?: number
+    isPending?: boolean
+}
+
+export interface SummaryCache {
     data: number,
     payload: ItemNameQtyMap,
     createdAt: string,
@@ -475,4 +487,12 @@ export interface AssetRow {
 export interface Field {
     field: string,
     value: string
+}
+
+export interface AssetIdMap {
+    [key: string]: AssetRow
+}
+
+export interface IDValueMap {
+    [key: string]: number
 }
