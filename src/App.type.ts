@@ -438,7 +438,8 @@ export interface ElasticQuery {
     indexCore: string,
     term: NV,
     filter?: NV,
-    range?: Range
+    range?: Range,
+    groupBy?: string
 }
 
 export interface Shipment {
@@ -501,5 +502,26 @@ export interface IDValueMap {
 export interface MergeCfg {
     fn: Function,
     propName: string
+}
+
+export interface NameQty {
+    name: string,
+    qty: number
+}
+
+export interface ConsumableSummary {
+    [key: string]: NameQty
+  }
+  
+  interface ConsumableItem {
+    itemId: number,
+    name: string,
+    [key: string]: string | number
+  }
+  
+export interface ConsumableQueryResult {
+    count: number,
+    summary: ConsumableSummary,
+    items?: ConsumableItem[]
 }
   

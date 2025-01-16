@@ -1,36 +1,39 @@
 import { AxiosError } from 'axios';
-import { fetchAssetsCache, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType } from '@/api/api';
-import { SummaryCache, ShipmentCache, QueryArg, AssetRow } from '@/App.type';
+import { fetchAssetsCache, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType,
+  fetchConsumables, fetchElastic } from '@/api/api';
+import { SummaryCache, ShipmentCache, QueryArg, AssetRow, ConsumableQueryResult, ElasticQuery  } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 
 // ['elastic', 'item-consumption', 'storeId#79', 'isPacket#true', '2024-11-26#2024-12-27']
-/* export async function queryElastic(q: QueryArg) {
+export async function queryElastic(q: QueryArg) {
     try {
-        const [ , coreIndex, coreTermNameValue, filterTermNameValue, range ] = q.queryKey;
+      // ['elastic', 'item-consumption', 'storeId#79', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
+      const [ , coreIndex, coreTermNameValue, filterTermNameValue, range, groupBy ] = q.queryKey as string[];
+        
+      const terms = coreTermNameValue.split('#');
+      const filters = filterTermNameValue.split('#');
 
-        const terms = coreTermNameValue.split('#');
-        const filters = filterTermNameValue.split('#');
-
-        if (range) {
-
-            const queryParams: ElasticQuery = {
-                indexCore: coreIndex,
-                term: { name: terms[0], value: terms[1] },
-                filter: { name: filters[0], value: filters[1] },
-                range: RC.toRange(range)
-            }
-            const data = await fetchElastic(queryParams);
-            return data.data;
-        } else {
-            alert('range is missing');
-        }
+      if (range) {
+          const queryParams: ElasticQuery = {
+              indexCore: coreIndex,
+              term: { name: terms[0], value: terms[1] },
+              filter: { name: filters[0], value: filters[1] },
+              range: RC.toRange(range),
+              ...(!!groupBy && { groupBy })
+          }
+          const data = await fetchElastic(queryParams);
+          alert(JSON.stringify(data.data));
+          return data.data;
+      } else {
+        alert('range is missing');
+      }
     } catch (err) {
       const error = err as AxiosError;
       throw error;
     }
 }
- */
+
 export async function queryStoresCache() {
     try {
       const data = await fetchAssetsCache('store');
@@ -110,3 +113,40 @@ export const querySummary: QueryFunction<SummaryCache, QueryKey> = async (q: Que
     throw error;
   }
 };
+
+export const queryConsumables: QueryFunction<ConsumableQueryResult, QueryKey> = async (q: QueryArg) => {
+  try {
+    // ['consumable', 'packets', 'storeId#79', '2025-01-01#2025-01-14', 'true']
+    const [, consumableType, coreTermNameValue, rangeStr, onlySummary] = q.queryKey as string[];
+    const [termType, termValue] = coreTermNameValue.split('#');
+    const summaryOnly = onlySummary == 'true' ? true: false;
+    const data = await fetchConsumables(consumableType, termType, termValue, RC.toRange(rangeStr), summaryOnly);
+    // const data = await fetchConsumables('PACKET', 'storeId', storeId, range, true);
+    return data.data;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
+
+
+/* const { isFetching, isPending, error, data } = useQuery({
+  queryKey: ['consumable', 'packets', `storeId#${storeId}`, RC.toString(range), 'true'],
+  queryFn: async () => {
+      try {
+        if (storeId) {
+          const data = await fetchConsumables('PACKET', 'storeId', storeId, range, true);
+          // alert(JSON.stringify(data.data));
+          return data.data;
+        } else {
+          return [];
+        }
+      } catch (err) {
+          const error = err as AxiosError;
+          throw error;
+      }
+  },
+  staleTime: 60 * 1000,
+  enabled: !!storeId && !!range
+}); */

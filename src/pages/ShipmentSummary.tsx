@@ -2,7 +2,7 @@ import { FC, useEffect, useState, useMemo } from "react";
 import { NavigateFunction, useParams } from 'react-router-dom';
 import { convertToDayNameFormat, convertISOToISTFormat } from '@/lib/utils';
 import { ProductionBatchCache, PacketItemQty } from "@/App.type";
-import { fetchCachesForRange, fetchStores, fetchItemPacket } from '../api/api';
+import { fetchCachesForRange, fetchAssetsCache, fetchItemPacket } from '../api/api';
 import { useQueries } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import Loader from "@/core/Loader";
@@ -56,9 +56,9 @@ type ShipmentRow = {
   payload: ItemNameQtyMap
 }
 
-type StoreCache = {
+/* type StoreCache = {
   [key: string]: StoreDetail;
-}
+} */
 
 type ItemsCache = {
   [key: string]: ItemPacketDetail;
@@ -107,12 +107,12 @@ export const useCombinedQueries = (shipmentId: string | undefined) => {
         enabled: true
       },
       {
-        queryKey: ['cache', 'store-details'],
+        queryKey: ['asset', 'store'],
         queryFn: async () => {
           try {
-            const data = await fetchStores();
+            const data = await fetchAssetsCache('store');
   
-            const storeMap: StoreCache = data.data.result[0].payload;
+            const storeMap = data.data.result;
             return storeMap;
           } catch (err) {
             const error = err as AxiosError;
@@ -167,7 +167,7 @@ export const useCombinedQueries = (shipmentId: string | undefined) => {
         return {
           ...shipment,
           weight: weightInGms,
-          storeDetail: storeDetailsQuery.data[shipment.storeId] || null
+          // storeDetail: storeDetailsQuery.data[shipment.storeId] || null
         };
       });
     }

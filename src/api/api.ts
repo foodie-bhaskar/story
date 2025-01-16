@@ -1,5 +1,5 @@
 import { ProductAsset, UpdatePackageAsset, ItemAsset, AbstractProductAsset, FilterOpts, 
-  Cache, Range, AssetRow, Asset, Group
+  Cache, Range, AssetRow, Asset, Group, ElasticQuery
 } from '@/App.type';
 import { replaceHashMarks } from '@/lib/utils';
 import axios from 'axios';
@@ -7,7 +7,7 @@ import axios from 'axios';
 const BASE_URL = 'https://4ccsm42rrj.execute-api.ap-south-1.amazonaws.com';
 const ENV = 'dev';
 const UI_API = 'foodie-api';
-// const ELASTIC_API = 'foodie-elastic';
+const ELASTIC_API = 'foodie-elastic';
 const ASSET_API = 'foodie-asset';
 const QUERY_API = 'foodie-search';
 // const AuthToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ijk3MzgxOTk4MjgiLCJuYW1lIjoiQWF5dXNoIiwidHlwZSI6InN1cGVyIiwidmFsdWUiOiIwMDAwMDAiLCJpYXQiOjE3MjE0NzgwMTh9.AmSFOZHaiV1Ubqpj-05RkmP8WBkmxVQPKIvzS3-q4jk';
@@ -22,6 +22,23 @@ const HEADERS = {
 const ASSET_LSI_MAP: Record<string, string> = {
   'product': 'ITEM-NAME'
 }
+
+// foodie-search?consumableType=PACKET&term=storeId&termValue=111&range=2025-01-01&range=2025-01-14&summary=true
+export async function fetchConsumables(consumableType: string, termType: string, termValue: string, range: Range, summaryOnly?: boolean) {
+  if (!consumableType) {
+    throw new Error('Consumable type is required');
+  }
+
+  let url = `${BASE_URL}/${ENV}/${QUERY_API}?consumableType=${consumableType}&term=${termType}&termValue=${termValue}&range=${range.start}&range=${range.end}`;
+
+  if (summaryOnly) {
+    url = `${url}&summary=true`
+  }
+
+  return axios.get(url, HEADERS);
+}
+
+
 
 export async function queryAssetsForValue(assetType: string, value: string, key?: string) {
   if (!key) {
@@ -226,15 +243,15 @@ export async function updateAsset(assetType: string, assetId: string, data: Upda
   }
 }
 
-/* export async function fetchElastic(query: ElasticQuery) {
+export async function fetchElastic(query: ElasticQuery) {
   const {
-    indexCore, term, filter, range
+    indexCore, term, filter, range, groupBy
   } = query;
 
-  indexCore: coreIndex,
+ /*  indexCore: coreIndex,
             term: { name: terms[0], value: terms[1] },
             filter: { name: filters[0], value: filters[1] },
-            range: range.split('#');
+            range: range.split('#'); */
 
   // index=item-consumption&termName=storeId&termValue=79
   // &filterName=isPacket&filterValue=true
@@ -251,7 +268,10 @@ export async function updateAsset(assetType: string, assetId: string, data: Upda
   if (range) {
     url = `${url}&rangeStart=${range.start}&rangeEnd=${range.end}`;
   }
-  
+
+  if (groupBy) {
+    url = `${url}&groupBy=${groupBy}`;
+  }
   
   return axios.get(url, HEADERS)
-} */
+}

@@ -3,7 +3,7 @@ import { NavigateFunction } from 'react-router-dom';
 import "gridjs/dist/theme/mermaid.css";
 import LinkButton from '@/core/LinkButton';
 import { convertDateFormat, convertISOToISTFormat, capitalizeWords, replaceHashMarks } from '@/lib/utils';
-import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCache } from '@/App.type';
+import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCache, ConsumableSummary } from '@/App.type';
 import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
 import { VALID_FMT_TYPES, VALUE_TYPES } from "@/lib/helper";
@@ -342,13 +342,37 @@ export function transform(assetType: string, data: SummaryCache[] | Cache[] | As
     }
 }
 
-const DisplayTable: FC<{ tableData: Row [], cols: Mapping}> = ({ tableData, cols }) => {
+/*
+ * Transforms api response to row data
+ */
+export function transformConsumableSummary(consumableType: string, data: ConsumableSummary, nav: NavigateFunction, map: CellConfig): TransformResponse {
+
+  const rows: Row[] = Object.entries(data).map(data => {
+    const [itemId, obj] = data;
+    const row: Row = {
+      qty: obj.qty,
+      id: itemId,
+      name: obj.name
+    };
+    return row;
+  });
+  
+  let mappingType = consumableType;
+  let cols: Mapping = getMappings(mappingType.toLowerCase(), nav, map);
+    
+    return {
+      cols,
+      rows
+    }
+}
+
+const DisplayTable: FC<{ tableData: Row [], cols: Mapping, limit?: number}> = ({ tableData, cols, limit }) => {
     return <Grid
     data={tableData}
     columns={cols.order}
     search={true}
     pagination={{
-      limit: 7,
+      limit: limit || 7,
     }}
     fixedHeader={true}
     style={ { 
