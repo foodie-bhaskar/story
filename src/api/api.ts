@@ -81,6 +81,22 @@ export async function fetchAssetsForType(assetType: string | undefined, filter?:
   return axios.get(url, HEADERS);
 }
 
+export async function fetchFullAssetsForType(assetType: string | undefined, filter?: FilterOpts) {  
+  if (!assetType) {
+    throw new Error('Asset type is required');
+  }
+
+  const type = assetType.toUpperCase();
+
+  let url = `${BASE_URL}/${ENV}/${ASSET_API}?assetType=${type}`;
+
+  if (filter) {
+    url = `${url}&filterName=${filter.field}&filterValue=${filter.value}`
+  }
+
+  return axios.get(url, HEADERS);
+}
+
 export async function fetchCachesForType(cacheType: string, group: string) {  
   if (!cacheType) {
     throw new Error('Cache type is required');

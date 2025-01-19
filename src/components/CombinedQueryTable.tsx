@@ -7,31 +7,52 @@ import "gridjs/dist/theme/mermaid.css";
 // import { OneDArray } from 'gridjs/dist/src/types.js';
 // import { ComponentChild } from 'preact';
 // import LinkButton from '@/core/LinkButton';
-import { useShipmentQueries } from '@/hooks/combinedQuery';
+import { useShipmentQueries, useStorePacketFlowQueries } from '@/hooks/combinedQuery';
 import { Range } from '@/App.type';
 // import { replaceHashMarks } from '@/lib/utils';
-import DisplayTable, { transform } from '@/components/DisplayTable';
+import DisplayTable, { transform, transformConsumableSummary } from '@/components/DisplayTable';
 import { MAP } from "@/lib/helper";
 import { Row, Mapping } from '@/App.type';
 // import { RangeConverter as RC } from '@/lib/utils';
 import Loader from '@/core/Loader';
 
+interface CombinedQueryCfg {
+  query: Function,
+  // range: Range,
+  // storeId?: string
+}
+
 interface CombinedQueryTableProps {
-  assetType: string,
+  type: string,
   // query: Query
   borderOn?: boolean,
   range: Range,
+  storeId?: string
   nav: NavigateFunction
 }
 
-const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ assetType, range, nav, borderOn }) => {
+const COMBINED_QUERY_FN_MAP: {[key: string]: CombinedQueryCfg} = {
+  'shipment': {
+    query: useShipmentQueries
+  },
+  'store-packetflow': {
+    query: useStorePacketFlowQueries
+  }
+}
+
+const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId, nav, borderOn }) => {
     const [tableData, setTableData] = useState<Row []>();
     const [columns, setColumns] = useState<Mapping>();
+
+    const cFn = COMBINED_QUERY_FN_MAP[type].query;
       
-    const { mergedData, isAllQueriesComplete } = useShipmentQueries(range);
+    const { mergedData, isAllQueriesComplete } = !!storeId ? cFn(storeId, range): cFn(range);
     useEffect(() => {
         if (isAllQueriesComplete && !!mergedData) {
-          const { cols, rows } = transform(assetType, mergedData, nav, MAP);
+          const { cols, rows } = type == 'store-packetflow'
+            ? transformConsumableSummary(type, mergedData, nav, MAP)
+            : transform(type, mergedData, nav, MAP);
+
           setColumns(cols);
           setTableData(rows);
         }
@@ -44,10 +65,10 @@ const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ assetType, range, nav
             </div>
   
          {isAllQueriesComplete && tableData && <div className="pt-4">
-              <h4>{mergedData.length} {assetType}s</h4>
+              <h4>{mergedData.length} {type}s</h4>
         {!isAllQueriesComplete && <Loader />}
   
-      {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} />}
+      {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} limit={20} />}
           </div>}
           </div>
   }

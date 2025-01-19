@@ -63,7 +63,7 @@ export default function Root() {
             </ul>
           </nav>
         </aside>
-        <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} max-basis-10/12  `}>
+        <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} full-44`}>
           <Outlet />
         </main>
       </div>

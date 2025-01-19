@@ -482,7 +482,8 @@ export interface AssetRow {
     assetType: string,
     assetId: string,
     createdAt: number,
-    [key: string]: string | number
+    name?: string,
+    [key: string]: string | number | undefined
 }
 
 export interface Field {
@@ -511,7 +512,14 @@ export interface NameQty {
 
 export interface ConsumableSummary {
     [key: string]: NameQty
-  }
+}
+
+export interface ConsumableRow {
+    id: string,
+    name: string,
+    inflow: number,
+    outflow: number
+}
   
   interface ConsumableItem {
     itemId: number,
@@ -522,6 +530,15 @@ export interface ConsumableSummary {
 export interface ConsumableQueryResult {
     count: number,
     summary: ConsumableSummary,
-    items?: ConsumableItem[]
+    items?: ConsumableItem []
 }
+
+interface ElasticAggSummary {
+    [key: string]: number
+  }
   
+
+export interface ElasticQueryResult {
+    total: number,
+    summary: ElasticAggSummary
+}

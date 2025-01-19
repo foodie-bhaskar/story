@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, NavigateFunction } from 'react-router-dom';
 import { Query } from '@/App.type';
-import { queryAssets } from '@/queries/query';
+import { queryAssets, queryFullAssets } from '@/queries/query';
 import QueryTable from '@/components/QueryTable';
 
 const Items = () => {
@@ -16,7 +16,7 @@ const Items = () => {
           primary: 'asset',
           type: assetType,
           info: `Querying for assets of type: ${assetType}`,
-          queryFn: queryAssets
+          queryFn: assetType == 'item'? queryFullAssets: queryAssets
         });
       }
     }, [assetType])

@@ -1,12 +1,12 @@
 import { AxiosError } from 'axios';
 import { fetchAssetsCache, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType,
-  fetchConsumables, fetchElastic } from '@/api/api';
-import { SummaryCache, ShipmentCache, QueryArg, AssetRow, ConsumableQueryResult, ElasticQuery  } from '@/App.type';
+  fetchConsumables, fetchElastic, fetchFullAssetsForType } from '@/api/api';
+import { SummaryCache, ShipmentCache, QueryArg, AssetRow, ConsumableQueryResult, ElasticQuery, ElasticQueryResult  } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 
 // ['elastic', 'item-consumption', 'storeId#79', 'isPacket#true', '2024-11-26#2024-12-27']
-export async function queryElastic(q: QueryArg) {
+export const queryElastic: QueryFunction<ElasticQueryResult, QueryKey> = async (q: QueryArg) => {
     try {
       // ['elastic', 'item-consumption', 'storeId#79', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
       const [ , coreIndex, coreTermNameValue, filterTermNameValue, range, groupBy ] = q.queryKey as string[];
@@ -23,15 +23,27 @@ export async function queryElastic(q: QueryArg) {
               ...(!!groupBy && { groupBy })
           }
           const data = await fetchElastic(queryParams);
-          alert(JSON.stringify(data.data));
+          // alert(JSON.stringify(data.data));
           return data.data;
       } else {
         alert('range is missing');
+        return [];
       }
     } catch (err) {
       const error = err as AxiosError;
       throw error;
     }
+}
+
+export const queryAssetsCache: QueryFunction<AssetRow[], QueryKey> = async (q: QueryArg) => {
+  try {
+    const [ , type ] = q.queryKey as string[];
+    const data = await fetchAssetsCache(type);
+    return data.data.result
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
 }
 
 export async function queryStoresCache() {
@@ -101,6 +113,18 @@ export const queryAssets: QueryFunction<AssetRow[], QueryKey> = async (q: QueryA
   }
 };
 
+export const queryFullAssets: QueryFunction<AssetRow[], QueryKey> = async (q: QueryArg) => {
+  try {
+    const [, assetType] = q.queryKey as string[];
+    const data = await fetchFullAssetsForType(assetType);
+    const rows = data.data.result;
+    return rows;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
 export const querySummary: QueryFunction<SummaryCache, QueryKey> = async (q: QueryArg) => {
   try {
     const [, assetType, group] = q.queryKey as string[];
@@ -128,25 +152,3 @@ export const queryConsumables: QueryFunction<ConsumableQueryResult, QueryKey> = 
     throw error;
   }
 };
-
-
-
-/* const { isFetching, isPending, error, data } = useQuery({
-  queryKey: ['consumable', 'packets', `storeId#${storeId}`, RC.toString(range), 'true'],
-  queryFn: async () => {
-      try {
-        if (storeId) {
-          const data = await fetchConsumables('PACKET', 'storeId', storeId, range, true);
-          // alert(JSON.stringify(data.data));
-          return data.data;
-        } else {
-          return [];
-        }
-      } catch (err) {
-          const error = err as AxiosError;
-          throw error;
-      }
-  },
-  staleTime: 60 * 1000,
-  enabled: !!storeId && !!range
-}); */

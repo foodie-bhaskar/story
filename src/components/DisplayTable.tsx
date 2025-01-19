@@ -3,7 +3,7 @@ import { NavigateFunction } from 'react-router-dom';
 import "gridjs/dist/theme/mermaid.css";
 import LinkButton from '@/core/LinkButton';
 import { convertDateFormat, convertISOToISTFormat, capitalizeWords, replaceHashMarks } from '@/lib/utils';
-import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCache, ConsumableSummary } from '@/App.type';
+import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCache, ConsumableRow } from '@/App.type';
 import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
 import { VALID_FMT_TYPES, VALUE_TYPES } from "@/lib/helper";
@@ -345,14 +345,12 @@ export function transform(assetType: string, data: SummaryCache[] | Cache[] | As
 /*
  * Transforms api response to row data
  */
-export function transformConsumableSummary(consumableType: string, data: ConsumableSummary, nav: NavigateFunction, map: CellConfig): TransformResponse {
+export function transformConsumableSummary(consumableType: string, data: ConsumableRow[], nav: NavigateFunction, map: CellConfig): TransformResponse {
 
-  const rows: Row[] = Object.entries(data).map(data => {
-    const [itemId, obj] = data;
+  const rows: Row[] = data.map(rowData => {
+    const { id, inflow, outflow, name } = rowData;
     const row: Row = {
-      qty: obj.qty,
-      id: itemId,
-      name: obj.name
+      id, name, inflow, outflow
     };
     return row;
   });

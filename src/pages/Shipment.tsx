@@ -17,7 +17,7 @@ const Shipment = () => {
     return (<div className={`${borderOn ? 'border border-red-700': ''} mx-4 my-4 flex flex-col gap-8`}>
         <PageHeaderRow pageName={'Shipments History'} />
         <RangeBox range={range} onRangeChange={setRange} />
-        {range && <CombinedQueryTable assetType='shipment' range={range} nav={nav} borderOn={borderOn} />}
+        {range && <CombinedQueryTable type='shipment' range={range} nav={nav} borderOn={borderOn} />}
     </div>);
 }
 

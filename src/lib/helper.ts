@@ -286,7 +286,7 @@ export const MAP: { [key: string]: Asset} = {
       valueType: VALUE_TYPES.STR_VAL
     },
   },
-  'packet-flow': {
+  'store-packetflow': {
     'id': {
       name: 'Item Id',
       formatType: VALID_FMT_TYPES.PLAIN,
@@ -297,8 +297,13 @@ export const MAP: { [key: string]: Asset} = {
       formatType: VALID_FMT_TYPES.PLAIN,
       valueType: VALUE_TYPES.STR_VAL
     },
-    'qty': {
+    'inflow': {
       name: 'Inflow',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'outflow': {
+      name: 'Outflow',
       formatType: VALID_FMT_TYPES.PLAIN,
       valueType: VALUE_TYPES.NUMBER
     }
