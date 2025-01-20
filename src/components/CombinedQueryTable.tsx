@@ -29,6 +29,8 @@ interface CombinedQueryTableProps {
   range: Range,
   storeId?: string
   nav: NavigateFunction
+  limit?: number,
+  processData?: Function
 }
 
 const COMBINED_QUERY_FN_MAP: {[key: string]: CombinedQueryCfg} = {
@@ -40,13 +42,13 @@ const COMBINED_QUERY_FN_MAP: {[key: string]: CombinedQueryCfg} = {
   }
 }
 
-const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId, nav, borderOn }) => {
+const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId, nav, borderOn, limit, processData }) => {
     const [tableData, setTableData] = useState<Row []>();
     const [columns, setColumns] = useState<Mapping>();
 
     const cFn = COMBINED_QUERY_FN_MAP[type].query;
       
-    const { mergedData, isAllQueriesComplete } = !!storeId ? cFn(storeId, range): cFn(range);
+    const { mergedData, isAllQueriesComplete, primary, secondary } = !!storeId ? cFn(storeId, range): cFn(range);
     useEffect(() => {
         if (isAllQueriesComplete && !!mergedData) {
           const { cols, rows } = type == 'store-packetflow'
@@ -55,9 +57,12 @@ const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId,
 
           setColumns(cols);
           setTableData(rows);
+          if (!!processData && typeof processData == 'function') {
+            processData(primary.data, secondary.data);
+          }
         }
         
-      }, [mergedData, isAllQueriesComplete]);
+      }, [mergedData, isAllQueriesComplete, primary.data, secondary.data]);
   
       return <div className={`${borderOn ? 'border border-red-700': ''} h-16 flex flex-row`}>
             <div className={`${borderOn ? 'border border-red-700': ''} basis-9/12 align-middle`}>
@@ -68,7 +73,7 @@ const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId,
               <h4>{mergedData.length} {type}s</h4>
         {!isAllQueriesComplete && <Loader />}
   
-      {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} limit={20} />}
+      {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} limit={limit ? limit : 20} />}
           </div>}
           </div>
   }

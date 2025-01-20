@@ -28,6 +28,7 @@ import Shipment from './pages/Shipment.tsx';
 import ShipmentSummary from './pages/ShipmentSummary.tsx';
 import Store from './pages/Store.tsx';
 import Test from './pages/Test.tsx';
+import Packetflow from './pages/Packetflow.tsx';
 
 const router = createBrowserRouter([
   {
@@ -128,7 +129,11 @@ const router = createBrowserRouter([
         element: <Store />,
       },
       {
-        path: "test",
+        path: "inventory",
+        element: <Packetflow />,
+      },
+      {
+        path: "test/:assetType",
         element: <Test />,
       }
     ]

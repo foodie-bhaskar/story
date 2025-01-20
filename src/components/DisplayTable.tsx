@@ -7,6 +7,7 @@ import { Row, Mapping, Cache, Asset, AssetRow, Weight, Option, Field, SummaryCac
 import { Grid, _ } from 'gridjs-react';
 import CircleValue from '@/core/CircleValue';
 import { VALID_FMT_TYPES, VALUE_TYPES } from "@/lib/helper";
+import { SortConfig } from 'gridjs/dist/src/view/plugin/sort/sort.js';
 
 interface TransformResponse {
     cols: Mapping;
@@ -16,7 +17,7 @@ interface TransformResponse {
 interface CellDisplay {
     name: string,
     id: string,
-    sort?: boolean,
+    sort?: boolean | SortConfig,
     formatter: Function
 }
 
@@ -189,10 +190,20 @@ function displayCol(assetType: string, columnId: string, nav: NavigateFunction, 
   
         try {
           const fn: Function = formatterFn(assetType, formatType, valueType, nav);
+          let sort: SortConfig | boolean | undefined = true;
+          
+          if (VALUE_TYPES.NUMBER == valueType) {
+            // const compare: Comparator<TCell> = (a: string, b: string) => parseInt(a) - parseInt(b);
+            // export type Comparator<T> = (a: T, b: T) => number;
+            // sort = {
+              // compare 
+            
+          }
             return {
               formatter: fn,
               id: columnId,
-              name
+              name,
+              sort: name == 'Item Id' ? false: sort
             }
         } catch (e) {
           throw e
@@ -349,8 +360,9 @@ export function transformConsumableSummary(consumableType: string, data: Consuma
 
   const rows: Row[] = data.map(rowData => {
     const { id, inflow, outflow, name } = rowData;
+    const net = inflow - outflow;
     const row: Row = {
-      id, name, inflow, outflow
+      id, name, inflow, outflow, net
     };
     return row;
   });

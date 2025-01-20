@@ -14,10 +14,11 @@ interface QueryTableProps {
   query: Query
   borderOn?: boolean,
   allowSearch?: boolean,
-  nav: NavigateFunction
+  nav: NavigateFunction,
+  processData?: Function
 }
   
-const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) => {
+const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav, processData }) => {
   const [tableData, setTableData] = useState<Row []>();
   const [columns, setColumns] = useState<Mapping>();
 
@@ -40,6 +41,8 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
       staleTime: Infinity,
       enabled: true
     });
+
+
   
     useEffect(() => {
       if (apiQuery.isFetching) {
@@ -56,6 +59,10 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
           const { cols, rows } = transform(assetType, apiQuery.data, nav, MAP);
           setColumns(cols);
           setTableData(rows);
+
+          if (!!processData && typeof processData == 'function') {
+            processData(apiQuery.data);
+          }
         }
       } 
   
@@ -66,8 +73,12 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav }) =>
   
       {apiQuery.isFetching && <Loader />}
       {apiQuery.error && <p>Error: {JSON.stringify(apiQuery.error.message)}</p>}
+
+      
   
-      {apiQuery.isSuccess && !!apiQuery.data && !!tableData && columns && <DisplayTable tableData={tableData} cols={columns} />}
+      {apiQuery.isSuccess && !!apiQuery.data && !!tableData && columns && <>
+        <DisplayTable tableData={tableData} cols={columns} />
+        </>}
     </div>
 }
 
