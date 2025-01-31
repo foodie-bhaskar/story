@@ -542,3 +542,22 @@ export interface ElasticQueryResult {
     total: number,
     summary: ElasticAggSummary
 }
+
+export interface SummaryItem {
+    id: string,
+    name: string,
+    qty: number,
+    weight: number
+}
+
+export interface SummaryMap {
+    [key: string]: SummaryItem
+}
+  
+export interface SummaryQueryResult {
+    count: number,
+    total: number,
+    items: number,
+    summation: number,
+    map: SummaryMap
+}

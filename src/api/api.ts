@@ -38,6 +38,20 @@ export async function fetchConsumables(consumableType: string, termType: string,
   return axios.get(url, HEADERS);
 }
 
+//summaryType=production-date-batch&range=2024-12-01&range=2025-01-14&summary=true
+export async function fetchSummaryRange(summaryType: string, range: Range, summaryOnly?: boolean) {
+  if (!summaryType) {
+    throw new Error('Summary type is required');
+  }
+
+  let url = `${BASE_URL}/${ENV}/${QUERY_API}?summaryType=${summaryType}&range=${range.start}&range=${range.end}`;
+
+  if (summaryOnly) {
+    url = `${url}&summary=true`
+  }
+
+  return axios.get(url, HEADERS);
+}
 
 
 export async function queryAssetsForValue(assetType: string, value: string, key?: string) {

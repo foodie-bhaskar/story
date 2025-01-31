@@ -1,9 +1,9 @@
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { queryStoresCache, queryStoreShipments } from '@/queries/query';
-import { StoreDetail, ShipmentCache, Shipment, ConsumableQueryResult, ElasticQueryResult } from '@/App.type';
+import { StoreDetail, ShipmentCache, Shipment, ConsumableQueryResult, ElasticQueryResult, SummaryQueryResult } from '@/App.type';
 import { Range, SummaryCache, AssetRow, ConsumableRow } from "@/App.type";
-import { queryAssets, querySummary, querySummaryRange, queryElastic, queryAssetsCache, queryConsumables } from '@/queries/query';
+import { queryAssets, querySummary, querySummaryRange, queryElastic, queryAssetsCache, queryConsumables, querySummaries } from '@/queries/query';
 import { mergeSummation, mergeExtract, merge } from '@/lib/helper';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 import { RangeConverter as RC } from '@/lib/utils';
@@ -356,7 +356,7 @@ export const usePageQueries = (queries: QueryCfg[]) => {
 
 interface QueryConsumableCfg {
   queryKey: string[],
-  queryFn: QueryFunction<ConsumableQueryResult | ElasticQueryResult | AssetRow[], QueryKey>
+  queryFn: QueryFunction<ConsumableQueryResult | ElasticQueryResult | AssetRow[] | SummaryQueryResult, QueryKey>
   mergeCfg?: MergeCfg
 }
 
@@ -427,7 +427,7 @@ function processAssets(baseMap: ConsumerRowMap, assets: AssetRow[]): ConsumerRow
 }
 
 
-function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | ConsumableQueryResult | AssetRow[]): ConsumerRowMap {
+function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | ConsumableQueryResult | AssetRow[] | SummaryQueryResult): ConsumerRowMap {
   if (Object.keys(data).includes('total')) {
     let elasticResult = data as ElasticQueryResult;
     // alert(`Processing merging elastic : ${elasticResult.total}`);
@@ -443,7 +443,7 @@ function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | Consumab
   }
 }
 
-export const useConsumableQueries = (queries: QueryConsumableCfg[]) => {
+export const useConsumableQueries = (queries: QueryConsumableCfg[], merge = true) => {
   // const [primary, secondary, tertiary] = queries;
 
   const [primaryQuery, secondaryQuery, tertiaryQuery] = useQueries({
@@ -466,7 +466,7 @@ export const useConsumableQueries = (queries: QueryConsumableCfg[]) => {
   }
 
   // Ensure both queries are complete before merging
-  const mergedData: ConsumableRow[] = useMemo(() => {
+  const mergedData: ConsumableRow[] = merge ? useMemo(() => {
     let mergeMap: ConsumerRowMap = {};
     if (
       (primaryQuery.isSuccess && primaryQuery.data)
@@ -492,7 +492,7 @@ export const useConsumableQueries = (queries: QueryConsumableCfg[]) => {
     }
       
     return []
-  }, dependencyArray);
+  }, dependencyArray): [];
   
   return {
     primary: {
@@ -517,7 +517,7 @@ export const useConsumableQueries = (queries: QueryConsumableCfg[]) => {
         error: tertiaryQuery.error
       }
     }),
-    mergedData,
+    ...(merge &&  { mergedData }),
     isAllQueriesComplete: primaryQuery.isSuccess 
       && ((!!secondaryQuery && secondaryQuery.isSuccess) || !secondaryQuery) 
       && ((!!tertiaryQuery && tertiaryQuery.isSuccess) || !tertiaryQuery)
@@ -542,4 +542,18 @@ export const useStorePacketFlowQueries = (storeId: string, range: Range) => {
   ];
 
   return useConsumableQueries(queries);
+}
+
+export const useOverallFlowQueries = (range: Range) => {
+
+  // ['summary', 'production-date-batch', '2025-01-01#2025-01-14', 'true']
+
+  const queries: QueryConsumableCfg[] = [
+    {
+      queryKey: ['summary', 'production-date-batch', RC.toString(range), 'true'],
+      queryFn: querySummaries
+    }
+  ];
+
+  return useConsumableQueries(queries, false);
 }

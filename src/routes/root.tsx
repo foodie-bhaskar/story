@@ -58,7 +58,7 @@ export default function Root() {
                 <Link to={`inventory`}>Inventory</Link>
               </li>
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                <Link to={'test/store'}><h4>Version: {version}</h4></Link>
+                <Link to={'test/overall'}><h4>Version: {version}</h4></Link>
               </li>
               {/* <li>
                 <Link to={`showcase`}>Showcase</Link>

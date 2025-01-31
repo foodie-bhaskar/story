@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import { fetchAssetsCache, fetchStoreCachesForType, fetchCachesForRangeTS, fetchAssetsForType, fetchCachesForType,
-  fetchConsumables, fetchElastic, fetchFullAssetsForType } from '@/api/api';
-import { SummaryCache, ShipmentCache, QueryArg, AssetRow, ConsumableQueryResult, ElasticQuery, ElasticQueryResult  } from '@/App.type';
+  fetchConsumables, fetchElastic, fetchFullAssetsForType, fetchSummaryRange } from '@/api/api';
+import { SummaryCache, ShipmentCache, QueryArg, AssetRow, ConsumableQueryResult, ElasticQuery, ElasticQueryResult, SummaryQueryResult  } from '@/App.type';
 import { RangeConverter as RC } from '@/lib/utils';
 import { QueryFunction, QueryKey } from '@tanstack/react-query';
 
@@ -146,6 +146,21 @@ export const queryConsumables: QueryFunction<ConsumableQueryResult, QueryKey> = 
     const summaryOnly = onlySummary == 'true' ? true: false;
     const data = await fetchConsumables(consumableType, termType, termValue, RC.toRange(rangeStr), summaryOnly);
     // const data = await fetchConsumables('PACKET', 'storeId', storeId, range, true);
+    return data.data;
+  } catch (err) {
+    const error = err as AxiosError;
+    throw error;
+  }
+};
+
+export const querySummaries: QueryFunction<SummaryQueryResult, QueryKey> = async (q: QueryArg) => {
+  try {
+    // ['summary', 'production-date-batch', '2025-01-01#2025-01-14', 'true']
+    const [, summaryType, rangeStr, onlySummary] = q.queryKey as string[];
+
+    const summaryOnly = onlySummary == 'true' ? true: false;
+    const data = await fetchSummaryRange(summaryType, RC.toRange(rangeStr), summaryOnly);
+    // alert(JSON.stringify(Object.keys(data.data)))
     return data.data;
   } catch (err) {
     const error = err as AxiosError;
