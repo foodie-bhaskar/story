@@ -561,3 +561,10 @@ export interface SummaryQueryResult {
     summation: number,
     map: SummaryMap
 }
+
+export interface SummaryRow {
+    id: string,
+    name: string,
+    inflow: number,
+    outflow: number
+}

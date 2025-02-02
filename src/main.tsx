@@ -27,7 +27,7 @@ import ProductionDay from './pages/ProductionDay.tsx';
 import Shipment from './pages/Shipment.tsx';
 import ShipmentSummary from './pages/ShipmentSummary.tsx';
 import Store from './pages/Store.tsx';
-import Test from './pages/Test.tsx';
+// import Test from './pages/Test.tsx';
 import Packetflow from './pages/Packetflow.tsx';
 import PacketFlowTypes from './pages/PacketFlowTypes.tsx';
 
@@ -129,13 +129,17 @@ const router = createBrowserRouter([
         path: "store-inventory/:storeId",
         element: <Store />,
       },
-      {
+      /* {
         path: "inventory",
         element: <Packetflow />,
+      }, */
+      {
+        path: "inventory/:flowType",
+        element: <PacketFlowTypes />,
       },
       {
         path: "test/:flowType",
-        element: <PacketFlowTypes />,
+        element: <Packetflow />,
       }
     ]
   }

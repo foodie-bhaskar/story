@@ -1,12 +1,16 @@
-import { useState, FC } from 'react';
+import { useState, FC, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import { Range } from '@/App.type';
+import { Mapping, Range, Row } from '@/App.type';
 import { dateRangeTS } from '@/lib/utils';
 
 import RangeBox from '@/components/RangeBox';
 
 import { useOverallFlowQueries } from '@/hooks/combinedQuery';
+import Count from '@/core/Count';
+import DisplayTable, { transformSummary } from '@/components/DisplayTable';
+import { MAP } from '@/lib/helper';
+import Loader from '@/core/Loader';
 
 type TabButtonProps = {
     label: string,
@@ -70,14 +74,17 @@ const PacketFlowTypes = () => {
 
     const TABS: string[] = ['Overall', 'Warehouse', 'Stores'];
 
+    const [tableData, setTableData] = useState<Row []>();
+    const [columns, setColumns] = useState<Mapping>();
+
     const nav =  useNavigate();
 
     if (!flowType) {
         flowType = TABS[0].toLowerCase();
     }
     
-
     const [ range, setRange ] = useState<Range>(dateRangeTS(14));
+    const [ flowNet, setFlowNet] = useState<number>();
 
     // const [summary, setSummary] = useState<number []>();
 
@@ -91,33 +98,58 @@ const PacketFlowTypes = () => {
 
     function changeTab(tabName: string) {
         // alert(`Tab Name: ${tabName}`);
-        nav(`/test/${tabName.toLowerCase()}`)
+        //TODO: remove till its developed
+        if (tabName.toLowerCase() == TABS[0].toLowerCase()) {
+            nav(`/test/${tabName.toLowerCase()}`)
+        } else {
+            alert('Not implemented yet')
+        }
 
     }
 
+    useEffect(() => {
+        if (isAllQueriesComplete && !!mergedData && !!flowType && !!secondary.data && !!primary.data) {
+          const { cols, rows } = transformSummary(flowType, mergedData, nav, MAP)
+
+          setColumns(cols);
+          setTableData(rows);
+
+          setFlowNet(primary.data.total - secondary.data.total);
+          
+        }
+        
+      }, [mergedData, isAllQueriesComplete, primary.data, secondary.data]);
+
     return (<div className={`${borderOn ? 'border border-red-700': ''}
      w-full overflow-y-scroll min-h-screen p-4
-     flex flex-col gap-4
+     flex flex-col gap-8
      `}>
         <TabBar selected={flowType} tabs={TABS} onSelect={changeTab} borderOn={borderOn} />
-        {/* <TabBar tabs={TABS} onSelect={changeTab} borderOn={borderOn} /> */}
-
-       {/*  <div className='flex flex-row justify-between min-h-32 gap-20'>
-            <AssetDropdown assetType='store' onSelect={setStoreId} />
-
-            {summary && <div className='items-center flex flex-row justify-start min-h-16 gap-10'>
-                <Count label='Shipped Packets' count={summary[1]}  />  
-                <Count label='Consumed Packets' count={summary[0]}/>
-                <Count label='Net' count={summary[2]}/>
-            </div>}
-        </div> */}
+        
+        <div className='flex flex-row justify-between min-h-32 gap-20'>
+            <div className='items-center flex flex-row justify-start min-h-16 gap-10'>
+                <Count label='Packets Produced' count={primary.data?.total} isLoading={primary.isPending} />  
+                <Count label='Consumed Packets' count={secondary.data?.total} isLoading={secondary.isPending} />  
+                <Count label='Net Excess' count={flowNet} isLoading={secondary.isPending} />  
+            </div>
+        </div>
 
         <RangeBox range={range} onRangeChange={setRange} />
-      
-        {/* {storeId && range && 
-            <CombinedQueryTable type='store-packetflow' range={range} nav={nav} borderOn={borderOn} 
-                storeId={storeId} limit={100} processData={process} />
-        } */}
+
+        <div className={`${borderOn ? 'border border-red-700': ''} h-16 flex flex-row`}>
+            <div className={`${borderOn ? 'border border-red-700': ''} basis-9/12 align-middle`}>
+            { !isAllQueriesComplete && `Fetching history for the duration [${range.start} - ${range.end}] ...`}
+            </div>
+
+            {!isAllQueriesComplete && <Loader />}
+  
+            {isAllQueriesComplete && tableData && <div className="pt-4">
+                {/* <h4>{mergedData.length} {flowType}s</h4> */}
+                
+  
+                {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} limit={120} />}
+          </div>}
+        </div>
         
     </div>);
 }

@@ -21,7 +21,7 @@ const PacketQtyRow: FC<PacketItemQty> = ({ itemId, name, qty }) => {
 
     return <div key={itemId} className={`${borderOn ? 'border border-pink-700': ''} flex flex-col justify-start w-full items-center`}>
         <PacketQty itemId={itemId} name={name} qty={qty}  />
-        <div className={`${borderOn ? 'border border-green-700': ''} w-full px-2 -my-2`}>
+        <div className={`${borderOn ? 'border border-green-700': ''} w-full px-5 -my-2`}>
             <div className="overflow-hidden h-1 text-xs flex bg-green-200">
             <div style={{ width: `${Math.floor((qty*100)/MAX_QTY)}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-700"></div>
             </div>

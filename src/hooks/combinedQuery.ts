@@ -1,7 +1,7 @@
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { queryStoresCache, queryStoreShipments } from '@/queries/query';
-import { StoreDetail, ShipmentCache, Shipment, ConsumableQueryResult, ElasticQueryResult, SummaryQueryResult } from '@/App.type';
+import { StoreDetail, ShipmentCache, Shipment, ConsumableQueryResult, ElasticQueryResult, SummaryQueryResult, SummaryRow } from '@/App.type';
 import { Range, SummaryCache, AssetRow, ConsumableRow } from "@/App.type";
 import { queryAssets, querySummary, querySummaryRange, queryElastic, queryAssetsCache, queryConsumables, querySummaries } from '@/queries/query';
 import { mergeSummation, mergeExtract, merge } from '@/lib/helper';
@@ -362,7 +362,7 @@ interface QueryConsumableCfg {
 
 
 interface ConsumerRowMap {
-  [key: string]: ConsumableRow 
+  [key: string]: ConsumableRow | SummaryRow
 }
 
 function processElastic(baseMap: ConsumerRowMap, elasticResult: ElasticQueryResult): ConsumerRowMap {
@@ -426,9 +426,35 @@ function processAssets(baseMap: ConsumerRowMap, assets: AssetRow[]): ConsumerRow
   return baseMap;
 }
 
+function processSummary(baseMap: ConsumerRowMap, consumableResult: SummaryQueryResult): ConsumerRowMap {
+  const { map } = consumableResult;
+  for (let entry of Object.entries(map)) {
+    const [ id, summary ] = entry;
+    const { name, qty } = summary;
+    if (!baseMap[id]) {
+      
+      let row: ConsumableRow = {
+        id,
+        name,
+        inflow: qty,
+        outflow: 0
+      }
+      baseMap[id] = row;
+    } else {
+      baseMap[id].inflow = qty;
+    }
+
+  } 
+  return baseMap;
+}
 
 function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | ConsumableQueryResult | AssetRow[] | SummaryQueryResult): ConsumerRowMap {
-  if (Object.keys(data).includes('total')) {
+  if (Object.keys(data).includes('summation')) {
+    const summaryResult = data as SummaryQueryResult;
+    
+    return processSummary(baseMap, summaryResult);
+
+  } else if (Object.keys(data).includes('total')) {
     let elasticResult = data as ElasticQueryResult;
     // alert(`Processing merging elastic : ${elasticResult.total}`);
     return processElastic(baseMap, elasticResult);
@@ -436,7 +462,8 @@ function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | Consumab
   } else if (Object.keys(data).includes('count')) {
     const consumableResult = data as ConsumableQueryResult;
     // alert(`Processing merging consumables : ${consumableResult.count}`);
-    return processConsumable(baseMap, consumableResult)
+    return processConsumable(baseMap, consumableResult);
+
   } else {
     const assets = data as AssetRow[];
     return processAssets(baseMap, assets);
@@ -547,13 +574,21 @@ export const useStorePacketFlowQueries = (storeId: string, range: Range) => {
 export const useOverallFlowQueries = (range: Range) => {
 
   // ['summary', 'production-date-batch', '2025-01-01#2025-01-14', 'true']
-
+  // ['elastic', 'item-consumption', '', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
   const queries: QueryConsumableCfg[] = [
     {
       queryKey: ['summary', 'production-date-batch', RC.toString(range), 'true'],
       queryFn: querySummaries
+    },
+    {
+      queryKey: ['elastic', 'item-consumption', '', 'isPacket#true', RC.toString(range), 'itemId'],
+      queryFn: queryElastic
+    },
+    {
+      queryKey: ['cache', 'item'],
+      queryFn: queryAssetsCache
     }
   ];
 
-  return useConsumableQueries(queries, false);
+  return useConsumableQueries(queries);
 }

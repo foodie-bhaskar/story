@@ -53,6 +53,9 @@ module.exports = {
         },
         width: {
           'full-44': 'calc(100% - 44px)',
+        },
+        minWidth: {
+          'min-w-full-44': 'calc(100% - 44px)',
         }
       },
       borderRadius: {

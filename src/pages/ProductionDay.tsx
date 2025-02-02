@@ -174,7 +174,6 @@ const ProductionDay = () => {
       setProduction(undefined);
     }
 
-
     useEffect(() => {
       if (dayQuery.isFetching) {
         setLabel('Create Batch');
@@ -222,7 +221,7 @@ const ProductionDay = () => {
 
     // initiallyOpen={production.payload.length == 1 ? true: (i == production.payload.length - 1 ? true: false)}
 
-    return (<div className={`${borderOn ? 'border border-red-700': ''} mx-4 mt-4 min-h-screen overflow-y-scroll`}>
+    return (<div className={`${borderOn ? 'border border-green-700': ''} mt-4 px-4 min-h-screen overflow-y-scroll`}>
         {date && <>
             {!production && <h1 className={`${borderOn ? 'border border-red-700': ''} text-lg text-slate-600 font-semibold uppercase flex items-center`}>
                 {convertToDayNameFormat(date)}
@@ -231,7 +230,7 @@ const ProductionDay = () => {
 
             {/* <input style={{display: 'hidden' }} type="date" id="start" name="trip-start" value="2018-07-22" min="2018-01-01" max="2018-12-31" /> */}
             
-            <div className={`${borderOn ? 'border border-red-700': ''} min-h-96 mb-24`}>
+            <div className={`${borderOn ? 'border border-red-700': ''} min-h-96 mb-24 mt-4`}>
                 {dayQuery.isFetching 
                     ? <div className='h-96 text-center align-middle'><Loader /></div>
                     : production 

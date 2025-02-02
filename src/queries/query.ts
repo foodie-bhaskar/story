@@ -11,7 +11,7 @@ export const queryElastic: QueryFunction<ElasticQueryResult, QueryKey> = async (
       // ['elastic', 'item-consumption', 'storeId#79', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
       const [ , coreIndex, coreTermNameValue, filterTermNameValue, range, groupBy ] = q.queryKey as string[];
         
-      const terms = coreTermNameValue.split('#');
+      const terms = !!coreTermNameValue ? coreTermNameValue.split('#'): ['', ''];
       const filters = filterTermNameValue.split('#');
 
       if (range) {

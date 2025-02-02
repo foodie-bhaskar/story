@@ -41,9 +41,9 @@ const ProductEntryForm: FC<ProductFormOpts> = ({ readOnly, update, product }) =>
         setIsRO(readOnly);
     }, [readOnly]);
 
-    return (<div className={`border border-gray-400 lg-w-full rounded`}>
+    return (<div className={`border border-gray-400 rounded`}>
 
-        <div className={`${borderOn ? 'border-red-800': ''} my-10 flex flex-row min-w-max`}>
+        <div className={`${borderOn ? 'border-red-800': ''} my-10 flex flex-row`}>
             <main role="main" className={`${borderOn ? 'border border-yellow-500': ''} basis-6/12 border-r border-cyan-900 px-2`}>
                 <ProductItems update={addItemQty} data={items} readOnly={isRO} />
             </main>
