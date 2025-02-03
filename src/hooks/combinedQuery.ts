@@ -618,3 +618,25 @@ export const useWarehouseFlowQueries = (range: Range) => {
 
   return useConsumableQueries(queries);
 }
+
+export const useStoresFlowQueries = (range: Range) => {
+
+  // ['summary', 'production-date-batch', '2025-01-01#2025-01-14', 'true']
+  // ['elastic', 'item-consumption', '', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
+  const queries: QueryConsumableCfg[] = [
+    {
+      queryKey:  ['summary', 'shipment', RC.toString(range), 'true'],
+      queryFn: querySummaries
+    },
+    {
+      queryKey: ['elastic', 'item-consumption', '', 'isPacket#true', RC.toString(range), 'itemId'],
+      queryFn: queryElastic
+    },
+    {
+      queryKey: ['cache', 'item'],
+      queryFn: queryAssetsCache
+    }
+  ];
+
+  return useConsumableQueries(queries);
+}

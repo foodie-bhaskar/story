@@ -6,7 +6,7 @@ import { dateRangeTS } from '@/lib/utils';
 
 import RangeBox from '@/components/RangeBox';
 
-import { useOverallFlowQueries, useWarehouseFlowQueries } from '@/hooks/combinedQuery';
+import { useOverallFlowQueries, useWarehouseFlowQueries, useStoresFlowQueries } from '@/hooks/combinedQuery';
 import Count from '@/core/Count';
 import DisplayTable, { transformSummary } from '@/components/DisplayTable';
 import { MAP } from '@/lib/helper';
@@ -66,6 +66,9 @@ interface CombinedQueryCfg {
     },
     'warehouse': {
         query: useWarehouseFlowQueries
+    },
+    'stores': {
+        query: useStoresFlowQueries
     }
 }
 
@@ -80,6 +83,7 @@ const PacketFlowTypes = () => {
     const BLOCK_MAP: {[key: string]: string[]} = {
         'overall': ['Packets Produced', 'Consumed Packets', 'Net Excess'],
         'warehouse': ['Packets Produced', 'Shipped Packets', 'Warehouse Inventory'],
+        'stores': ['Shipped Packets', 'Consumed Packets', 'Store Inventory']
     }
 
     const [tableData, setTableData] = useState<Row []>();
@@ -107,11 +111,11 @@ const PacketFlowTypes = () => {
     function changeTab(tabName: string) {
         // alert(`Tab Name: ${tabName}`);
         //TODO: remove till its developed
-        if (tabName.toLowerCase() != TABS[2].toLowerCase()) {
+        // if (tabName.toLowerCase() != TABS[2].toLowerCase()) {
             nav(`/inventory/${tabName.toLowerCase()}`)
-        } else {
+        /* } else {
             alert('Not implemented yet')
-        }
+        } */
 
     }
 
