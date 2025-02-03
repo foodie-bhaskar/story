@@ -426,7 +426,7 @@ function processAssets(baseMap: ConsumerRowMap, assets: AssetRow[]): ConsumerRow
   return baseMap;
 }
 
-function processSummary(baseMap: ConsumerRowMap, consumableResult: SummaryQueryResult): ConsumerRowMap {
+function processSummary(baseMap: ConsumerRowMap, consumableResult: SummaryQueryResult, secondary = false): ConsumerRowMap {
   const { map } = consumableResult;
   for (let entry of Object.entries(map)) {
     const [ id, summary ] = entry;
@@ -436,23 +436,27 @@ function processSummary(baseMap: ConsumerRowMap, consumableResult: SummaryQueryR
       let row: ConsumableRow = {
         id,
         name,
-        inflow: qty,
-        outflow: 0
+        inflow: secondary? 0: qty,
+        outflow: secondary? qty: 0
       }
       baseMap[id] = row;
     } else {
-      baseMap[id].inflow = qty;
+      if (secondary) {
+        baseMap[id].outflow = qty;
+      } else {
+        baseMap[id].inflow = qty;
+      }
     }
 
   } 
   return baseMap;
 }
 
-function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | ConsumableQueryResult | AssetRow[] | SummaryQueryResult): ConsumerRowMap {
+function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | ConsumableQueryResult | AssetRow[] | SummaryQueryResult, secondary?: boolean): ConsumerRowMap {
   if (Object.keys(data).includes('summation')) {
     const summaryResult = data as SummaryQueryResult;
     
-    return processSummary(baseMap, summaryResult);
+    return processSummary(baseMap, summaryResult, secondary);
 
   } else if (Object.keys(data).includes('total')) {
     let elasticResult = data as ElasticQueryResult;
@@ -507,7 +511,7 @@ export const useConsumableQueries = (queries: QueryConsumableCfg[], merge = true
       if (!!secondaryQuery) {
         // alert('secondaryQuery');
         const secondary = secondaryQuery.data;
-        mergeMap = multiMerge(mergeMap, secondary);
+        mergeMap = multiMerge(mergeMap, secondary, true);
       }
       
       if (!!tertiaryQuery) {
@@ -583,6 +587,28 @@ export const useOverallFlowQueries = (range: Range) => {
     {
       queryKey: ['elastic', 'item-consumption', '', 'isPacket#true', RC.toString(range), 'itemId'],
       queryFn: queryElastic
+    },
+    {
+      queryKey: ['cache', 'item'],
+      queryFn: queryAssetsCache
+    }
+  ];
+
+  return useConsumableQueries(queries);
+}
+
+export const useWarehouseFlowQueries = (range: Range) => {
+
+  // ['summary', 'production-date-batch', '2025-01-01#2025-01-14', 'true']
+  // ['elastic', 'item-consumption', '', 'isPacket#true', '2024-11-26#2024-12-27', 'itemId']
+  const queries: QueryConsumableCfg[] = [
+    {
+      queryKey: ['summary', 'production-date-batch', RC.toString(range), 'true'],
+      queryFn: querySummaries
+    },
+    {
+      queryKey:  ['summary', 'shipment', RC.toString(range), 'true'],
+      queryFn: querySummaries
     },
     {
       queryKey: ['cache', 'item'],

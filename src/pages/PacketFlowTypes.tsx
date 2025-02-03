@@ -6,7 +6,7 @@ import { dateRangeTS } from '@/lib/utils';
 
 import RangeBox from '@/components/RangeBox';
 
-import { useOverallFlowQueries } from '@/hooks/combinedQuery';
+import { useOverallFlowQueries, useWarehouseFlowQueries } from '@/hooks/combinedQuery';
 import Count from '@/core/Count';
 import DisplayTable, { transformSummary } from '@/components/DisplayTable';
 import { MAP } from '@/lib/helper';
@@ -62,9 +62,12 @@ interface CombinedQueryCfg {
   }
   const COMBINED_QUERY_FN_MAP: {[key: string]: CombinedQueryCfg} = {
     'overall': {
-      query: useOverallFlowQueries
+        query: useOverallFlowQueries,
+    },
+    'warehouse': {
+        query: useWarehouseFlowQueries
     }
-  }
+}
 
 const PacketFlowTypes = () => {
     let borderOn = false;
@@ -73,6 +76,11 @@ const PacketFlowTypes = () => {
     let { flowType } = useParams();
 
     const TABS: string[] = ['Overall', 'Warehouse', 'Stores'];
+
+    const BLOCK_MAP: {[key: string]: string[]} = {
+        'overall': ['Packets Produced', 'Consumed Packets', 'Net Excess'],
+        'warehouse': ['Packets Produced', 'Shipped Packets', 'Warehouse Inventory'],
+    }
 
     const [tableData, setTableData] = useState<Row []>();
     const [columns, setColumns] = useState<Mapping>();
@@ -99,8 +107,8 @@ const PacketFlowTypes = () => {
     function changeTab(tabName: string) {
         // alert(`Tab Name: ${tabName}`);
         //TODO: remove till its developed
-        if (tabName.toLowerCase() == TABS[0].toLowerCase()) {
-            nav(`/test/${tabName.toLowerCase()}`)
+        if (tabName.toLowerCase() != TABS[2].toLowerCase()) {
+            nav(`/inventory/${tabName.toLowerCase()}`)
         } else {
             alert('Not implemented yet')
         }
@@ -128,9 +136,9 @@ const PacketFlowTypes = () => {
         
         <div className='flex flex-row justify-between min-h-32 gap-20'>
             <div className='items-center flex flex-row justify-start min-h-16 gap-10'>
-                <Count label='Packets Produced' count={primary.data?.total} isLoading={primary.isPending} />  
-                <Count label='Consumed Packets' count={secondary.data?.total} isLoading={secondary.isPending} />  
-                <Count label='Net Excess' count={flowNet} isLoading={secondary.isPending} />  
+                <Count label={BLOCK_MAP[flowType][0]} count={primary.data?.total} isLoading={primary.isPending} />  
+                <Count label={BLOCK_MAP[flowType][1]} count={secondary.data?.total} isLoading={secondary.isPending} />  
+                <Count label={BLOCK_MAP[flowType][2]} count={flowNet} isLoading={secondary.isPending} />  
             </div>
         </div>
 

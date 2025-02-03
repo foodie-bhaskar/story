@@ -339,6 +339,33 @@ export const MAP: { [key: string]: Asset} = {
       formatType: VALID_FMT_TYPES.PLAIN,
       valueType: VALUE_TYPES.NUMBER
     }
+  },
+  'warehouse': {
+    'id': {
+      name: 'Item Id',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'name': {
+      name: 'Name',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.STR_VAL
+    },
+    'inflow': {
+      name: 'Produced',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'outflow': {
+      name: 'Shipped',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    },
+    'net': {
+      name: 'In Warehouse',
+      formatType: VALID_FMT_TYPES.PLAIN,
+      valueType: VALUE_TYPES.NUMBER
+    }
   }
 }
 
