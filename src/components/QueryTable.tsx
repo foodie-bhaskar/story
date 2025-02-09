@@ -77,7 +77,7 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav, proc
       
   
       {apiQuery.isSuccess && !!apiQuery.data && !!tableData && columns && <>
-        <DisplayTable tableData={tableData} cols={columns} />
+        <DisplayTable tableData={tableData} cols={columns} limit={100} />
         </>}
     </div>
 }

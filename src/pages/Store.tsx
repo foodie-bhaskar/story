@@ -136,7 +136,7 @@ const Store = () => {
 
          */}
 
-            {range && <CombinedQueryTable type='store-packetflow' range={range} nav={nav} borderOn={borderOn} storeId={storeId} />}
+            {range && <CombinedQueryTable type='store-packetflow' range={range} nav={nav} borderOn={borderOn} storeId={storeId} limit={100} />}
         </div>
     </div>);
 }
