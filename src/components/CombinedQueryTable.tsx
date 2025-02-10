@@ -70,8 +70,8 @@ const CombinedQueryTable: FC<CombinedQueryTableProps> = ({ type, range, storeId,
             </div>
   
          {isAllQueriesComplete && tableData && <div className="pt-4">
-              <h4>{mergedData.length} {type}s</h4>
-        {!isAllQueriesComplete && <Loader />}
+            {type != 'store-packetflow' && <h4>{mergedData.length} {type}s</h4>}
+            {!isAllQueriesComplete && <Loader />}
   
       {!!tableData && !!columns && <DisplayTable tableData={tableData} cols={columns} limit={limit ? limit : 20} />}
           </div>}

@@ -4,7 +4,7 @@ import { queryAssets } from '@/queries/query';
 import Dropdown from '@/core/Dropdown';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-const AssetDropdown: FC<{ assetType: string, onSelect: Function }> = ({ assetType, onSelect }) => {
+const AssetDropdown: FC<{ assetType: string, onSelect: Function, assetId?: string }> = ({ assetType, onSelect, assetId }) => {
   const [ data, setData ] = useState<Option[]>();
 
   const apiQuery: UseQueryResult<AssetRow[]> = useQuery({
@@ -37,6 +37,7 @@ const AssetDropdown: FC<{ assetType: string, onSelect: Function }> = ({ assetTyp
       ? `Loading ${assetType}(s)...`: 
       !!data ? <Dropdown options={data}  
         selectedCallback={(valObj: Option) => onSelect(valObj.value)} 
+        selectedValue={assetId}
         name='Store'
       />: <></>
     }

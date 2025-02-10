@@ -1,7 +1,7 @@
 import { FC, useEffect, useState, useMemo } from "react";
 import { NavigateFunction, useParams } from 'react-router-dom';
 import { convertToDayNameFormat, convertISOToISTFormat } from '@/lib/utils';
-import { ProductionBatchCache, PacketItemQty } from "@/App.type";
+import { ProductionBatchCache, PacketItemQty, AssetRow } from "@/App.type";
 import { fetchCachesForRange, fetchAssetsCache, fetchItemPacket } from '../api/api';
 import { useQueries } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
@@ -16,11 +16,11 @@ interface SummaryProps {
   nav: NavigateFunction
 }
 
-type StoreDetail = {
+/* type StoreDetail = {
   store_id: string;
   storeName: string;
   city: string;
-}
+} */
 
 type ItemPacketDetail = {
   itemId: string,
@@ -52,7 +52,7 @@ type ShipmentRow = {
   itemCount: number
   scannedTime: string,
   weight: number,
-  storeDetail?: StoreDetail,
+  storeDetail?: AssetRow,
   payload: ItemNameQtyMap
 }
 
@@ -154,7 +154,8 @@ export const useCombinedQueries = (shipmentId: string | undefined) => {
       storeDetailsQuery.data
     ) {
       return shipmentQuery.data.map((shipment: ShipmentRow) => {
-        const { payload } = shipment;
+        const { payload, storeId } = shipment;
+        // alert(storeId)
 
         let weightInGms = 0;
 
@@ -164,10 +165,20 @@ export const useCombinedQueries = (shipmentId: string | undefined) => {
           weightInGms += packetWt
         }
 
+        // alert(storeDetailsQuery.data.length);
+
+        const store = storeDetailsQuery.data.find((ar) => {
+          // alert(ar.assetId);
+          if (ar.assetId == storeId) {
+            // alert(JSON.stringify(ar));
+            return ar;
+          }
+        });
+
         return {
           ...shipment,
           weight: weightInGms,
-          // storeDetail: storeDetailsQuery.data[shipment.storeId] || null
+          storeDetail: store
         };
       });
     }
@@ -245,7 +256,7 @@ const Summary: FC<SummaryProps> = ({ cache }) => {
       <div className="flex flex-row justify-between text-xl text-gray-100 bg-slate-600 h-12 mr-4 border rounded px-4 py-2">
         <div>Store # {storeId}</div>
         {storeDetail && <>
-          <div>{storeDetail.storeName}</div>
+          <div>{storeDetail.name}</div>
           <div>{storeDetail.city}</div>
         </>}
       </div>
@@ -305,7 +316,8 @@ const ShipmentSummary = () => {
             shipmentId, storeId, packetCount, itemCount, shippedDate, scannedTime, payload, weight, storeDetails 
           } = shipment.data[0]; */
             // setLabel('Create Another Batch');
-            setShipmentDetails(shipment.data[0]);
+            // alert(JSON.stringify(Object.keys(shipment.data[0])));
+            setShipmentDetails({ ...shipment.data[0] });
 
            
 

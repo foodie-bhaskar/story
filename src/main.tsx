@@ -126,13 +126,13 @@ const router = createBrowserRouter([
         element: <AbstractProducts />,
       },
       {
-        path: "store-inventory/:storeId",
+        path: "inventory-store/:storeId",
         element: <Store />,
       },
-      /* {
-        path: "inventory",
+      {
+        path: "store-inventory/:storeId",
         element: <Packetflow />,
-      }, */
+      },
       {
         path: "inventory/:flowType",
         element: <PacketFlowTypes />,
