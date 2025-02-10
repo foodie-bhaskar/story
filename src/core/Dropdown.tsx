@@ -12,8 +12,8 @@ const Dropdown: FC<DropdownOpts> = ({ options, name, selectedValue, selectedCall
 
   const filteredOptions =
   query === ''
-    ? options
-    : options.filter((option) => {
+    ? options.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+    : options.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())).filter((option) => {
         return option.name.toLowerCase().includes(query.toLowerCase())
       });
 

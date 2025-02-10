@@ -253,7 +253,7 @@ export const MAP: { [key: string]: Asset} = {
     'storeId': {
       name: 'Store #',
       formatType: VALID_FMT_TYPES.PLAIN,
-      valueType: VALUE_TYPES.STR_VAL
+      valueType: VALUE_TYPES.NUMBER
     },
     'data': {
       name: 'Packets',

@@ -24,7 +24,6 @@ interface CellDisplay {
 type CellConfig = { 
     [key: string]: Asset
 }
-
   
 function formatterFn(assetType: string, formatType: string, valueType: string, nav: NavigateFunction): Function {
 
@@ -33,7 +32,7 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
     FLAG, BINARY_STATUS, DYNA_LINK, DATE, ROUND
   } = VALID_FMT_TYPES;
 
-  const { LINK_VIEW, EDIT_LINK, DT_W_PREFIX, HASH_VAL } = VALUE_TYPES;
+  const { LINK_VIEW, EDIT_LINK, DT_W_PREFIX, HASH_VAL, NUMBER } = VALUE_TYPES;
 
   if (LINK == formatType) {
     const labelFn = (cell: string) => {
@@ -120,7 +119,7 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
 
   } else if (PLAIN == formatType) {
     const fn: Function = (cell: string | number) => _(
-      <div className="text-center">{cell}</div>
+      <div className="text-center">{NUMBER == valueType && typeof cell == 'string' ? parseInt(cell): cell}</div>
     )
     return fn;
   } else if (CAPITALIZE == formatType) {
@@ -179,7 +178,6 @@ function formatterFn(assetType: string, formatType: string, valueType: string, n
   }
 }
 
-
 function displayCol(assetType: string, columnId: string, nav: NavigateFunction, map: CellConfig): CellDisplay {
     if (!!map[assetType]) {
       const asset = map[assetType];
@@ -203,7 +201,7 @@ function displayCol(assetType: string, columnId: string, nav: NavigateFunction, 
               formatter: fn,
               id: columnId,
               name,
-              sort: name == 'Item Id' ? false: sort
+              sort: name == 'Store #' ? false: sort
             }
         } catch (e) {
           throw e
@@ -293,7 +291,11 @@ export function transform(assetType: string, data: SummaryCache[] | Cache[] | As
       const row: Row = Object.entries(d).reduce((acc: Row, entry) => {
         const [key, value] = entry;
 
-        if (['string', 'number', 'boolean'].includes(typeof value)) {
+
+        if ('assetId' == key || 'storeId' == key) {
+          acc[key] = parseInt(value as string);
+
+        } else if (['string', 'number', 'boolean'].includes(typeof value)) {
           acc[key] = value as string | number | boolean;
         
         } else {
@@ -385,7 +387,7 @@ export function transformSummary(flowType: string, data: SummaryRow[], nav: Navi
     const { id, inflow, outflow, name } = rowData;
     const net = inflow - outflow;
     const row: Row = {
-      id, name, inflow, outflow, net
+      id: parseInt(id), name, inflow, outflow, net
     };
     return row;
   });
