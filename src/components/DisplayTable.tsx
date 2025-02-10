@@ -201,7 +201,7 @@ function displayCol(assetType: string, columnId: string, nav: NavigateFunction, 
               formatter: fn,
               id: columnId,
               name,
-              sort: name == 'Store #' ? false: sort
+              sort: name == 'Not set' ? false: sort
             }
         } catch (e) {
           throw e

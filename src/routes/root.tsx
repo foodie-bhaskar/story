@@ -28,9 +28,6 @@ export default function Root() {
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`packaging/new`}>New Package Type</Link>
                 </li>
-                <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`list-asset/rid`}>RIDs</Link>
-                </li>
                 
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`list-asset/item`}>Items</Link>
@@ -44,17 +41,20 @@ export default function Root() {
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`abstract-products`}>Products</Link>
                 </li>
-                <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`list-asset/store`}>Stores</Link>
-                </li>
-                <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
-                  <Link to={`inventory/overall`}>Inventory</Link>
-                </li>
+                
                 {/* <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={'test/overall'}><h4>Version: {version}</h4></Link>
                 </li> */}
               </>}
-              
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`list-asset/rid`}>RIDs</Link>
+              </li>
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`list-asset/store`}>Stores</Link>
+              </li>
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`inventory/overall`}>Inventory</Link>
+              </li>
               <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                 <Link to={`production`}>Production</Link>
               </li>
