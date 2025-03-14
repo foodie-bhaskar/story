@@ -456,6 +456,9 @@ function multiMerge(baseMap: ConsumerRowMap, data: ElasticQueryResult | Consumab
   if (Object.keys(data).includes('summation')) {
     const summaryResult = data as SummaryQueryResult;
     
+    if (summaryResult.summation == 0) {
+      return baseMap;
+    }
     return processSummary(baseMap, summaryResult, secondary);
 
   } else if (Object.keys(data).includes('total')) {
@@ -489,7 +492,7 @@ export const useConsumableQueries = (queries: QueryConsumableCfg[], merge = true
   const dependencyArray = [primaryQuery.isSuccess, primaryQuery.data];
 
   if (secondaryQuery) {
-    dependencyArray.push( secondaryQuery.isSuccess, secondaryQuery.data)
+    dependencyArray.push( secondaryQuery.isSuccess, secondaryQuery.data);
   }
 
   if (tertiaryQuery) {
