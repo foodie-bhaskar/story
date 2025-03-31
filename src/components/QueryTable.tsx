@@ -56,12 +56,14 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav, proc
           }
         } else if (apiQuery.data) {
           // alert(JSON.stringify(apiQuery.data.length));
-          const { cols, rows } = transform(assetType, apiQuery.data, nav, MAP);
-          setColumns(cols);
-          setTableData(rows);
+          if (apiQuery.data.length) {
+            const { cols, rows } = transform(assetType, apiQuery.data, nav, MAP);
+            setColumns(cols);
+            setTableData(rows);
 
-          if (!!processData && typeof processData == 'function') {
-            processData(apiQuery.data);
+            if (!!processData && typeof processData == 'function') {
+              processData(apiQuery.data);
+            }
           }
         }
       } 
@@ -76,9 +78,11 @@ const QueryTable: FC<QueryTableProps> = ({ assetType, query, borderOn, nav, proc
 
       
   
-      {apiQuery.isSuccess && !!apiQuery.data && !!tableData && columns && <>
+      {apiQuery.isSuccess && !!apiQuery.data && apiQuery.data.length > 0 && !!tableData && columns && <>
         <DisplayTable tableData={tableData} cols={columns} limit={100} />
         </>}
+
+      {apiQuery.isSuccess && !!apiQuery.data && apiQuery.data.length == 0 && <p>No data for the above range</p>}
     </div>
 }
 
