@@ -24,13 +24,21 @@ const ASSET_LSI_MAP: Record<string, string> = {
 }
 
 // foodie-search?consumableType=PACKET&term=storeId&termValue=111&range=2025-01-01&range=2025-01-14&summary=true
-export async function fetchConsumables(consumableType: string, termType: string, termValue: string, range: Range, summaryOnly?: boolean) {
+export async function fetchConsumables(consumableType: string, termType?: string, termValue?: string, range?: Range, summaryOnly?: boolean) {
   if (!consumableType) {
     throw new Error('Consumable type is required');
   }
 
-  let url = `${BASE_URL}/${ENV}/${QUERY_API}?consumableType=${consumableType}&term=${termType}&termValue=${termValue}&range=${range.start}&range=${range.end}`;
+  let url = `${BASE_URL}/${ENV}/${QUERY_API}?consumableType=${consumableType}`;
 
+  if (termType && termValue) {
+    url = `${url}&term=${termType}&termValue=${termValue}`;
+  }
+
+  if (range) {
+    url = `${url}&range=${range.start}&range=${range.end}`;
+  }
+  
   if (summaryOnly) {
     url = `${url}&summary=true`
   }

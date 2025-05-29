@@ -15,6 +15,9 @@ export default function Root() {
         <aside className="min-w-24 bg-slate-300 max-w-44 basis-1/12">
           <nav>
             <ul className={`${borderOn ? 'border border-red-400': ''} ms-2 mt-10 flex flex-col items-start gap-4`}>
+              <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
+                <Link to={`/`}>Home</Link>
+              </li>
               {packetOnly === 'false' && <>
                 <li className="max-w-32 hover:font-medium  text-sm text-blue-700 font-light">
                   <Link to={`dropdown`}>Dropdowns</Link>

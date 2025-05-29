@@ -30,6 +30,7 @@ import Store from './pages/Store.tsx';
 // import Test from './pages/Test.tsx';
 import Packetflow from './pages/Packetflow.tsx';
 import PacketFlowTypes from './pages/PacketFlowTypes.tsx';
+import Dashboard from './pages/Dashboard.tsx';
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: "/",
+        element: <Dashboard />,
+      },
       {
         path: "dropdown",
         element: <DropdownsPage />,
