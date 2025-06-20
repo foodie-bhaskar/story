@@ -462,6 +462,7 @@ const Dashboard = () => {
     const [delivered, setDelivered] = useState(0);
     const [total, setTotal] = useState(0);
     const [filteredOrders, setFilteredOrders] = useState<StageBarProps[]>([]);
+    const [activeFLabel, setActiveFLabel] = useState('Total');
     const orderStages = useQuery({
         queryKey: ['consumable', 'order-stages'],
         queryFn: async () => {
@@ -645,11 +646,12 @@ const Dashboard = () => {
     return (<div className='lg-w-full mx-auto p-2'>
         <FilterBar isLoading={orderStages.isLoading} filters={filters} 
             filteredFn={(label: string) => {
+                setActiveFLabel(label);
                 setFilteredOrders(filter(label));
                 // return undefined;
                 // alert(`Filter clicked: ${label}`)
                
-            }} activeLabel='Total'/>
+            }} activeLabel={activeFLabel} />
         <Legend />
         <hr className='my-4'></hr>
         {/* <div className='m-10'> </div> */}

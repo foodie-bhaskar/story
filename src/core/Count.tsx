@@ -18,7 +18,6 @@ type CountProps = {
 const Count: FC<CountProps> = ({ count, label, isLoading, array, isID, isWide, size, numStatus, active, clickable, onClickFn }) => {
 
     const [number, setNumber] = useState(array ? array.length : count);
-    // const [isActive, setIsActive] = useState(!!active);
 
     useEffect(() => {
         // alert(`${label} : ${array?.length}`);
@@ -63,7 +62,6 @@ const Count: FC<CountProps> = ({ count, label, isLoading, array, isID, isWide, s
 
     return (<div onClick={() => {
         if (onClickFn && clickable) {
-            // setIsActive(true);
             onClickFn()
         }
     }}
