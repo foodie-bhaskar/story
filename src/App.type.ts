@@ -568,3 +568,7 @@ export interface SummaryRow {
     inflow: number,
     outflow: number
 }
+
+export interface AttemptsMap {
+    [key: string]: number[]
+}
